@@ -64,8 +64,8 @@ A beautiful, minimalistic personal dashboard designed for discipline and balance
 
 1. **Clone or download the project**
    ```bash
-   git clone <repository-url>
-   cd ayubi-aka-system
+   git clone https://github.com/mrAyubkhon/aboutme.git
+   cd aboutme
    ```
 
 2. **Install dependencies**
@@ -269,7 +269,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/your-repo/issues) page
+1. Check the [Issues](https://github.com/mrAyubkhon/aboutme/issues) page
 2. Create a new issue with detailed information
 3. Include screenshots for UI-related problems
 4. Provide steps to reproduce any bugs
