@@ -34,7 +34,11 @@ export default function ProgressBar({
           className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${clampedProgress}%` }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ 
+            duration: 1.2, 
+            ease: [0.4, 0, 0.2, 1],
+            delay: 0.1
+          }}
         />
       </div>
     </div>

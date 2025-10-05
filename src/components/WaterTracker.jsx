@@ -22,11 +22,21 @@ export default function WaterTracker({
   };
   
   const handleSubtractWater = (amount = 250) => {
-    onSubtractWater(amount);
+    if (onSubtractWater) {
+      onSubtractWater(amount);
+    } else {
+      // Fallback: add negative amount if no subtract function provided
+      onAddWater(-amount);
+    }
   };
   
   return (
-    <div className={`bg-gray-900 rounded-2xl p-6 border border-gray-800 ${className}`}>
+    <motion.div 
+      className={`bg-gray-900 rounded-2xl p-6 border border-gray-800 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
@@ -108,6 +118,6 @@ export default function WaterTracker({
           {remaining.toLocaleString()} ml remaining to reach your goal
         </p>
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -22,8 +22,21 @@ export default function Card({
       <motion.div
         className={cardClasses}
         onClick={onClick}
-        whileHover={{ y: hoverable ? -2 : 0 }}
-        transition={{ duration: 0.2 }}
+        whileHover={{ 
+          y: hoverable ? -4 : 0,
+          scale: hoverable ? 1.02 : 1,
+          boxShadow: hoverable ? "0 10px 25px rgba(0, 0, 0, 0.3)" : "0 4px 6px rgba(0, 0, 0, 0.1)"
+        }}
+        whileTap={{ 
+          scale: 0.98,
+          y: 0
+        }}
+        transition={{ 
+          type: "spring",
+          stiffness: 300,
+          damping: 20,
+          duration: 0.3
+        }}
         {...props}
       >
         {children}

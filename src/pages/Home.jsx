@@ -155,21 +155,21 @@ export default function Home() {
               title="Log Water"
               description="Record water intake"
               icon={Droplets}
-              onClick={() => window.location.href = '/water'}
+              onClick={() => window.location.pathname = '/water'}
             />
             
             <ActionCard
               title="Add Expense"
               description="Track spending"
               icon={DollarSign}
-              onClick={() => window.location.href = '/finance'}
+              onClick={() => window.location.pathname = '/finance'}
             />
             
             <ActionCard
               title="Write Journal"
               description="Record thoughts"
               icon={BookOpen}
-              onClick={() => window.location.href = '/journal'}
+              onClick={() => window.location.pathname = '/journal'}
             />
           </div>
         </motion.div>

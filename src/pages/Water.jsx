@@ -27,6 +27,10 @@ const itemVariants = {
 
 export default function Water() {
   const { waterData, addWater, setGoal, getProgress, getRemaining } = useWater();
+  
+  const subtractWater = (amount) => {
+    addWater(-amount);
+  };
   const [showSettings, setShowSettings] = useState(false);
   const [newGoal, setNewGoal] = useState(waterData.goal);
 
@@ -72,7 +76,7 @@ export default function Water() {
             currentAmount={waterData.current}
             goal={waterData.goal}
             onAddWater={addWater}
-            onSubtractWater={(amount) => addWater(-amount)}
+            onSubtractWater={subtractWater}
           />
         </motion.div>
 

@@ -29,9 +29,9 @@ export default function JournalEditor({
         .filter(Boolean);
       
       if (entry) {
-        await onSave(entry.id, title, content, tagsArray);
+        onSave(entry.id, title, content, tagsArray);
       } else {
-        await onSave(title, content, tagsArray);
+        onSave(title, content, tagsArray);
       }
       
       // Reset form
@@ -54,10 +54,15 @@ export default function JournalEditor({
   
   return (
     <motion.div
-      className={`bg-gray-900 rounded-2xl p-6 border border-gray-800 ${className}`}
+      className={`bg-gray-900 rounded-2xl p-6 border border-gray-800 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 300,
+        damping: 25,
+        duration: 0.5
+      }}
     >
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-50">

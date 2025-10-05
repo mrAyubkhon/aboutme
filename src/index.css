@@ -13,19 +13,19 @@
 
 @layer components {
   .card {
-    @apply bg-gray-900 rounded-2xl shadow-lg border border-gray-800 transition-all duration-200 hover:shadow-xl hover:border-blue-500/50;
+    @apply bg-gray-900 rounded-2xl shadow-lg border border-gray-800 transition-all duration-300 ease-out hover:shadow-xl hover:border-blue-500/50;
   }
   
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 ease-out shadow-sm hover:shadow-md;
   }
   
   .btn-secondary {
-    @apply bg-transparent border border-gray-800 hover:border-blue-500 text-gray-300 hover:text-white px-4 py-2 rounded-xl font-medium transition-all duration-200;
+    @apply bg-transparent border border-gray-800 hover:border-blue-500 text-gray-300 hover:text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 ease-out;
   }
   
   .input {
-    @apply w-full px-3 py-2 border border-gray-800 rounded-xl bg-gray-900 text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200;
+    @apply w-full px-3 py-2 border border-gray-800 rounded-xl bg-gray-900 text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 ease-out;
   }
   
   .progress-bar {
@@ -33,7 +33,7 @@
   }
   
   .progress-fill {
-    @apply h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out;
+    @apply h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-700 ease-out;
   }
 }
 

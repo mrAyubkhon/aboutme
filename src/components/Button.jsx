@@ -43,9 +43,21 @@ export default function Button({
       className={buttonClasses}
       onClick={onClick}
       disabled={disabled || loading}
-      whileHover={{ scale: disabled ? 1 : 1.02 }}
-      whileTap={{ scale: disabled ? 1 : 0.98 }}
-      transition={{ duration: 0.1 }}
+      whileHover={disabled || loading ? {} : { 
+        scale: 1.05,
+        y: -1,
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)"
+      }}
+      whileTap={disabled || loading ? {} : { 
+        scale: 0.95,
+        y: 0
+      }}
+      transition={{ 
+        type: "spring",
+        stiffness: 400,
+        damping: 17,
+        duration: 0.2
+      }}
       {...props}
     >
       {loading ? (

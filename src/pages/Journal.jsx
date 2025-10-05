@@ -49,12 +49,12 @@ export default function Journal() {
     }
   }, [searchQuery, journalEntries]);
 
-  const handleAddEntry = async (title, content, tags) => {
+  const handleAddEntry = (title, content, tags) => {
     addEntry(title, content, tags);
     setShowEditor(false);
   };
 
-  const handleUpdateEntry = async (id, title, content, tags) => {
+  const handleUpdateEntry = (id, title, content, tags) => {
     updateEntry(id, title, content, tags);
     setEditingEntry(null);
     setShowEditor(false);

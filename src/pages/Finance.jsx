@@ -11,17 +11,23 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1
+      staggerChildren: 0.15,
+      delayChildren: 0.1
     }
   }
 };
 
 const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
+  hidden: { y: 30, opacity: 0 },
   visible: {
     y: 0,
     opacity: 1,
-    transition: { duration: 0.3 }
+    transition: { 
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      duration: 0.5
+    }
   }
 };
 
@@ -53,7 +59,7 @@ export default function Finance() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.amount && formData.category) {
+    if (formData.amount && formData.category && Number(formData.amount) > 0) {
       addEntry(formData.type, Number(formData.amount), formData.category, formData.note);
       setFormData({
         type: 'expense',
@@ -62,6 +68,8 @@ export default function Finance() {
         note: ''
       });
       setShowAddForm(false);
+    } else {
+      alert('Please enter a valid amount and select a category.');
     }
   };
 
@@ -132,9 +140,15 @@ export default function Finance() {
         {showAddForm && (
           <motion.div
             variants={itemVariants}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, height: 0, y: -20 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -20 }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 25,
+              duration: 0.6
+            }}
             className="mb-8"
           >
             <Card className="p-6">
@@ -224,12 +238,22 @@ export default function Finance() {
           </h3>
           {todayEntries.length > 0 ? (
             <div className="space-y-3">
-              {todayEntries.map((entry) => (
-                <FinanceItem
+              {todayEntries.map((entry, index) => (
+                <motion.div
                   key={entry.id}
-                  entry={entry}
-                  onDelete={deleteEntry}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: index * 0.1,
+                    duration: 0.4,
+                    ease: "easeOut"
+                  }}
+                >
+                  <FinanceItem
+                    entry={entry}
+                    onDelete={deleteEntry}
+                  />
+                </motion.div>
               ))}
             </div>
           ) : (
