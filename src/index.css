@@ -4,36 +4,32 @@
 
 @layer base {
   * {
-    @apply border-gray-200 dark:border-gray-700;
+    @apply border-dark-border;
   }
   body {
-    @apply bg-gray-50 text-gray-900 font-sans;
-  }
-  
-  .dark body {
-    @apply bg-gray-900 text-gray-100;
+    @apply bg-dark-bg text-gray-50 font-sans;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700;
+    @apply bg-dark-card rounded-2xl shadow-lg border border-dark-border transition-all duration-200 hover:shadow-xl hover:border-primary-500/50;
   }
   
   .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-xl font-medium transition-colors duration-200;
+    @apply bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md;
   }
   
   .btn-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-xl font-medium transition-colors duration-200;
+    @apply bg-transparent border border-dark-border hover:border-primary-500 text-gray-300 hover:text-white px-4 py-2 rounded-xl font-medium transition-all duration-200;
   }
   
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2 border border-dark-border rounded-xl bg-dark-card text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200;
   }
   
   .progress-bar {
-    @apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden;
+    @apply w-full bg-dark-border rounded-full h-2 overflow-hidden;
   }
   
   .progress-fill {

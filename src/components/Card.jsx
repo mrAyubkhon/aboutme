@@ -27,7 +27,7 @@ export default function Card({
     <Component
       className={cn(
         'card',
-        hoverable && 'cursor-pointer hover:shadow-md dark:hover:shadow-xl',
+        hoverable && 'cursor-pointer hover:shadow-xl hover:border-primary-500/50',
         className
       )}
       variants={cardVariants}
@@ -52,34 +52,34 @@ export function StatCard({
   className = '' 
 }) {
   const colorClasses = {
-    primary: 'text-primary-500 bg-primary-100 dark:bg-primary-900',
-    green: 'text-green-500 bg-green-100 dark:bg-green-900',
-    red: 'text-red-500 bg-red-100 dark:bg-red-900',
-    blue: 'text-blue-500 bg-blue-100 dark:bg-blue-900',
-    yellow: 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900',
+    primary: 'text-primary-400 bg-primary-500/20 border border-primary-500/30',
+    green: 'text-green-400 bg-green-500/20 border border-green-500/30',
+    red: 'text-red-400 bg-red-500/20 border border-red-500/30',
+    blue: 'text-blue-400 bg-blue-500/20 border border-blue-500/30',
+    yellow: 'text-yellow-400 bg-yellow-500/20 border border-yellow-500/30',
   };
 
   return (
     <Card className={cn('p-6', className)} hoverable>
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+          <p className="text-sm font-medium text-gray-300 mb-1">
             {title}
           </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-2xl font-bold text-gray-50">
             {value}
           </p>
           {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-gray-400 mt-1">
               {subtitle}
             </p>
           )}
           {trend && (
             <div className={cn(
               'inline-flex items-center text-xs font-medium mt-2 px-2 py-1 rounded-full',
-              trend > 0 ? 'text-green-700 bg-green-100 dark:text-green-300 dark:bg-green-900' :
-              trend < 0 ? 'text-red-700 bg-red-100 dark:text-red-300 dark:bg-red-900' :
-              'text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-700'
+              trend > 0 ? 'text-green-300 bg-green-500/20 border border-green-500/30' :
+              trend < 0 ? 'text-red-300 bg-red-500/20 border border-red-500/30' :
+              'text-gray-300 bg-gray-500/20 border border-gray-500/30'
             )}>
               {trend > 0 && '↗'} {trend < 0 && '↘'} {trend === 0 && '→'} 
               {Math.abs(trend)}%
@@ -113,14 +113,14 @@ export function ActionCard({
       onClick={onClick}
     >
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors duration-200">
-          <Icon size={24} className="text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400" />
+        <div className="w-12 h-12 bg-dark-border rounded-xl flex items-center justify-center group-hover:bg-primary-500/20 group-hover:border-primary-500/50 border border-transparent transition-all duration-200">
+          <Icon size={24} className="text-gray-300 group-hover:text-primary-400 transition-colors duration-200" />
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors duration-200">
+          <h3 className="font-semibold text-gray-50 group-hover:text-primary-400 transition-colors duration-200">
             {title}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-300 mt-1">
             {description}
           </p>
         </div>

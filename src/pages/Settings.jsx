@@ -3,17 +3,11 @@ import { useState } from 'react';
 import { 
   Settings as SettingsIcon, 
   User, 
-  Palette, 
-  Globe, 
-  Bell, 
   Trash2, 
   Download,
-  Upload,
-  Moon,
-  Sun,
-  Check
+  Upload
 } from 'lucide-react';
-import { useSettings, useWater, useFinance } from '../hooks/useLocalStorage';
+import { useWater, useFinance } from '../hooks/useLocalStorage';
 import Card from '../components/Card';
 
 const containerVariants = {
@@ -36,23 +30,10 @@ const itemVariants = {
 };
 
 export default function Settings() {
-  const { settings, updateSetting, toggleTheme, resetAllData } = useSettings();
   const { waterData, setGoal } = useWater();
   const { financeData, setDailyLimit } = useFinance();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showExportData, setShowExportData] = useState(false);
-
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'uz', name: 'O\'zbekcha', flag: '🇺🇿' },
-    { code: 'ru', name: 'Русский', flag: '🇷🇺' }
-  ];
-
-  const themes = [
-    { code: 'light', name: 'Light', icon: Sun },
-    { code: 'dark', name: 'Dark', icon: Moon },
-    { code: 'auto', name: 'Auto', icon: SettingsIcon }
-  ];
 
   const handleExportData = () => {
     const data = {
@@ -101,7 +82,7 @@ export default function Settings() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16"
+      className="min-h-screen bg-dark-bg pt-16"
       variants={containerVariants}
       initial="hidden"
       animate="visible"

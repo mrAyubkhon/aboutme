@@ -47,7 +47,7 @@ export default function Water() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16"
+      className="min-h-screen bg-dark-bg pt-16"
       variants={containerVariants}
       initial="hidden"
       animate="visible"

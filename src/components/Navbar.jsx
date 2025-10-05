@@ -7,12 +7,9 @@ import {
   DollarSign, 
   BookOpen, 
   Settings,
-  Moon,
-  Sun,
   Menu,
   X
 } from 'lucide-react';
-import { useSettings } from '../hooks/useLocalStorage';
 import { useState } from 'react';
 
 const navItems = [
@@ -26,7 +23,6 @@ const navItems = [
 
 export default function Navbar() {
   const location = useLocation();
-  const { settings, toggleTheme } = useSettings();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = (path) => {
@@ -38,7 +34,7 @@ export default function Navbar() {
 
   return (
     <motion.nav 
-      className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700"
+      className="fixed top-0 left-0 right-0 z-50 bg-dark-bg/90 backdrop-blur-md border-b border-dark-border"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
@@ -67,8 +63,8 @@ export default function Navbar() {
                   to={item.path}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive(item.path)
-                      ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
+                      : 'text-gray-300 hover:text-white hover:bg-dark-hover/50'
                   }`}
                 >
                   <Icon size={18} />
@@ -78,21 +74,11 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Theme Toggle & Mobile Menu */}
+          {/* Mobile Menu Button */}
           <div className="flex items-center space-x-2">
-            <motion.button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {settings.theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-            </motion.button>
-
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+              className="md:hidden p-2 rounded-xl bg-dark-card border border-dark-border text-gray-300 hover:text-white hover:border-primary-500 transition-colors duration-200"
             >
               {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
@@ -119,8 +105,8 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive(item.path)
-                      ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
+                      : 'text-gray-300 hover:text-white hover:bg-dark-hover/50'
                   }`}
                 >
                   <Icon size={20} />

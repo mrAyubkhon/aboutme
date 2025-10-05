@@ -11,7 +11,6 @@ import {
   Zap
 } from 'lucide-react';
 import { useStats, useGreeting, useQuoteOfTheDay } from '../hooks/useStats';
-import { useSettings } from '../hooks/useLocalStorage';
 import Card, { StatCard, ActionCard } from '../components/Card';
 import ProgressBar from '../components/ProgressBar';
 
@@ -35,7 +34,6 @@ const itemVariants = {
 };
 
 export default function Home() {
-  const { settings } = useSettings();
   const stats = useStats();
   const greeting = useGreeting();
   const quote = useQuoteOfTheDay();
@@ -43,7 +41,7 @@ export default function Home() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16"
+      className="min-h-screen bg-dark-bg pt-16"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -51,10 +49,10 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div variants={itemVariants} className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            {greeting}, {settings.name} 👋
+          <h1 className="text-3xl font-bold text-gray-50 mb-2">
+            {greeting}, Ayubi aka 👋
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-300">
             Here's your daily overview
           </p>
         </motion.div>

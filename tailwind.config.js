@@ -11,23 +11,49 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
+        // Dark Blue Theme Palette
+        dark: {
+          bg: '#0a0a0a',        // true black background
+          card: '#111827',      // dark navy cards  
+          border: '#1f2937',    // subtle borders
+          hover: '#1e3a8a',     // blue glow on hover
+        },
         primary: {
           50: '#eff6ff',
-          500: '#2563eb',
-          600: '#1d4ed8',
-          700: '#1e40af',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',       // main blue
+          600: '#2563eb',       // hover blue
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         },
         gray: {
-          50: '#f9fafb',
+          50: '#f9fafb',        // primary text
           100: '#f3f4f6',
           200: '#e5e7eb',
-          300: '#d1d5db',
-          400: '#9ca3af',
+          300: '#d1d5db',       // secondary text
+          400: '#9ca3af',       // muted text
           500: '#6b7280',
           600: '#4b5563',
           700: '#374151',
-          800: '#1f2937',
-          900: '#111827',
+          800: '#1f2937',       // borders
+          900: '#111827',       // card background
+          950: '#0a0a0a',       // main background
+        },
+        blue: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',       // accent blue
+          600: '#2563eb',       // hover blue
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         }
       },
       animation: {
