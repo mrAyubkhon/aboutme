@@ -1,47 +1,46 @@
 import { motion } from 'framer-motion';
 import { cn } from '../utils/cn';
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
-  },
-  hover: { 
-    y: -2,
-    transition: { duration: 0.2 }
-  }
-};
-
+/**
+ * Base Card component with hover effects and animations
+ */
 export default function Card({ 
   children, 
-  className = '', 
   hoverable = false, 
+  className = '', 
   onClick,
   ...props 
 }) {
-  const Component = motion.div;
+  const cardClasses = cn(
+    'card',
+    hoverable && 'cursor-pointer hover:shadow-xl hover:border-blue-500/50',
+    className
+  );
+  
+  if (onClick) {
+    return (
+      <motion.div
+        className={cardClasses}
+        onClick={onClick}
+        whileHover={{ y: hoverable ? -2 : 0 }}
+        transition={{ duration: 0.2 }}
+        {...props}
+      >
+        {children}
+      </motion.div>
+    );
+  }
   
   return (
-    <Component
-      className={cn(
-        'card',
-        hoverable && 'cursor-pointer hover:shadow-xl hover:border-primary-500/50',
-        className
-      )}
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      whileHover={hoverable ? "hover" : undefined}
-      onClick={onClick}
-      {...props}
-    >
+    <div className={cardClasses} {...props}>
       {children}
-    </Component>
+    </div>
   );
 }
 
+/**
+ * StatCard component for displaying statistics with icons
+ */
 export function StatCard({ 
   title, 
   value, 
@@ -52,11 +51,10 @@ export function StatCard({
   className = '' 
 }) {
   const colorClasses = {
-    primary: 'text-primary-400 bg-primary-500/20 border border-primary-500/30',
+    primary: 'text-blue-400 bg-blue-500/20 border border-blue-500/30',
     green: 'text-green-400 bg-green-500/20 border border-green-500/30',
     red: 'text-red-400 bg-red-500/20 border border-red-500/30',
-    blue: 'text-blue-400 bg-blue-500/20 border border-blue-500/30',
-    yellow: 'text-yellow-400 bg-yellow-500/20 border border-yellow-500/30',
+    yellow: 'text-yellow-400 bg-yellow-500/20 border border-yellow-500/30'
   };
 
   return (
@@ -99,6 +97,9 @@ export function StatCard({
   );
 }
 
+/**
+ * ActionCard component for clickable action items
+ */
 export function ActionCard({ 
   title, 
   description, 
@@ -107,17 +108,17 @@ export function ActionCard({
   className = '' 
 }) {
   return (
-    <Card 
+    <Card
       className={cn('p-6 cursor-pointer group', className)}
       hoverable
       onClick={onClick}
     >
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-dark-border rounded-xl flex items-center justify-center group-hover:bg-primary-500/20 group-hover:border-primary-500/50 border border-transparent transition-all duration-200">
-          <Icon size={24} className="text-gray-300 group-hover:text-primary-400 transition-colors duration-200" />
+        <div className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center group-hover:bg-blue-500/20 group-hover:border-blue-500/50 border border-transparent transition-all duration-200">
+          <Icon size={24} className="text-gray-300 group-hover:text-blue-400 transition-colors duration-200" />
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-50 group-hover:text-primary-400 transition-colors duration-200">
+          <h3 className="font-semibold text-gray-50 group-hover:text-blue-400 transition-colors duration-200">
             {title}
           </h3>
           <p className="text-sm text-gray-300 mt-1">
