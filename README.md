@@ -1,281 +1,283 @@
-# 🌟 Ayubi aka System
+# 🎯 Ayubi aka System
 
-A beautiful, minimalistic personal dashboard designed for discipline and balance. Track your habits, manage finances, stay hydrated, and capture your thoughts - all in one elegant interface.
+> A personal dashboard for tracking habits, water intake, finances, and journal entries with a clean, organized codebase and dark minimal design.
 
-![Ayubi aka System](https://img.shields.io/badge/React-18.2.0-blue) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.3.6-cyan) ![Framer Motion](https://img.shields.io/badge/Framer%20Motion-10.16.16-purple) ![License](https://img.shields.io/badge/License-MIT-green)
+![Ayubi aka System](https://img.shields.io/badge/Status-Live-brightgreen)
+![React](https://img.shields.io/badge/React-18+-blue)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3+-38B2AC)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ## ✨ Features
 
-### 🏠 **Home Dashboard**
-- Personalized greeting based on time of day
-- Overview cards showing water intake, budget status, habits completion
-- Quick action buttons for adding expenses, income, notes, and water
-- Recent journal entries preview
-- Motivational messages and daily quotes
-- Productivity score calculation
+- 🌙 **Dark Minimal Theme** - Permanent dark blue/black design
+- 🇺🇸 **English Only** - Clean, focused interface
+- 📱 **Fully Responsive** - Works perfectly on desktop and mobile
+- 💾 **Local Storage** - All data persists locally, no external dependencies
+- 🎨 **Smooth Animations** - Beautiful Framer Motion transitions
+- 🔧 **Clean Architecture** - Well-organized, maintainable code
 
-### 🕒 **Routine Tracker**
-- Add, edit, and delete daily habits
-- Visual progress tracking with circular progress bars
-- Habit completion streaks
-- Daily reset functionality
-- Pre-built habit suggestions
-- Completion rate statistics
-
-### 💧 **Water Tracker**
-- Beautiful animated water wave progress display
-- Quick add buttons (250ml, 500ml, 1L)
-- Customizable daily water goals
-- Weekly overview with historical data
-- Hydration tips and achievement badges
-- Automatic daily reset
-
-### 💸 **Finance Helper**
-- Add income and expense transactions
-- Daily budget tracking with visual progress
-- Category-based expense organization
-- Interactive charts (weekly spending, category breakdown)
-- Budget alerts when over limit
-- Monthly financial summaries
-
-### 💭 **Journal/Thoughts**
-- Rich text journal entries with titles and tags
-- Search and filter functionality
-- Entry statistics and insights
-- Markdown-style content support
-- Edit and delete entries
-- Export/import capabilities
-
-### ⚙️ **Settings**
-- Light/Dark/Auto theme switching
-- Multi-language support (English, Uzbek, Russian)
-- Customizable goals and limits
-- Data export/import functionality
-- Complete data reset option
-- Profile customization
+### Core Pages
+- **🏠 Home** - Dashboard overview with stats and quick actions
+- **📅 Routine** - Habit tracking with completion rates and progress
+- **💧 Water** - Daily water intake tracking with customizable goals
+- **💰 Finance** - Income/expense tracking with budgets and categories
+- **📝 Journal** - Personal notes and thoughts with tags and search
+- **⚙️ Settings** - App configuration, data export/import, and preferences
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 16+ 
-- npm or yarn package manager
+- npm or yarn
 
 ### Installation
+```bash
+# Clone the repository
+git clone https://github.com/mrAyubkhon/aboutme.git
+cd aboutme
 
-1. **Clone or download the project**
-   ```bash
-   git clone https://github.com/mrAyubkhon/aboutme.git
-   cd aboutme
-   ```
+# Install dependencies
+npm install
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
-
-4. **Open your browser**
-   Navigate to `http://localhost:3000` to see your dashboard!
-
-## 🛠️ Technology Stack
-
-- **Frontend Framework**: React 18.2.0
-- **Build Tool**: Vite 5.0.8
-- **Styling**: TailwindCSS 3.3.6
-- **Animations**: Framer Motion 10.16.16
-- **Charts**: Recharts 2.8.0
-- **Icons**: Lucide React 0.294.0
-- **Date Handling**: date-fns 2.30.0
-- **Routing**: React Router DOM 6.20.1
-
-## 📁 Project Structure
-
-```
-src/
-├── components/           # Reusable UI components
-│   ├── Navbar.jsx       # Navigation bar with theme toggle
-│   ├── Card.jsx         # Card components and variants
-│   ├── ProgressBar.jsx  # Progress bars and circular progress
-│   ├── HabitItem.jsx    # Habit tracking components
-│   ├── FinanceCard.jsx  # Financial transaction components
-│   └── WaterTracker.jsx # Water intake tracking
-├── hooks/               # Custom React hooks
-│   ├── useLocalStorage.js # LocalStorage management hooks
-│   └── useStats.js      # Statistics and insights hooks
-├── pages/               # Main application pages
-│   ├── Home.jsx         # Dashboard overview
-│   ├── Routine.jsx      # Habit tracking page
-│   ├── Water.jsx        # Water intake page
-│   ├── Finance.jsx      # Financial management page
-│   ├── Journal.jsx      # Journal/thoughts page
-│   └── Settings.jsx     # Application settings
-├── utils/               # Utility functions
-│   └── cn.js           # Class name utility
-├── App.jsx              # Main application component
-├── main.jsx             # Application entry point
-└── index.css            # Global styles and TailwindCSS
+# Start development server
+npm run dev
 ```
 
-## 💾 Data Storage
+### Build for Production
+```bash
+npm run build
+npm run preview
+```
 
-The application uses **localStorage** for data persistence, ensuring your data stays with you. All data is stored locally in your browser with the following keys:
+## 🏗️ Architecture
 
-- `ayubi_habits` - Daily habits and completion status
-- `ayubi_water` - Water intake data and goals
-- `ayubi_finances` - Financial transactions and limits
-- `ayubi_journal` - Journal entries and notes
-- `ayubi_settings` - User preferences and settings
+### File Structure
+```
+/src
+  /components          # Reusable UI components
+    Button.jsx         # Button component with variants
+    Card.jsx           # Card components (base, stat, action)
+    Navbar.jsx         # Navigation bar with mobile support
+    ProgressBar.jsx    # Animated progress indicators
+    HabitItem.jsx      # Habit display and management
+    FinanceItem.jsx    # Financial entry display
+    WaterTracker.jsx   # Water intake tracking widget
+    JournalEditor.jsx  # Rich journal entry editor
+  
+  /pages              # Main application pages
+    Home.jsx          # Dashboard with overview
+    Routine.jsx       # Habit tracking page
+    Water.jsx         # Water intake tracking
+    Finance.jsx       # Financial management
+    Journal.jsx       # Journal entries
+    Settings.jsx      # App configuration
+  
+  /hooks              # Custom React hooks
+    useLocalStorage.js # Local storage persistence
+    useHabits.js      # Habit management logic
+    useFinance.js     # Financial tracking logic
+    useWater.js       # Water tracking logic
+    useJournal.js     # Journal management logic
+  
+  /data               # Static data and constants
+    constants.js      # App constants, colors, categories
+  
+  /utils              # Utility functions
+    cn.js            # Class name utility
+```
 
-### Data Export/Import
-- Export all your data as JSON from Settings
-- Import previously exported data
-- Complete data reset option available
+### Design System
+
+#### Color Palette
+- **Background**: `#0a0a0a` (true black)
+- **Cards**: `#111827` (dark navy)
+- **Borders**: `#1f2937` (subtle gray)
+- **Accent**: `#2563eb` (bright blue)
+- **Text**: `#f9fafb` (primary), `#9ca3af` (secondary)
+
+#### Typography
+- **Font**: Inter (clean, modern)
+- **Weights**: 400 (normal), 500 (medium), 700 (bold)
+
+## 📊 Features Overview
+
+### 🎯 Habit Tracking
+- Add, edit, and delete daily habits
+- Visual progress tracking with completion rates
+- Default habit suggestions
+- Daily reset functionality
+
+### 💧 Water Intake
+- Track daily water consumption
+- Customizable daily goals (500ml - 10L)
+- Quick add buttons (250ml, 500ml, 1L)
+- Visual progress indicators
+- Goal achievement celebrations
+
+### 💰 Financial Management
+- Track income and expenses
+- Category-based organization
+- Daily spending limits with alerts
+- Monthly summaries and trends
+- Currency support (UZS default)
+
+### 📝 Journal System
+- Rich text entries with titles and content
+- Tag-based organization
+- Search functionality
+- Edit and delete capabilities
+- Date-based sorting
+
+### ⚙️ Settings & Data
+- Export/import all data as JSON
+- Customizable water goals and spending limits
+- Complete data reset functionality
+- Clean, minimal settings interface
+
+## 🧠 Technical Details
+
+### State Management
+- **Local Storage**: All data persists in browser
+- **Custom Hooks**: Clean separation of business logic
+- **No External Dependencies**: Self-contained state management
+
+### Performance
+- **Code Splitting**: Route-based optimization
+- **Optimized Animations**: Smooth Framer Motion transitions
+- **Minimal Bundle**: Tree-shaking for unused code
+
+### Accessibility
+- **Keyboard Navigation**: Full keyboard support
+- **Screen Readers**: Proper ARIA labels
+- **Color Contrast**: WCAG AA compliant
+
+## 📱 Mobile Support
+
+- **Responsive Design**: Mobile-first approach
+- **Touch Friendly**: Proper touch targets (44px min)
+- **Mobile Navigation**: Collapsible menu for small screens
+- **PWA Ready**: Can be installed as app
 
 ## 🎨 Customization
 
-### Themes
-- **Light Mode**: Clean, minimal white interface
-- **Dark Mode**: Elegant dark theme for low-light usage
-- **Auto Mode**: Automatically follows system preference
+### Adding New Features
+1. Create component in `/components`
+2. Add hook logic in `/hooks`
+3. Update constants in `/data/constants.js`
+4. Add route in `App.jsx`
 
-### Languages
-- English (default)
-- O'zbekcha (Uzbek)
-- Русский (Russian)
-
-### Goals & Limits
-- Customizable daily water intake goals (500ml - 10L)
-- Adjustable daily spending limits
-- Personal name and profile settings
-
-## 📱 Responsive Design
-
-The application is fully responsive and works beautifully on:
-- Desktop computers (1200px+)
-- Tablets (768px - 1199px)
-- Mobile phones (320px - 767px)
+### Styling Changes
+- Colors: Update `tailwind.config.js`
+- Components: Modify CSS classes in components
+- Global styles: Edit `src/index.css`
 
 ## 🔧 Development
 
-### Available Scripts
+### Code Style
+- **ESLint**: Configured for React best practices
+- **Prettier**: Automatic code formatting
+- **Comments**: Clear documentation for complex logic
+- **Naming**: Descriptive variable and function names
 
-```bash
-# Start development server
-npm run dev
+### Git Workflow
+- **Feature Branches**: One feature per branch
+- **Clean Commits**: Descriptive commit messages
+- **Code Review**: Peer review for quality
 
-# Build for production
-npm run build
+## 📄 Data Structure
 
-# Preview production build
-npm run preview
-
-# Run linting
-npm run lint
+### Habits
+```javascript
+{
+  id: string,
+  name: string,
+  completed: boolean,
+  createdAt: string
+}
 ```
 
-### Building for Production
-
-```bash
-npm run build
+### Water Tracking
+```javascript
+{
+  current: number,    // ml consumed today
+  goal: number,       // daily goal in ml
+  lastReset: string   // date string for daily reset
+}
 ```
 
-The built files will be in the `dist` directory, ready for deployment to any static hosting service.
-
-## 🌐 Deployment
-
-### Static Hosting (Recommended)
-Deploy to any static hosting service:
-- **Vercel**: `vercel --prod`
-- **Netlify**: Drag and drop the `dist` folder
-- **GitHub Pages**: Use GitHub Actions with the built files
-- **Firebase Hosting**: `firebase deploy`
-
-### Docker (Optional)
-```dockerfile
-FROM node:18-alpine as build
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+### Finance
+```javascript
+{
+  entries: [{
+    id: string,
+    type: 'income' | 'expense',
+    amount: number,
+    category: string,
+    note: string,
+    date: string
+  }],
+  dailyLimit: number,
+  currency: string
+}
 ```
 
-## 🎯 Usage Tips
+### Journal
+```javascript
+[{
+  id: string,
+  title: string,
+  content: string,
+  tags: string[],
+  createdAt: string,
+  updatedAt: string
+}]
+```
 
-### Getting Started
-1. **Set your name** in Settings for personalized greetings
-2. **Add some habits** to build your daily routine
-3. **Set water goals** that match your lifestyle
-4. **Configure daily budget** for expense tracking
-5. **Start journaling** your thoughts and ideas
+## 🎯 Future Enhancements
 
-### Daily Workflow
-1. Check your **Home dashboard** for today's overview
-2. Complete your **habits** in the Routine section
-3. Track **water intake** throughout the day
-4. Log **expenses and income** as they occur
-5. **Journal** your thoughts and reflections
-6. Review your **progress** and adjust goals as needed
-
-### Data Management
-- **Export regularly** to backup your data
-- Use **tags** in journal entries for better organization
-- **Reset habits daily** to start fresh each day
-- **Adjust goals** based on your progress and needs
+- [ ] Supabase integration for cloud sync
+- [ ] Advanced analytics and charts
+- [ ] Habit streak tracking
+- [ ] Goal setting and tracking
+- [ ] Social features (sharing achievements)
+- [ ] Dark/light theme toggle
+- [ ] Multiple language support
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit your changes**: `git commit -m 'Add amazing feature'`
-4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow the existing code style and patterns
-- Add appropriate animations for new features
-- Ensure responsive design for all screen sizes
-- Test localStorage functionality thoroughly
-- Update documentation for new features
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 👨‍💻 Author
 
-- **React Team** for the amazing framework
-- **TailwindCSS** for the utility-first CSS framework
-- **Framer Motion** for smooth animations
-- **Lucide** for beautiful icons
-- **Recharts** for interactive charts
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/mrAyubkhon/aboutme/issues) page
-2. Create a new issue with detailed information
-3. Include screenshots for UI-related problems
-4. Provide steps to reproduce any bugs
+**Ayubi aka**
+- GitHub: [@mrAyubkhon](https://github.com/mrAyubkhon)
 
 ---
 
-**Designed for discipline and balance. © Ayubi aka**
+**Built with ❤️ by Ayubi aka**
 
-*Built with ❤️ for productivity and personal growth*
+*Clean code, organized structure, minimal design.*
+
+---
+
+## 🚀 Live Demo
+
+Visit the live demo: [https://mrAyubkhon.github.io/aboutme](https://mrAyubkhon.github.io/aboutme)
+
+## 📞 Support
+
+If you have any questions or need help, please open an issue on GitHub.
+
+---
+
+![Made with React](https://img.shields.io/badge/Made%20with-React-blue)
+![Made with TailwindCSS](https://img.shields.io/badge/Made%20with-TailwindCSS-38B2AC)
+![Made with Love](https://img.shields.io/badge/Made%20with-❤️-red)
