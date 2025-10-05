@@ -10,7 +10,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import { useStats, useGreeting, useQuoteOfTheDay } from '../hooks/useStats';
+import { useHabits, useWater, useFinance, useJournal } from '../hooks';
 import Card, { StatCard, ActionCard } from '../components/Card';
 import ProgressBar from '../components/ProgressBar';
 
@@ -25,23 +25,31 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  hidden: { y: 20, opacity: 0 },
+  visible: {
     y: 0,
+    opacity: 1,
     transition: { duration: 0.3 }
   }
 };
 
 export default function Home() {
-  const stats = useStats();
-  const greeting = useGreeting();
-  const quote = useQuoteOfTheDay();
+  const { habits, getCompletionRate, getCompletedCount } = useHabits();
+  const { waterData, getProgress } = useWater();
+  const { getTodayTotals, getRemainingBudget } = useFinance();
+  const { getRecentEntries } = useJournal();
+  
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  
+  const todayTotals = getTodayTotals();
+  const habitCompletion = getCompletionRate();
+  const waterProgress = getProgress();
+  const remainingBudget = getRemainingBudget();
+  const recentEntries = getRecentEntries(3);
 
   return (
     <motion.div
-      className="min-h-screen bg-dark-bg pt-16"
+      className="min-h-screen bg-gray-950 pt-16"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -50,7 +58,7 @@ export default function Home() {
         {/* Header */}
         <motion.div variants={itemVariants} className="mb-8">
           <h1 className="text-3xl font-bold text-gray-50 mb-2">
-            {greeting}, Ayubi aka 👋
+            Good morning, Ayubi aka 👋
           </h1>
           <p className="text-gray-300">
             Here's your daily overview
@@ -63,209 +71,132 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
         >
           <StatCard
-            title="Water Today"
-            value={`${Math.round(stats.water.current / 1000 * 10) / 10}L`}
-            subtitle={`${Math.round(stats.water.progress)}% of goal`}
+            title="Habits Completed"
+            value={`${getCompletedCount()}/${habits.length}`}
+            subtitle={`${habitCompletion}% completion rate`}
+            icon={Target}
+            color="primary"
+            trend={habitCompletion}
+          />
+          
+          <StatCard
+            title="Water Intake"
+            value={`${Math.round(waterData.current / 1000 * 10) / 10}L`}
+            subtitle={`${Math.round(waterProgress)}% of goal`}
             icon={Droplets}
             color="blue"
           />
           
           <StatCard
-            title="Daily Budget"
-            value={`$${stats.finance.today.remaining.toLocaleString()}`}
-            subtitle={stats.finance.today.isOverLimit ? "Over limit" : "Remaining"}
+            title="Today's Spending"
+            value={`${todayTotals.expenses.toLocaleString()} UZS`}
+            subtitle={`${remainingBudget.toLocaleString()} UZS remaining`}
             icon={DollarSign}
-            color={stats.finance.today.isOverLimit ? "red" : "green"}
+            color={todayTotals.expenses > 0 ? "red" : "green"}
           />
           
           <StatCard
-            title="Habits Done"
-            value={`${stats.habits.completed}/${stats.habits.total}`}
-            subtitle={`${stats.habits.completionRate}% complete`}
-            icon={Calendar}
-            color="primary"
-          />
-          
-          <StatCard
-            title="Productivity"
-            value={`${stats.overall.productivityScore}%`}
-            subtitle="Overall score"
-            icon={TrendingUp}
+            title="Journal Entries"
+            value={recentEntries.length}
+            subtitle="Recent thoughts"
+            icon={BookOpen}
             color="yellow"
           />
         </motion.div>
 
         {/* Progress Overview */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Habits Progress */}
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Today's Habits
-              </h3>
-              <div className="flex items-center space-x-2">
-                <Target size={16} className="text-gray-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {stats.habits.completionRate}%
-                </span>
-              </div>
-            </div>
-            
+            <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
+              <Calendar className="mr-2 text-blue-400" size={20} />
+              Habit Progress
+            </h3>
             <ProgressBar 
-              progress={stats.habits.completionRate} 
+              progress={habitCompletion} 
+              label="Daily Habits"
               className="mb-4"
-              showPercentage={false}
             />
-            
-            <div className="space-y-2">
-              {stats.habits.total === 0 ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                  No habits set yet. Add some habits to get started!
-                </p>
-              ) : (
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {stats.habits.completed} of {stats.habits.total} habits completed
-                  {stats.habits.streak > 0 && (
-                    <div className="mt-2 flex items-center space-x-1">
-                      <Zap size={12} className="text-yellow-500" />
-                      <span className="text-yellow-600 dark:text-yellow-400">
-                        {stats.habits.streak} day streak!
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+            <p className="text-sm text-gray-400">
+              {getCompletedCount()} of {habits.length} habits completed today
+            </p>
           </Card>
-
-          {/* Water Progress */}
+          
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Water Intake
-              </h3>
-              <div className="flex items-center space-x-2">
-                <Droplets size={16} className="text-blue-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {Math.round(stats.water.progress)}%
-                </span>
-              </div>
-            </div>
-            
+            <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
+              <Droplets className="mr-2 text-blue-400" size={20} />
+              Water Progress
+            </h3>
             <ProgressBar 
-              progress={stats.water.progress} 
-              color="blue"
+              progress={waterProgress} 
+              label="Daily Goal"
               className="mb-4"
-              showPercentage={false}
             />
-            
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {Math.round(stats.water.current / 1000 * 10) / 10}L of {stats.water.goal / 1000}L
-              {stats.water.progress >= 100 && (
-                <div className="mt-2 flex items-center space-x-1">
-                  <Zap size={12} className="text-green-500" />
-                  <span className="text-green-600 dark:text-green-400">
-                    Goal achieved! 🎉
-                  </span>
-                </div>
-              )}
-            </div>
+            <p className="text-sm text-gray-400">
+              {waterData.current}ml of {waterData.goal}ml consumed
+            </p>
           </Card>
         </motion.div>
 
         {/* Quick Actions */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Quick Actions
-          </h3>
-          
+        <motion.div variants={itemVariants}>
+          <h3 className="text-xl font-semibold text-gray-50 mb-6">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <ActionCard
-              title="Add Expense"
-              description="Track a new expense"
-              icon={DollarSign}
-              onClick={() => setShowQuickAdd('expense')}
+              title="Add Habit"
+              description="Track a new daily habit"
+              icon={Plus}
+              onClick={() => setShowQuickAdd(true)}
             />
             
             <ActionCard
-              title="Add Income"
-              description="Record new income"
-              icon={TrendingUp}
-              onClick={() => setShowQuickAdd('income')}
-            />
-            
-            <ActionCard
-              title="Quick Note"
-              description="Add a thought or idea"
-              icon={BookOpen}
-              onClick={() => setShowQuickAdd('note')}
-            />
-            
-            <ActionCard
-              title="Add Water"
-              description="Track water intake"
+              title="Log Water"
+              description="Record water intake"
               icon={Droplets}
-              onClick={() => setShowQuickAdd('water')}
+              onClick={() => window.location.href = '/water'}
+            />
+            
+            <ActionCard
+              title="Add Expense"
+              description="Track spending"
+              icon={DollarSign}
+              onClick={() => window.location.href = '/finance'}
+            />
+            
+            <ActionCard
+              title="Write Journal"
+              description="Record thoughts"
+              icon={BookOpen}
+              onClick={() => window.location.href = '/journal'}
             />
           </div>
         </motion.div>
 
         {/* Recent Journal Entries */}
-        {stats.journal.recentEntries.length > 0 && (
-          <motion.div variants={itemVariants} className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Recent Thoughts
-            </h3>
-            
+        {recentEntries.length > 0 && (
+          <motion.div variants={itemVariants} className="mt-8">
+            <h3 className="text-xl font-semibold text-gray-50 mb-6">Recent Thoughts</h3>
             <div className="space-y-4">
-              {stats.journal.recentEntries.map((entry) => (
+              {recentEntries.map((entry) => (
                 <Card key={entry.id} className="p-4">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">
-                    {entry.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                    {entry.content}
-                  </p>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <h4 className="font-medium text-gray-50 mb-2">{entry.title}</h4>
+                  <p className="text-gray-300 text-sm line-clamp-2">{entry.content}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex space-x-2">
+                      {entry.tags.map((tag) => (
+                        <span key={tag} className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-500">
                       {new Date(entry.createdAt).toLocaleDateString()}
                     </span>
-                    {entry.tag && (
-                      <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
-                        {entry.tag}
-                      </span>
-                    )}
                   </div>
                 </Card>
               ))}
             </div>
           </motion.div>
         )}
-
-        {/* Motivational Message */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <Card className="p-6 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 border-primary-200 dark:border-primary-700">
-            <div className="text-center">
-              <p className="text-lg text-gray-900 dark:text-gray-100 mb-2">
-                {stats.overall.motivationalMessage}
-              </p>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Quote of the Day */}
-        <motion.div variants={itemVariants}>
-          <Card className="p-6">
-            <div className="text-center">
-              <blockquote className="text-lg italic text-gray-700 dark:text-gray-300 mb-2">
-                "{quote.text}"
-              </blockquote>
-              <cite className="text-sm text-gray-500 dark:text-gray-400">
-                — {quote.author}
-              </cite>
-            </div>
-          </Card>
-        </motion.div>
       </div>
     </motion.div>
   );

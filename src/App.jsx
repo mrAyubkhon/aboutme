@@ -10,7 +10,7 @@ import Settings from './pages/Settings';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-dark-bg transition-colors duration-300">
+      <div className="min-h-screen bg-gray-950 transition-colors duration-300">
         <Navbar />
         
         <main className="min-h-screen">
