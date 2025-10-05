@@ -10,7 +10,10 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import { useHabits, useWater, useFinance, useJournal } from '../hooks';
+import { useHabits } from '../hooks/useHabits';
+import { useWater } from '../hooks/useWater';
+import { useFinance } from '../hooks/useFinance';
+import { useJournal } from '../hooks/useJournal';
 import Card, { StatCard, ActionCard } from '../components/Card';
 import ProgressBar from '../components/ProgressBar';
 
