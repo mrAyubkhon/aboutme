@@ -9,11 +9,13 @@ export default function Card({
   hoverable = false, 
   className = '', 
   onClick,
+  glow = false,
   ...props 
 }) {
   const cardClasses = cn(
     'card',
     hoverable && 'cursor-pointer hover:shadow-xl hover:border-blue-500/50',
+    glow && 'relative overflow-hidden',
     className
   );
   
@@ -23,30 +25,69 @@ export default function Card({
         className={cardClasses}
         onClick={onClick}
         whileHover={{ 
-          y: hoverable ? -4 : 0,
-          scale: hoverable ? 1.02 : 1,
-          boxShadow: hoverable ? "0 10px 25px rgba(0, 0, 0, 0.3)" : "0 4px 6px rgba(0, 0, 0, 0.1)"
+          y: hoverable ? -6 : 0,
+          scale: hoverable ? 1.03 : 1,
+          boxShadow: hoverable ? "0 15px 35px rgba(0, 0, 0, 0.4)" : "0 4px 6px rgba(0, 0, 0, 0.1)",
+          rotateX: hoverable ? -1 : 0,
+          rotateY: hoverable ? 1 : 0
         }}
         whileTap={{ 
-          scale: 0.98,
-          y: 0
+          scale: 0.96,
+          y: hoverable ? -2 : 0,
+          rotateX: 0.5,
+          rotateY: -0.5
         }}
         transition={{ 
           type: "spring",
-          stiffness: 300,
-          damping: 20,
-          duration: 0.3
+          stiffness: 260,
+          damping: 25,
+          mass: 1.2,
+          duration: 0.4
         }}
         {...props}
       >
-        {children}
+        {/* Glow effect */}
+        {glow && (
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-transparent to-blue-500/20"
+            animate={{
+              x: ['-100%', '100%']
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: "linear"
+            }}
+          />
+        )}
+        <div className={glow ? "relative z-10" : ""}>
+          {children}
+        </div>
       </motion.div>
     );
   }
   
   return (
     <div className={cardClasses} {...props}>
-      {children}
+      {/* Glow effect for non-clickable cards */}
+      {glow && (
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-transparent to-blue-500/20"
+          animate={{
+            x: ['-100%', '100%']
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            repeatType: "loop",
+            ease: "linear"
+          }}
+        />
+      )}
+      <div className={glow ? "relative z-10" : ""}>
+        {children}
+      </div>
     </div>
   );
 }

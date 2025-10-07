@@ -53,18 +53,38 @@ export default function JournalEditor({
   };
   
   return (
-    <motion.div
-      className={`bg-gray-900 rounded-2xl p-6 border border-gray-800 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ 
-        type: "spring",
-        stiffness: 300,
-        damping: 25,
-        duration: 0.5
-      }}
-    >
-      <div className="flex items-center justify-between mb-6">
+        <motion.div
+          className={`bg-gray-900 rounded-2xl p-6 border border-gray-800 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg relative overflow-hidden ${className}`}
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          whileHover={{
+            scale: 1.02,
+            y: -2,
+            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)"
+          }}
+          transition={{ 
+            type: "spring",
+            stiffness: 280,
+            damping: 25,
+            mass: 1.2,
+            duration: 0.6
+          }}
+        >
+          {/* Subtle background animation */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/5"
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+              scale: [1, 1.05, 1]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-50">
           {entry ? 'Edit Entry' : 'New Journal Entry'}
         </h3>
@@ -140,8 +160,9 @@ export default function JournalEditor({
             <Save size={16} />
             <span>{entry ? 'Update' : 'Save'}</span>
           </Button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+            </div>
+          </div>
+          </div>
+        </motion.div>
+      );
+    }

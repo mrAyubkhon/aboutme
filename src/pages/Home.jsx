@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Droplets, 
   DollarSign, 
@@ -10,6 +11,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
+import Logo from '../components/Logo';
 import { useHabits } from '../hooks/useHabits';
 import { useWater } from '../hooks/useWater';
 import { useFinance } from '../hooks/useFinance';
@@ -37,6 +39,7 @@ const itemVariants = {
 };
 
 export default function Home() {
+  const navigate = useNavigate();
   const { habits, getCompletionRate, getCompletedCount } = useHabits();
   const { waterData, getProgress } = useWater();
   const { getTodayTotals, getRemainingBudget } = useFinance();
@@ -60,12 +63,17 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div variants={itemVariants} className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-50 mb-2">
-            Good morning, Ayubi aka 👋
-          </h1>
-          <p className="text-gray-300">
-            Here's your daily overview
-          </p>
+          <div className="flex items-center space-x-4 mb-4">
+            <Logo size="lg" animated={true} />
+            <div>
+              <h1 className="text-3xl font-bold text-gray-50 mb-2">
+                Good morning! 👋
+              </h1>
+              <p className="text-gray-300">
+                Here's your daily overview
+              </p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Stats Grid */}
@@ -155,21 +163,21 @@ export default function Home() {
               title="Log Water"
               description="Record water intake"
               icon={Droplets}
-              onClick={() => window.location.pathname = '/water'}
+              onClick={() => navigate('/water')}
             />
             
             <ActionCard
               title="Add Expense"
               description="Track spending"
               icon={DollarSign}
-              onClick={() => window.location.pathname = '/finance'}
+              onClick={() => navigate('/finance')}
             />
             
             <ActionCard
               title="Write Journal"
               description="Record thoughts"
               icon={BookOpen}
-              onClick={() => window.location.pathname = '/journal'}
+              onClick={() => navigate('/journal')}
             />
           </div>
         </motion.div>

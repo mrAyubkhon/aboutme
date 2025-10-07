@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { DollarSign, Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import FormField from '../components/FormField';
+import { RippleButton, ParticleSystem } from '../components/MicroInteractions';
 import { useFinance } from '../hooks/useFinance';
 import Card, { StatCard } from '../components/Card';
 import FinanceItem from '../components/FinanceItem';
@@ -43,6 +45,7 @@ export default function Finance() {
   } = useFinance();
   
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
   const [formData, setFormData] = useState({
     type: 'expense',
     amount: '',
@@ -59,8 +62,34 @@ export default function Finance() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Sound effect for successful submission
+    const playSound = () => {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+      } catch (error) {
+        // Fallback: no sound if audio context not supported
+      }
+    };
+    
     if (formData.amount && formData.category && Number(formData.amount) > 0) {
       addEntry(formData.type, Number(formData.amount), formData.category, formData.note);
+      playSound(); // Play success sound
+      setShowParticles(true); // Trigger particle effect
       setFormData({
         type: 'expense',
         amount: '',
@@ -68,8 +97,34 @@ export default function Finance() {
         note: ''
       });
       setShowAddForm(false);
+      
+      // Reset particle effect after animation
+      setTimeout(() => setShowParticles(false), 2000);
     } else {
-      alert('Please enter a valid amount and select a category.');
+      // Show better validation message
+      const errorMessage = !formData.amount ? 'Please enter an amount' :
+                          Number(formData.amount) <= 0 ? 'Amount must be greater than 0' :
+                          !formData.category ? 'Please select a category' :
+                          'Please fill in all required fields';
+      
+      // Create a better error notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-20 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+      notification.textContent = errorMessage;
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+      }, 100);
+      
+      // Auto remove after 3 seconds
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
     }
   };
 
@@ -92,13 +147,13 @@ export default function Finance() {
               <h1 className="text-3xl font-bold text-gray-50 mb-2">Finance Tracker</h1>
               <p className="text-gray-300">Track your income and expenses</p>
             </div>
-            <Button
+            <RippleButton
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 ease-out shadow-sm hover:shadow-md flex items-center space-x-2"
               onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center space-x-2"
             >
               <Plus size={18} />
               <span>Add Entry</span>
-            </Button>
+            </RippleButton>
           </div>
         </motion.div>
 
@@ -269,6 +324,9 @@ export default function Finance() {
           )}
         </motion.div>
       </div>
+      
+      {/* Particle System for Success */}
+      <ParticleSystem trigger={showParticles} particleCount={15} />
     </motion.div>
   );
 }

@@ -24,25 +24,55 @@ export default function FinanceItem({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ 
-        scale: 1.02,
-        y: -2,
-        boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)"
+        scale: 1.03,
+        y: -3,
+        boxShadow: "0 12px 28px rgba(0, 0, 0, 0.3)",
+        rotateX: -0.5,
+        rotateY: 0.5
       }}
       transition={{ 
         type: "spring",
-        stiffness: 300,
-        damping: 20,
-        duration: 0.3
+        stiffness: 280,
+        damping: 22,
+        mass: 1.1,
+        duration: 0.35
       }}
     >
       <div className="flex items-center space-x-3">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-          isIncome 
-            ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-            : 'bg-red-500/20 text-red-400 border border-red-500/30'
-        }`}>
-          {isIncome ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
-        </div>
+        <motion.div 
+          className={`w-10 h-10 rounded-full flex items-center justify-center ${
+            isIncome 
+              ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+              : 'bg-red-500/20 text-red-400 border border-red-500/30'
+          }`}
+          whileHover={{
+            scale: 1.1,
+            rotateZ: 5,
+            boxShadow: isIncome 
+              ? "0 4px 12px rgba(34, 197, 94, 0.4)" 
+              : "0 4px 12px rgba(239, 68, 68, 0.4)"
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 20,
+            mass: 0.8
+          }}
+        >
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              rotateZ: isIncome ? [0, 5, 0] : [0, -5, 0]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            {isIncome ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
+          </motion.div>
+        </motion.div>
         
         <div className="flex-1">
           <div className="flex items-center space-x-2">

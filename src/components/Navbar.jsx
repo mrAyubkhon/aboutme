@@ -12,6 +12,7 @@ import {
   X
 } from 'lucide-react';
 import { NAV_ITEMS, APP_NAME } from '../data/constants';
+import Logo from './Logo';
 
 /**
  * Navigation bar component with responsive mobile menu
@@ -39,9 +40,15 @@ export default function Navbar() {
   return (
     <motion.nav 
       className="fixed top-0 left-0 right-0 z-50 bg-gray-950/90 backdrop-blur-md border-b border-gray-800"
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.3 }}
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 300,
+        damping: 25,
+        mass: 1,
+        duration: 0.5
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -52,8 +59,8 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Link to="/" className="text-2xl font-bold text-blue-500">
-              {APP_NAME}
+            <Link to="/" className="hover:scale-105 transition-transform duration-200">
+              <Logo size="md" animated={true} />
             </Link>
           </motion.div>
 
@@ -62,18 +69,36 @@ export default function Navbar() {
             {NAV_ITEMS.map((item) => {
               const Icon = getIcon(item.icon);
               return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    isActive(item.path)
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-                  }`}
+                <motion.div
+                  whileHover={{ 
+                    scale: 1.05,
+                    y: -1,
+                    rotateX: -1
+                  }}
+                  whileTap={{ 
+                    scale: 0.95,
+                    y: 0
+                  }}
+                  transition={{ 
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 20,
+                    mass: 0.8
+                  }}
                 >
-                  <Icon size={18} />
-                  <span>{item.label}</span>
-                </Link>
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive(item.path)
+                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span>{item.label}</span>
+                  </Link>
+                </motion.div>
               );
             })}
           </div>

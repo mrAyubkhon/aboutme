@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '../utils/cn';
+import LoadingSpinner from './LoadingSpinner';
 
 /**
  * Reusable Button component with variants and animations
@@ -45,25 +46,35 @@ export default function Button({
       disabled={disabled || loading}
       whileHover={disabled || loading ? {} : { 
         scale: 1.05,
-        y: -1,
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)"
+        y: -2,
+        boxShadow: "0 8px 25px rgba(0, 0, 0, 0.4)",
+        rotateX: -2,
+        rotateY: 1
       }}
       whileTap={disabled || loading ? {} : { 
-        scale: 0.95,
-        y: 0
+        scale: 0.92,
+        y: 1,
+        rotateX: 1,
+        rotateY: -0.5
+      }}
+      whileFocus={{ 
+        scale: 1.02,
+        boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.3)",
+        y: -1
       }}
       transition={{ 
         type: "spring",
-        stiffness: 400,
-        damping: 17,
-        duration: 0.2
+        stiffness: 300,
+        damping: 20,
+        mass: 0.8,
+        duration: 0.3
       }}
       {...props}
-    >
-      {loading ? (
-        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-      ) : null}
-      {children}
+        >
+          {loading && (
+            <LoadingSpinner variant="dots" size="sm" color="white" className="mr-2" />
+          )}
+          {children}
     </motion.button>
   );
 }

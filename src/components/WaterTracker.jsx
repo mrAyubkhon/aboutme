@@ -17,8 +17,38 @@ export default function WaterTracker({
   const remaining = Math.max(goal - currentAmount, 0);
   const isGoalAchieved = progress >= 100;
   
+  const playWaterSound = (type = 'add') => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      if (type === 'add') {
+        // Pleasant water drop sound
+        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.2);
+      } else {
+        // Subtle subtract sound
+        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+      }
+      
+      gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.2);
+    } catch (error) {
+      // Fallback: no sound if audio context not supported
+    }
+  };
+
   const handleAddWater = (amount = 250) => {
     onAddWater(amount);
+    playWaterSound('add');
   };
   
   const handleSubtractWater = (amount = 250) => {
@@ -28,6 +58,7 @@ export default function WaterTracker({
       // Fallback: add negative amount if no subtract function provided
       onAddWater(-amount);
     }
+    playWaterSound('subtract');
   };
   
   return (
@@ -52,11 +83,28 @@ export default function WaterTracker({
         
         {isGoalAchieved && (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="text-green-400 text-sm font-medium"
+            initial={{ scale: 0, rotate: -10 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 400,
+              damping: 15,
+              mass: 0.8,
+              duration: 0.6
+            }}
+            className="text-green-400 text-sm font-medium flex items-center space-x-1"
           >
-            🎉 Goal achieved!
+            <motion.span
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ 
+                duration: 0.5,
+                repeat: 2,
+                delay: 0.2
+              }}
+            >
+              🎉
+            </motion.span>
+            <span>Goal achieved!</span>
           </motion.div>
         )}
       </div>
