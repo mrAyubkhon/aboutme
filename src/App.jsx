@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
+import { testSiteFunctionality } from './utils/testSite';
 import Navbar from './components/Navbar';
 import CommandPalette from './components/CommandPalette';
 // import NotificationSystem, { NotificationProvider } from './components/NotificationSystem';
@@ -15,6 +16,10 @@ import Diagnostics from './pages/Diagnostics';
 import Settings from './pages/Settings';
 
 function App() {
+  useEffect(() => {
+    testSiteFunctionality();
+  }, []);
+
   return (
     <Router>
         <div className="min-h-screen bg-gray-950 transition-all duration-500 ease-in-out">

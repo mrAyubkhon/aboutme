@@ -4,8 +4,8 @@
 
 class GameStatsService {
   constructor() {
-    this.steamApiKey = process.env.REACT_APP_STEAM_API_KEY || '';
-    this.faceitApiKey = process.env.REACT_APP_FACEIT_API_KEY || '';
+    this.steamApiKey = import.meta.env.VITE_STEAM_API_KEY || '';
+    this.faceitApiKey = import.meta.env.VITE_FACEIT_API_KEY || '';
     this.steamBaseUrl = 'https://api.steampowered.com';
     this.faceitBaseUrl = 'https://open.faceit.com/data/v4';
   }

@@ -120,8 +120,8 @@ export default function GameStats() {
 
   useEffect(() => {
     // Check if API keys are configured
-    const hasSteamKey = !!process.env.REACT_APP_STEAM_API_KEY;
-    const hasFaceitKey = !!process.env.REACT_APP_FACEIT_API_KEY;
+    const hasSteamKey = !!import.meta.env.VITE_STEAM_API_KEY;
+    const hasFaceitKey = !!import.meta.env.VITE_FACEIT_API_KEY;
     setApiKeysConfigured(hasSteamKey && hasFaceitKey);
     
     // Load data if we have IDs configured
@@ -665,7 +665,7 @@ export default function GameStats() {
                   <h4 className="text-gray-50 font-medium mb-3">API Keys Status</h4>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      {process.env.REACT_APP_STEAM_API_KEY ? (
+                      {import.meta.env.VITE_STEAM_API_KEY ? (
                         <CheckCircle className="w-4 h-4 text-green-400" />
                       ) : (
                         <AlertCircle className="w-4 h-4 text-red-400" />
@@ -673,7 +673,7 @@ export default function GameStats() {
                       <span className="text-gray-300">Steam API Key</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {process.env.REACT_APP_FACEIT_API_KEY ? (
+                      {import.meta.env.VITE_FACEIT_API_KEY ? (
                         <CheckCircle className="w-4 h-4 text-green-400" />
                       ) : (
                         <AlertCircle className="w-4 h-4 text-red-400" />

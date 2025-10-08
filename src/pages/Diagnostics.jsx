@@ -121,8 +121,8 @@ export default function Diagnostics() {
 
     try {
       // Test 6: Environment Variables
-      const hasSteamKey = !!process.env.REACT_APP_STEAM_API_KEY;
-      const hasFaceitKey = !!process.env.REACT_APP_FACEIT_API_KEY;
+      const hasSteamKey = !!import.meta.env.VITE_STEAM_API_KEY;
+      const hasFaceitKey = !!import.meta.env.VITE_FACEIT_API_KEY;
       
       results.environment = {
         status: hasSteamKey && hasFaceitKey ? 'success' : 'warning',
