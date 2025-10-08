@@ -4,6 +4,7 @@ import { BookOpen, Plus, Edit3, Save, X } from 'lucide-react';
 import PhysicsButton from '../components/PhysicsButton';
 // import { useNotificationHelpers } from '../components/NotificationSystem';
 import apiService from '../services/api';
+import { showSuccess } from '../utils/notifications';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -86,7 +87,9 @@ export default function JournalSimple() {
           setEntries(prev => [savedEntry, ...prev]);
           
           console.log('Journal entry saved successfully!', savedEntry);
-          alert('Journal entry saved successfully!');
+          
+          // Show beautiful notification
+          showSuccess('Journal entry saved successfully!');
         }
       } catch (backendError) {
         console.warn('Backend save failed, saving to localStorage:', backendError);

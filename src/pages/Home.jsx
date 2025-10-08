@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Droplets, 
@@ -71,6 +71,24 @@ export default function Home() {
   const remainingBudget = getRemainingBudget();
   const recentEntries = getRecentEntries(3);
 
+  // Recalculate water progress when waterData changes
+  const currentWaterProgress = waterData.goal > 0 ? Math.min((waterData.current / waterData.goal) * 100, 100) : 0;
+
+  // Force re-render when water data changes
+  const [, forceUpdate] = useState({});
+  const triggerUpdate = () => forceUpdate({});
+  
+  // Listen for storage changes to update UI
+  React.useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'ayubi_water') {
+        triggerUpdate();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // Dynamic greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -128,22 +146,36 @@ export default function Home() {
           variants={itemVariants}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
         >
-          <StatCard
-            title="Habits Completed"
-            value={`${getCompletedCount()}/${habits.length}`}
-            subtitle={`${habitCompletion}% completion rate`}
-            icon={Target}
-            color="primary"
-            trend={habitCompletion}
-          />
+          <motion.div
+            key={`habits-${getCompletedCount()}`}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <StatCard
+              title="Habits Completed"
+              value={`${getCompletedCount()}/${habits.length}`}
+              subtitle={`${habitCompletion}% completion rate`}
+              icon={Target}
+              color="primary"
+              trend={habitCompletion}
+            />
+          </motion.div>
           
-          <StatCard
-            title="Water Intake"
-            value={`${Math.round(waterData.current / 1000 * 10) / 10}L`}
-            subtitle={`${Math.round(waterProgress)}% of goal`}
-            icon={Droplets}
-            color="blue"
-          />
+          <motion.div
+            key={`water-${waterData.current}`}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <StatCard
+              title="Water Intake"
+              value={`${Math.round(waterData.current / 1000 * 10) / 10}L`}
+              subtitle={`${Math.round(currentWaterProgress)}% of goal`}
+              icon={Droplets}
+              color="blue"
+            />
+          </motion.div>
           
           <StatCard
             title="Today's Spending"
