@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import CommandPalette from './components/CommandPalette';
-import { NotificationProvider } from './components/NotificationSystem';
+import NotificationSystem, { NotificationProvider } from './components/NotificationSystem';
 // import { LoadingProvider } from './context/LoadingContext';
 // import LoadingIndicator from './components/LoadingIndicator';
 import Home from './pages/Home';
@@ -34,6 +34,7 @@ function App() {
               <Route path="/settings" element={<Settings />} />
             </Routes>
           </main>
+          <NotificationSystem />
         </div>
       </Router>
     </NotificationProvider>
