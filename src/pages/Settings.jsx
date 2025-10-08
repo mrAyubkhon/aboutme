@@ -1,11 +1,14 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Settings as SettingsIcon, 
   Trash2, 
   Download,
   Upload,
-  User
+  User,
+  Wrench,
+  Activity
 } from 'lucide-react';
 import { useWater } from '../hooks/useWater';
 import { useFinance } from '../hooks/useFinance';
@@ -32,10 +35,44 @@ const itemVariants = {
 };
 
 export default function Settings() {
+  const navigate = useNavigate();
   const { waterData, setGoal } = useWater();
   const { financeData, setDailyLimit } = useFinance();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showExportData, setShowExportData] = useState(false);
+
+  // Quick diagnostics function
+  const runQuickDiagnostics = () => {
+    const diagnostics = {
+      localStorage: {
+        habits: !!localStorage.getItem('ayubi_habits'),
+        water: !!localStorage.getItem('ayubi_water'),
+        finances: !!localStorage.getItem('ayubi_finances'),
+        journal: !!localStorage.getItem('ayubi_journal'),
+        settings: !!localStorage.getItem('ayubi_settings'),
+        travel: !!localStorage.getItem('ayubi_travel_wishlist')
+      },
+      browser: {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        online: navigator.onLine,
+        cookiesEnabled: navigator.cookieEnabled
+      },
+      performance: {
+        memory: performance.memory ? `${Math.round(performance.memory.usedJSHeapSize / 1024 / 1024)}MB` : 'N/A',
+        timing: performance.timing ? `${performance.timing.loadEventEnd - performance.timing.navigationStart}ms` : 'N/A'
+      },
+      environment: {
+        nodeEnv: import.meta.env.MODE,
+        apiUrl: import.meta.env.VITE_API_URL || 'Not configured',
+        steamApi: !!import.meta.env.VITE_STEAM_API_KEY,
+        faceitApi: !!import.meta.env.VITE_FACEIT_API_KEY
+      }
+    };
+
+    console.log('🔍 Quick Diagnostics:', diagnostics);
+    alert(`Diagnostics completed! Check console for details.\n\nQuick Summary:\n- LocalStorage: ${Object.values(diagnostics.localStorage).filter(Boolean).length}/6 items\n- Browser: ${diagnostics.browser.online ? 'Online' : 'Offline'}\n- Performance: ${diagnostics.performance.memory}\n- Environment: ${diagnostics.environment.nodeEnv}`);
+  };
 
   const handleExportData = () => {
     const data = {
@@ -167,6 +204,44 @@ export default function Settings() {
                   Current: {financeData.dailyLimit.toLocaleString()} UZS per day
                 </p>
               </div>
+            </Card>
+          </div>
+        </motion.div>
+
+        {/* System Diagnostics */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-50 mb-6">System Diagnostics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
+                <Activity className="mr-2 text-green-400" size={20} />
+                Quick Diagnostics
+              </h3>
+              <p className="text-gray-400 mb-4">
+                Run a quick system check to verify all components are working properly.
+              </p>
+              <PhysicsButton onClick={runQuickDiagnostics} className="w-full">
+                <Activity size={18} className="mr-2" />
+                Run Diagnostics
+              </PhysicsButton>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
+                <Wrench className="mr-2 text-blue-400" size={20} />
+                Advanced Diagnostics
+              </h3>
+              <p className="text-gray-400 mb-4">
+                Open the full diagnostics page for detailed system information.
+              </p>
+              <PhysicsButton 
+                variant="secondary"
+                onClick={() => navigate('/diagnostics')} 
+                className="w-full"
+              >
+                <Wrench size={18} className="mr-2" />
+                Open Diagnostics
+              </PhysicsButton>
             </Card>
           </div>
         </motion.div>

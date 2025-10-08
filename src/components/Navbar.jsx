@@ -7,6 +7,7 @@ import {
   Droplets, 
   DollarSign, 
   BookOpen, 
+  Globe,
   Settings,
   Gamepad2,
   Wrench,
@@ -50,7 +51,7 @@ export default function Navbar() {
   // Get icon component by name
   const getIcon = (iconName) => {
     const icons = {
-      Home, Calendar, Droplets, DollarSign, BookOpen, Settings, Gamepad2, Wrench
+      Home, Calendar, Droplets, DollarSign, BookOpen, Globe, Settings, Gamepad2, Wrench
     };
     return icons[iconName] || Home;
   };

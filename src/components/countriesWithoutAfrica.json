@@ -1,0 +1,17 @@
+{
+  "Asia": [
+    "Japan", "South Korea", "China", "India", "Thailand", "Vietnam", "Indonesia", "Singapore", "Philippines", "Malaysia", "Nepal", "Pakistan", "Sri Lanka", "Cambodia", "Bangladesh", "Laos", "Mongolia", "Uzbekistan", "Kazakhstan", "Turkmenistan", "Kyrgyzstan", "Tajikistan", "Georgia", "Armenia", "Azerbaijan", "Turkey", "Saudi Arabia", "UAE", "Qatar", "Kuwait", "Bahrain", "Oman", "Jordan", "Israel", "Lebanon", "Iran", "Iraq", "Syria", "Yemen"
+  ],
+  "Europe": [
+    "France", "Germany", "Italy", "Spain", "Portugal", "Switzerland", "Austria", "Netherlands", "Belgium", "Luxembourg", "Poland", "Czech Republic", "Slovakia", "Hungary", "Croatia", "Slovenia", "Serbia", "Montenegro", "Bosnia and Herzegovina", "Albania", "North Macedonia", "Greece", "Norway", "Sweden", "Finland", "Denmark", "Iceland", "Ireland", "United Kingdom", "Estonia", "Latvia", "Lithuania", "Ukraine", "Belarus", "Moldova", "Romania", "Bulgaria"
+  ],
+  "North America": [
+    "United States", "Canada", "Mexico", "Costa Rica", "Panama", "Guatemala", "Belize", "Honduras", "El Salvador", "Nicaragua"
+  ],
+  "South America": [
+    "Brazil", "Argentina", "Chile", "Peru", "Colombia", "Uruguay", "Paraguay", "Bolivia", "Ecuador", "Venezuela"
+  ],
+  "Oceania": [
+    "Australia", "New Zealand", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Vanuatu", "Micronesia", "Palau", "Kiribati"
+  ]
+}

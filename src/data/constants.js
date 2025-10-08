@@ -22,6 +22,7 @@ export const NAV_ITEMS = [
   { path: '/water', icon: 'Droplets', label: 'Water' },
   { path: '/finance', icon: 'DollarSign', label: 'Finance' },
   { path: '/journal', icon: 'BookOpen', label: 'Journal' },
+  { path: '/travel', icon: 'Globe', label: 'Travel' },
   { path: '/gamestats', icon: 'Gamepad2', label: 'Game Stats' },
   { path: '/diagnostics', icon: 'Wrench', label: 'Diagnostics' },
   { path: '/settings', icon: 'Settings', label: 'Settings' },

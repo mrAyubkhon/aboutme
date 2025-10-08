@@ -11,6 +11,7 @@ import Routine from './pages/Routine';
 import Water from './pages/Water';
 import Finance from './pages/Finance';
 import Journal from './pages/JournalSimple';
+import Travel from './pages/Travel';
 import GameStats from './pages/GameStats';
 import Diagnostics from './pages/Diagnostics';
 import Settings from './pages/Settings';
@@ -33,6 +34,7 @@ function App() {
               <Route path="/water" element={<Water />} />
               <Route path="/finance" element={<Finance />} />
               <Route path="/journal" element={<Journal />} />
+              <Route path="/travel" element={<Travel />} />
               <Route path="/gamestats" element={<GameStats />} />
               <Route path="/diagnostics" element={<Diagnostics />} />
               <Route path="/settings" element={<Settings />} />
