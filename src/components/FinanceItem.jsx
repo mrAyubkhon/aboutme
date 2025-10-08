@@ -94,14 +94,14 @@ export default function FinanceItem({
         </div>
       </div>
       
-      <Button
+      <PhysicsButton
         variant="ghost"
         size="sm"
         onClick={handleDelete}
         className="text-gray-500 hover:text-red-400"
       >
         <X size={16} />
-      </Button>
+      </PhysicsButton>
     </motion.div>
   );
 }

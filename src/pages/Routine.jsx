@@ -164,9 +164,9 @@ export default function Routine() {
           <motion.div variants={itemVariants} className="mb-6">
             <Card className="p-6 text-center">
               <p className="text-gray-300 mb-4">No habits yet. Add your first habit or start with some defaults.</p>
-              <Button onClick={addDefaultHabits}>
+              <PhysicsButton onClick={addDefaultHabits}>
                 Add Default Habits
-              </Button>
+              </PhysicsButton>
             </Card>
           </motion.div>
         )}

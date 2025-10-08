@@ -116,49 +116,49 @@ export default function WaterTracker({
       />
       
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <Button
+        <PhysicsButton
           onClick={() => handleAddWater(250)}
           className="flex items-center justify-center space-x-2"
         >
           <Plus size={16} />
           <span>+250ml</span>
-        </Button>
+        </PhysicsButton>
         
-        <Button
+        <PhysicsButton
           onClick={() => handleSubtractWater(250)}
           variant="secondary"
           className="flex items-center justify-center space-x-2"
         >
           <Minus size={16} />
           <span>-250ml</span>
-        </Button>
+        </PhysicsButton>
       </div>
       
       <div className="grid grid-cols-3 gap-2">
-        <Button
+        <PhysicsButton
           onClick={() => handleAddWater(500)}
           size="sm"
           className="text-xs"
         >
           +500ml
-        </Button>
+        </PhysicsButton>
         
-        <Button
+        <PhysicsButton
           onClick={() => handleAddWater(1000)}
           size="sm"
           className="text-xs"
         >
           +1L
-        </Button>
+        </PhysicsButton>
         
-        <Button
+        <PhysicsButton
           onClick={() => handleSubtractWater(500)}
           variant="secondary"
           size="sm"
           className="text-xs"
         >
           -500ml
-        </Button>
+        </PhysicsButton>
       </div>
       
       {remaining > 0 && (

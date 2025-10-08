@@ -270,16 +270,16 @@ export default function Finance() {
                 </div>
                 
                 <div className="flex space-x-3">
-                  <Button type="submit">
+                  <PhysicsButton type="submit">
                     Add Entry
-                  </Button>
-                  <Button 
+                  </PhysicsButton>
+                  <PhysicsButton 
                     type="button"
                     variant="secondary" 
                     onClick={() => setShowAddForm(false)}
                   >
                     Cancel
-                  </Button>
+                  </PhysicsButton>
                 </div>
               </form>
             </Card>
@@ -316,10 +316,10 @@ export default function Finance() {
               <DollarSign className="mx-auto text-gray-500 mb-4" size={48} />
               <h3 className="text-lg font-semibold text-gray-50 mb-2">No entries today</h3>
               <p className="text-gray-400 mb-4">Start tracking your finances by adding your first entry.</p>
-              <Button onClick={() => setShowAddForm(true)}>
+              <PhysicsButton onClick={() => setShowAddForm(true)}>
                 <Plus size={18} className="mr-2" />
                 Add Entry
-              </Button>
+              </PhysicsButton>
             </Card>
           )}
         </motion.div>

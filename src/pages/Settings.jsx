@@ -183,10 +183,10 @@ export default function Settings() {
               <p className="text-gray-400 mb-4">
                 Download all your data as a JSON backup file.
               </p>
-              <Button onClick={handleExportData} className="w-full">
+              <PhysicsButton onClick={handleExportData} className="w-full">
                 <Download size={18} className="mr-2" />
                 Export All Data
-              </Button>
+              </PhysicsButton>
             </Card>
 
             <Card className="p-6">
@@ -204,14 +204,14 @@ export default function Settings() {
                 className="hidden"
                 id="import-file"
               />
-              <Button 
+              <PhysicsButton 
                 variant="secondary" 
                 onClick={() => document.getElementById('import-file').click()}
                 className="w-full"
               >
                 <Upload size={18} className="mr-2" />
                 Import Data
-              </Button>
+              </PhysicsButton>
             </Card>
           </div>
         </motion.div>
@@ -227,13 +227,13 @@ export default function Settings() {
             <p className="text-gray-400 mb-4">
               This will permanently delete all your habits, water tracking, finances, and journal entries. This action cannot be undone.
             </p>
-            <Button
+            <PhysicsButton
               variant="danger"
               onClick={() => setShowResetConfirm(!showResetConfirm)}
             >
               <Trash2 size={18} className="mr-2" />
               Reset All Data
-            </Button>
+            </PhysicsButton>
             
             {showResetConfirm && (
               <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
@@ -241,18 +241,18 @@ export default function Settings() {
                   ⚠️ Are you absolutely sure? This will delete ALL your data permanently.
                 </p>
                 <div className="flex space-x-3">
-                  <Button
+                  <PhysicsButton
                     variant="danger"
                     onClick={handleResetAllData}
                   >
                     Yes, Delete Everything
-                  </Button>
-                  <Button
+                  </PhysicsButton>
+                  <PhysicsButton
                     variant="secondary"
                     onClick={() => setShowResetConfirm(false)}
                   >
                     Cancel
-                  </Button>
+                  </PhysicsButton>
                 </div>
               </div>
             )}

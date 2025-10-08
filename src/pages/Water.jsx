@@ -113,15 +113,15 @@ export default function Water() {
                   </p>
                 </div>
                 <div className="flex space-x-3">
-                  <Button onClick={handleGoalUpdate}>
+                  <PhysicsButton onClick={handleGoalUpdate}>
                     Update Goal
-                  </Button>
-                  <Button 
+                  </PhysicsButton>
+                  <PhysicsButton 
                     variant="secondary" 
                     onClick={() => setShowSettings(false)}
                   >
                     Cancel
-                  </Button>
+                  </PhysicsButton>
                 </div>
               </div>
             </Card>
@@ -134,7 +134,7 @@ export default function Water() {
             <h3 className="text-lg font-semibold text-gray-50 mb-4">Quick Add</h3>
             <div className="grid grid-cols-3 gap-3">
               {quickAddAmounts.map((amount) => (
-                <Button
+                <PhysicsButton
                   key={amount}
                   onClick={() => addWater(amount)}
                   variant="secondary"
@@ -142,7 +142,7 @@ export default function Water() {
                 >
                   <Droplets size={16} />
                   <span>+{amount}ml</span>
-                </Button>
+                </PhysicsButton>
               ))}
             </div>
           </Card>

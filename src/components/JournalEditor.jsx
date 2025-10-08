@@ -88,14 +88,14 @@ export default function JournalEditor({
         <h3 className="text-lg font-semibold text-gray-50">
           {entry ? 'Edit Entry' : 'New Journal Entry'}
         </h3>
-        <Button
+        <PhysicsButton
           variant="ghost"
           size="sm"
           onClick={handleCancel}
           className="text-gray-500 hover:text-white"
         >
           <X size={16} />
-        </Button>
+        </PhysicsButton>
       </div>
       
       <div className="space-y-4">
@@ -144,14 +144,14 @@ export default function JournalEditor({
         
         {/* Action Buttons */}
         <div className="flex justify-end space-x-3 pt-4">
-          <Button
+          <PhysicsButton
             variant="secondary"
             onClick={handleCancel}
             disabled={isLoading}
           >
             Cancel
-          </Button>
-          <Button
+          </PhysicsButton>
+          <PhysicsButton
             onClick={handleSave}
             disabled={!title.trim() || !content.trim() || isLoading}
             loading={isLoading}
@@ -159,7 +159,7 @@ export default function JournalEditor({
           >
             <Save size={16} />
             <span>{entry ? 'Update' : 'Save'}</span>
-          </Button>
+          </PhysicsButton>
             </div>
           </div>
           </div>

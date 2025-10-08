@@ -16,7 +16,10 @@ export const testSiteFunctionality = () => {
   }
   
   // Test fetch API
-  fetch('http://localhost:8000/health')
+  fetch('http://localhost:8000/health', {
+    mode: 'cors',
+    credentials: 'omit'
+  })
     .then(response => response.json())
     .then(data => {
       console.log('✅ Backend API: Working', data);

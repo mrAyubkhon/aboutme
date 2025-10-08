@@ -48,53 +48,64 @@ export default function GameStats() {
   const [faceitData, setFaceitData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [steamId, setSteamId] = useState(localStorage.getItem('steam_id') || '');
-  const [faceitNickname, setFaceitNickname] = useState(localStorage.getItem('faceit_nickname') || '');
+  const [steamId, setSteamId] = useState(localStorage.getItem('steam_id') || '76561199132216007');
+  const [faceitNickname, setFaceitNickname] = useState(localStorage.getItem('faceit_nickname') || 'Ayu6i');
   const [apiKeysConfigured, setApiKeysConfigured] = useState(false);
 
-  // Mock data for demonstration
+  // Real data based on Ayubi's Steam profile
   const mockSteamData = {
     profile: {
-      steamid: "76561198000000000",
+      steamid: "76561199132216007",
       personaname: "Ayubi",
       avatar: "https://avatars.steamstatic.com/avatar.jpg",
-      realname: "Ayubi Player",
-      loccountrycode: "UZ",
-      timecreated: 1234567890
+      realname: "Ayubi",
+      loccountrycode: "FR", // Paris, France
+      timecreated: 1234567890,
+      level: 16,
+      friends: 35
     },
     games: [
       {
         appid: 730,
         name: "Counter-Strike 2",
-        playtime_forever: 2847,
-        playtime_2weeks: 45,
+        playtime_forever: 1742, // 1,742 hours
+        playtime_2weeks: 28, // 28.5 hours past 2 weeks
         img_icon_url: "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_184x69.jpg",
-        last_played: 1704067200
+        last_played: 1696454400 // Oct 4, 2023
       },
       {
-        appid: 1172470,
-        name: "Apex Legends",
-        playtime_forever: 1234,
-        playtime_2weeks: 23,
-        img_icon_url: "https://cdn.akamai.steamstatic.com/steam/apps/1172470/capsule_184x69.jpg",
-        last_played: 1703980800
+        appid: 570,
+        name: "Dota 2",
+        playtime_forever: 1111, // 1,111 hours
+        playtime_2weeks: 15,
+        img_icon_url: "https://cdn.akamai.steamstatic.com/steam/apps/570/capsule_184x69.jpg",
+        last_played: 1696454400 // Oct 4, 2023
+      },
+      {
+        appid: 431960,
+        name: "Wallpaper Engine",
+        playtime_forever: 11, // 10.9 hours
+        playtime_2weeks: 0,
+        img_icon_url: "https://cdn.akamai.steamstatic.com/steam/apps/431960/capsule_184x69.jpg",
+        last_played: 1693094400 // Aug 26, 2023
       }
     ],
     stats: {
-      total_games: 156,
-      total_playtime: 8923,
-      games_played_2weeks: 12,
-      playtime_2weeks: 234
+      total_games: 5,
+      total_playtime: 2864, // Total hours across main games
+      games_played_2weeks: 2,
+      playtime_2weeks: 43 // 28.5 + ~15 hours
     }
   };
 
   const mockFaceitData = {
     player: {
-      player_id: "ayubi_player",
-      nickname: "Ayubi",
-      avatar: "https://cdn.faceit.com/avatars/ayubi.jpg",
-      country: "UZ",
-      membership_type: "premium"
+      player_id: "ayu6i_player",
+      nickname: "Ayu6i",
+      avatar: "https://cdn.faceit.com/avatars/ayu6i.jpg",
+      country: "RU", // Russian region
+      membership_type: "premium",
+      faceit_url: "https://www.faceit.com/ru/players/Ayu6i"
     },
     csgo_stats: {
       game_id: "csgo",
@@ -298,7 +309,7 @@ export default function GameStats() {
                 🎮 Game Statistics
               </h1>
               <p className="text-gray-400">
-                Track your gaming performance across Steam and Faceit
+                Real gaming stats from Ayubi's Steam & Faceit profiles
               </p>
             </div>
             
@@ -498,6 +509,7 @@ export default function GameStats() {
                 <PhysicsButton
                   variant="secondary"
                   className="flex items-center space-x-2"
+                  onClick={() => window.open('https://steamcommunity.com/profiles/76561199132216007', '_blank')}
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>View Profile</span>
@@ -557,11 +569,21 @@ export default function GameStats() {
                     {faceitData.player.membership_type === 'premium' ? 'Premium Member' : 'Free Member'}
                   </p>
                 </div>
-                <div className="text-right">
-                  <div className={`text-2xl font-bold ${getSkillLevelColor(faceitData.csgo_stats.skill_level)}`}>
-                    Level {faceitData.csgo_stats.skill_level}
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <div className={`text-2xl font-bold ${getSkillLevelColor(faceitData.csgo_stats.skill_level)}`}>
+                      Level {faceitData.csgo_stats.skill_level}
+                    </div>
+                    <div className="text-gray-400 text-sm">Skill Level</div>
                   </div>
-                  <div className="text-gray-400 text-sm">Skill Level</div>
+                  <PhysicsButton
+                    variant="secondary"
+                    className="flex items-center space-x-2"
+                    onClick={() => window.open('https://www.faceit.com/ru/players/Ayu6i', '_blank')}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>View Profile</span>
+                  </PhysicsButton>
                 </div>
               </div>
             </motion.div>
@@ -701,7 +723,7 @@ export default function GameStats() {
                         type="text"
                         value={steamId}
                         onChange={(e) => setSteamId(e.target.value)}
-                        placeholder="76561198000000000 or https://steamcommunity.com/id/username"
+                        placeholder="76561199132216007 (Ayubi's Steam ID)"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
@@ -727,7 +749,7 @@ export default function GameStats() {
                         type="text"
                         value={faceitNickname}
                         onChange={(e) => setFaceitNickname(e.target.value)}
-                        placeholder="your_faceit_nickname"
+                        placeholder="Ayu6i (Ayubi's Faceit nickname)"
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-50 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
@@ -745,10 +767,10 @@ export default function GameStats() {
                 <div className="bg-gray-800 rounded-lg p-4">
                   <h4 className="text-gray-50 font-medium mb-3">Setup Instructions</h4>
                   <div className="space-y-2 text-sm text-gray-300">
-                    <p>1. Get your Steam API key from <a href="https://steamcommunity.com/dev/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Steam Web API</a></p>
-                    <p>2. Get your Faceit API key from <a href="https://developers.faceit.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Faceit Developer Portal</a></p>
-                    <p>3. Add them as environment variables: REACT_APP_STEAM_API_KEY and REACT_APP_FACEIT_API_KEY</p>
-                    <p>4. Enter your Steam ID and Faceit nickname above</p>
+                    <p>✅ <strong>Steam Profile:</strong> <a href="https://steamcommunity.com/profiles/76561199132216007" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Ayubi's Steam</a></p>
+                    <p>✅ <strong>Faceit Profile:</strong> <a href="https://www.faceit.com/ru/players/Ayu6i" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Ayu6i's Faceit</a></p>
+                    <p>🔑 <strong>API Setup:</strong> Get keys from <a href="https://steamcommunity.com/dev/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Steam API</a> and <a href="https://developers.faceit.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Faceit API</a></p>
+                    <p>📝 <strong>Environment:</strong> Add VITE_STEAM_API_KEY and VITE_FACEIT_API_KEY to .env file</p>
                   </div>
                 </div>
               </div>

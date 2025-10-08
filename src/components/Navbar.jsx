@@ -73,6 +73,7 @@ export default function Navbar() {
               const Icon = getIcon(item.icon);
               return (
                 <motion.div
+                  key={item.path}
                   whileHover={{ 
                     scale: 1.05,
                     y: -1,

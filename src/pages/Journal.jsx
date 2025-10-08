@@ -99,7 +99,7 @@ export default function Journal() {
               <h1 className="text-3xl font-bold text-gray-50 mb-2">Journal</h1>
               <p className="text-gray-300">Record your thoughts and experiences</p>
             </div>
-            <Button
+            <PhysicsButton
               onClick={() => {
                 setEditingEntry(null);
                 setShowEditor(true);
@@ -108,7 +108,7 @@ export default function Journal() {
             >
               <Plus size={18} />
               <span>New Entry</span>
-            </Button>
+            </PhysicsButton>
           </div>
         </motion.div>
 
@@ -188,22 +188,22 @@ export default function Journal() {
                       </p>
                     </div>
                     <div className="flex space-x-2 ml-4">
-                      <Button
+                      <PhysicsButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEditEntry(entry)}
                         className="text-gray-500 hover:text-blue-400"
                       >
                         <Edit size={16} />
-                      </Button>
-                      <Button
+                      </PhysicsButton>
+                      <PhysicsButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteEntry(entry.id)}
                         className="text-gray-500 hover:text-red-400"
                       >
                         <Trash2 size={16} />
-                      </Button>
+                      </PhysicsButton>
                     </div>
                   </div>
                 </Card>
@@ -222,10 +222,10 @@ export default function Journal() {
                 }
               </p>
               {!searchQuery && (
-                <Button onClick={() => setShowEditor(true)}>
+                <PhysicsButton onClick={() => setShowEditor(true)}>
                   <Plus size={18} className="mr-2" />
                   Write First Entry
-                </Button>
+                </PhysicsButton>
               )}
             </Card>
           )}
