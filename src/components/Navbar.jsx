@@ -8,6 +8,8 @@ import {
   DollarSign, 
   BookOpen, 
   Settings,
+  Gamepad2,
+  Wrench,
   Menu,
   X
 } from 'lucide-react';
@@ -33,7 +35,7 @@ export default function Navbar() {
   // Get icon component by name
   const getIcon = (iconName) => {
     const icons = {
-      Home, Calendar, Droplets, DollarSign, BookOpen, Settings
+      Home, Calendar, Droplets, DollarSign, BookOpen, Settings, Gamepad2, Wrench
     };
     return icons[iconName] || Home;
   };

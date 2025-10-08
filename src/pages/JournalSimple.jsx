@@ -1,65 +1,152 @@
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { BookOpen, Plus, Edit3 } from 'lucide-react';
+import { BookOpen, Plus, Edit3, Save, X } from 'lucide-react';
 import PhysicsButton from '../components/PhysicsButton';
 import { useNotificationHelpers } from '../components/NotificationSystem';
+import apiService from '../services/api';
 
-/**
- * Debug version of Journal page
- */
-export default function JournalDebug() {
-  const [showEditor, setShowEditor] = useState(false);
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { duration: 0.3 }
+  }
+};
+
+export default function JournalSimple() {
   const [entries, setEntries] = useState([]);
+  const [showEditor, setShowEditor] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     tags: ''
   });
+  const [loading, setLoading] = useState(false);
   const { showEntrySaved, showError } = useNotificationHelpers();
+
+  // Load entries from backend
+  useEffect(() => {
+    loadEntries();
+  }, []);
+
+  const loadEntries = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getJournalEntries();
+      if (response.entries) {
+        setEntries(response.entries);
+      }
+    } catch (error) {
+      console.error('Failed to load entries:', error);
+      // Fallback to localStorage
+      const savedEntries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
+      setEntries(savedEntries);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSaveEntry = async () => {
     try {
-      // Validate form
       if (!formData.title.trim() || !formData.content.trim()) {
         showError('Validation Error', 'Please fill in both title and content fields.');
         return;
       }
 
-      // Create new entry
       const newEntry = {
-        id: Date.now(),
         title: formData.title,
         content: formData.content,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        createdAt: new Date().toISOString(),
-        mood: 'neutral'
       };
 
-      // Save to localStorage (simulating backend)
-      const existingEntries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
-      const updatedEntries = [newEntry, ...existingEntries];
-      localStorage.setItem('journal_entries', JSON.stringify(updatedEntries));
+      setLoading(true);
       
-      // Update state
-      setEntries(updatedEntries);
+      // Try to save to backend first
+      try {
+        const response = await apiService.createJournalEntry(newEntry);
+        if (response.entry_id) {
+          // Backend saved successfully
+          const savedEntry = {
+            id: response.entry_id,
+            ...newEntry,
+            created_at: new Date().toISOString()
+          };
+          setEntries(prev => [savedEntry, ...prev]);
+          
+          showEntrySaved('Journal entry saved successfully!', {
+            actions: [
+              {
+                label: 'View Entry',
+                primary: true,
+                onClick: () => {
+                  // Scroll to the new entry
+                  const entryElement = document.querySelector(`[data-entry-id="${savedEntry.id}"]`);
+                  if (entryElement) {
+                    entryElement.scrollIntoView({ behavior: 'smooth' });
+                    entryElement.style.backgroundColor = '#1f2937';
+                    setTimeout(() => {
+                      entryElement.style.backgroundColor = '';
+                    }, 2000);
+                  }
+                }
+              },
+              {
+                label: 'Add Another',
+                primary: false,
+                onClick: () => {
+                  setShowEditor(true);
+                  setFormData({ title: '', content: '', tags: '' });
+                }
+              }
+            ]
+          });
+        }
+      } catch (backendError) {
+        console.warn('Backend save failed, saving to localStorage:', backendError);
+        // Fallback to localStorage
+        const savedEntry = {
+          id: Date.now(),
+          ...newEntry,
+          createdAt: new Date().toISOString(),
+          mood: 'neutral'
+        };
+        
+        const existingEntries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
+        const updatedEntries = [savedEntry, ...existingEntries];
+        localStorage.setItem('journal_entries', JSON.stringify(updatedEntries));
+        
+        setEntries(updatedEntries);
+        
+        showEntrySaved('journal entry (saved locally)', {
+          actions: [
+            {
+              label: 'View Entry',
+              primary: true,
+              onClick: () => console.log('View entry:', savedEntry)
+            }
+          ]
+        });
+      }
       
-      // Clear form
       setFormData({ title: '', content: '', tags: '' });
       setShowEditor(false);
-      
-      // Show success notification
-      showEntrySaved('journal entry', {
-        actions: [
-          {
-            label: 'View Entry',
-            primary: true,
-            onClick: () => console.log('View entry:', newEntry)
-          }
-        ]
-      });
       
     } catch (error) {
       showError('Save Error', 'Failed to save journal entry. Please try again.');
       console.error('Error saving entry:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,20 +158,26 @@ export default function JournalDebug() {
     }));
   };
 
-  // Load existing entries on component mount
-  useEffect(() => {
-    const savedEntries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
-    setEntries(savedEntries);
-  }, []);
+  const sortedEntries = entries.sort((a, b) => 
+    new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt)
+  );
 
   return (
-    <div className="min-h-screen bg-gray-950 pt-16">
+    <motion.div
+      className="min-h-screen bg-gray-950 pt-16"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <motion.div variants={itemVariants} className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-50 mb-2">Journal & Thoughts</h1>
+              <h1 className="text-3xl font-bold text-gray-50 mb-2 flex items-center">
+                <BookOpen className="mr-3 text-blue-400" size={32} />
+                Journal & Thoughts
+              </h1>
               <p className="text-gray-300">Capture your thoughts, ideas, and daily reflections</p>
             </div>
             <PhysicsButton
@@ -96,11 +189,11 @@ export default function JournalDebug() {
               New Entry
             </PhysicsButton>
           </div>
-        </div>
+        </motion.div>
 
         {/* Journal Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-900 p-6 rounded-xl">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-50 flex items-center">
                 <BookOpen className="mr-2 text-blue-400" size={24} />
@@ -111,7 +204,7 @@ export default function JournalDebug() {
             <p className="text-sm text-gray-400">Journal entries</p>
           </div>
           
-          <div className="bg-gray-900 p-6 rounded-xl">
+          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-50 flex items-center">
                 <Edit3 className="mr-2 text-green-400" size={24} />
@@ -119,7 +212,7 @@ export default function JournalDebug() {
               </h3>
               <span className="text-2xl font-bold text-green-400">
                 {entries.filter(entry => {
-                  const entryDate = new Date(entry.createdAt);
+                  const entryDate = new Date(entry.created_at || entry.createdAt);
                   const weekAgo = new Date();
                   weekAgo.setDate(weekAgo.getDate() - 7);
                   return entryDate > weekAgo;
@@ -129,25 +222,28 @@ export default function JournalDebug() {
             <p className="text-sm text-gray-400">New entries</p>
           </div>
           
-          <div className="bg-gray-900 p-6 rounded-xl">
+          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-50 flex items-center">
                 <span className="mr-2 text-purple-400">📝</span>
                 Last Entry
               </h3>
               <span className="text-2xl font-bold text-purple-400">
-                {entries.length > 0 ? new Date(entries[0].createdAt).toLocaleDateString() : '-'}
+                {entries.length > 0 ? new Date(sortedEntries[0].created_at || sortedEntries[0].createdAt).toLocaleDateString() : '-'}
               </span>
             </div>
             <p className="text-sm text-gray-400">
               {entries.length > 0 ? 'Most recent' : 'Never'}
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Journal Editor */}
         {showEditor && (
-          <div className="bg-gray-900 p-6 rounded-xl mb-8">
+          <motion.div 
+            variants={itemVariants}
+            className="bg-gray-900 p-6 rounded-xl mb-8 border border-gray-800"
+          >
             <h3 className="text-lg font-semibold text-gray-50 mb-4">New Journal Entry</h3>
             <div className="space-y-4">
               <div>
@@ -193,9 +289,11 @@ export default function JournalDebug() {
                 <PhysicsButton
                   onClick={handleSaveEntry}
                   variant="primary"
-                  className="flex-1"
+                  className="flex-1 flex items-center justify-center space-x-2"
+                  disabled={loading}
                 >
-                  Save Entry
+                  <Save size={16} />
+                  <span>{loading ? 'Saving...' : 'Save Entry'}</span>
                 </PhysicsButton>
                 <PhysicsButton
                   onClick={() => {
@@ -203,22 +301,23 @@ export default function JournalDebug() {
                     setFormData({ title: '', content: '', tags: '' });
                   }}
                   variant="secondary"
-                  className="flex-1"
+                  className="flex-1 flex items-center justify-center space-x-2"
                 >
-                  Cancel
+                  <X size={16} />
+                  <span>Cancel</span>
                 </PhysicsButton>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Recent Entries */}
-        <div className="bg-gray-900 p-6 rounded-xl">
+        <motion.div variants={itemVariants} className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <h3 className="text-lg font-semibold text-gray-50 mb-4">Recent Entries</h3>
           {entries.length > 0 ? (
             <div className="space-y-4">
-              {entries.slice(0, 5).map((entry) => (
-                <div key={entry.id} className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              {sortedEntries.slice(0, 5).map((entry) => (
+                <div key={entry.id} data-entry-id={entry.id} className="bg-gray-800 p-4 rounded-lg border border-gray-700">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="text-gray-50 font-medium mb-2">{entry.title}</h4>
@@ -226,8 +325,8 @@ export default function JournalDebug() {
                         {entry.content}
                       </p>
                       <div className="flex items-center space-x-4 text-xs text-gray-400">
-                        <span>{new Date(entry.createdAt).toLocaleDateString()}</span>
-                        {entry.tags.length > 0 && (
+                        <span>{new Date(entry.created_at || entry.createdAt).toLocaleDateString()}</span>
+                        {entry.tags && entry.tags.length > 0 && (
                           <div className="flex space-x-1">
                             {entry.tags.slice(0, 3).map((tag, index) => (
                               <span key={index} className="bg-gray-700 px-2 py-1 rounded">
@@ -269,15 +368,8 @@ export default function JournalDebug() {
               </PhysicsButton>
             </div>
           )}
-        </div>
-
-        {/* Debug Info */}
-        <div className="mt-8 p-4 bg-gray-800 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-50 mb-2">Debug Info</h3>
-          <p className="text-gray-300">This is the debug version of the Journal page.</p>
-          <p className="text-gray-300">If you see this, the basic components are working.</p>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

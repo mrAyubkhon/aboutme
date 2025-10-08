@@ -24,6 +24,7 @@ import PhysicsButton from '../components/PhysicsButton';
 import FloatingParticles from '../components/FloatingParticles';
 import MagneticCard from '../components/MagneticCard';
 import ErrorBoundary from '../components/ErrorBoundary';
+import TestLoadingButton from '../components/TestLoadingButton';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -178,6 +179,14 @@ export default function Home() {
         {/* Smart Integrations */}
         <motion.div variants={itemVariants} className="mb-8">
           <IntegrationsPanel />
+        </motion.div>
+
+        {/* Test Loading Button */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
+            <h3 className="text-lg font-semibold text-gray-50 mb-4">Test New Features</h3>
+            <TestLoadingButton />
+          </div>
         </motion.div>
 
         {/* Quick Actions */}
