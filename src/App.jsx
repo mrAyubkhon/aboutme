@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import CommandPalette from './components/CommandPalette';
 import { NotificationProvider } from './components/NotificationSystem';
-import { LoadingProvider } from './context/LoadingContext';
-import LoadingIndicator from './components/LoadingIndicator';
+// import { LoadingProvider } from './context/LoadingContext';
+// import LoadingIndicator from './components/LoadingIndicator';
 import Home from './pages/Home';
 import Routine from './pages/Routine';
 import Water from './pages/Water';
@@ -17,8 +17,7 @@ import Settings from './pages/Settings';
 function App() {
   return (
     <NotificationProvider>
-      <LoadingProvider>
-        <Router>
+      <Router>
         <div className="min-h-screen bg-gray-950 transition-all duration-500 ease-in-out">
           <Navbar />
           <CommandPalette />
@@ -35,10 +34,8 @@ function App() {
               <Route path="/settings" element={<Settings />} />
             </Routes>
           </main>
-          <LoadingIndicator />
         </div>
-        </Router>
-      </LoadingProvider>
+      </Router>
     </NotificationProvider>
   );
 }
