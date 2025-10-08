@@ -24,6 +24,7 @@ import PhysicsButton from '../components/PhysicsButton';
 import FloatingParticles from '../components/FloatingParticles';
 import MagneticCard from '../components/MagneticCard';
 import ErrorBoundary from '../components/ErrorBoundary';
+import AddHabitModal from '../components/AddHabitModal';
 // import TestLoadingButton from '../components/TestLoadingButton';
 
 const containerVariants = {
@@ -47,7 +48,7 @@ const itemVariants = {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { habits = [], getCompletionRate = () => 0, getCompletedCount = () => 0 } = useHabits() || {};
+  const { habits = [], getCompletionRate = () => 0, getCompletedCount = () => 0, addHabit } = useHabits() || {};
   const { waterData = { current: 0, goal: 2500 }, getProgress = () => 0 } = useWater() || {};
   const { getTodayTotals = () => ({ income: 0, expenses: 0 }), getRemainingBudget = () => 0 } = useFinance() || {};
 
@@ -79,6 +80,14 @@ export default function Home() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  // Handle adding habit from modal
+  const handleAddHabit = (habitData) => {
+    if (addHabit) {
+      addHabit(habitData.name, habitData.description, habitData.icon, habitData.color, habitData.category);
+    }
+    setShowQuickAdd(false);
+  };
 
   // Dynamic greeting based on time of day
   const getGreeting = () => {
@@ -312,6 +321,13 @@ export default function Home() {
           </motion.div>
         )}
       </div>
+
+      {/* Add Habit Modal */}
+      <AddHabitModal
+        isOpen={showQuickAdd}
+        onClose={() => setShowQuickAdd(false)}
+        onAddHabit={handleAddHabit}
+      />
     </motion.div>
   );
 }

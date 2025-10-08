@@ -43,14 +43,19 @@ export default function JournalSimple() {
   const loadEntries = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getJournalEntries();
-      if (response.entries) {
-        setEntries(response.entries);
-      }
+      // Temporarily disabled backend - use localStorage only
+      // const response = await apiService.getJournalEntries();
+      // if (response.entries) {
+      //   setEntries(response.entries);
+      // }
+      
+      // Use localStorage only for now
+      const savedEntries = JSON.parse(localStorage.getItem('ayubi_journal') || '[]');
+      setEntries(savedEntries);
     } catch (error) {
       console.error('Failed to load entries:', error);
       // Fallback to localStorage
-      const savedEntries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
+      const savedEntries = JSON.parse(localStorage.getItem('ayubi_journal') || '[]');
       setEntries(savedEntries);
     } finally {
       setLoading(false);
@@ -73,41 +78,42 @@ export default function JournalSimple() {
 
       setLoading(true);
       
+      // Temporarily disabled backend - use localStorage only
       // Try to save to backend first
-      try {
-        const response = await apiService.createJournalEntry(newEntry);
-        if (response.entry_id) {
-          // Backend saved successfully
-          const savedEntry = {
-            id: response.entry_id,
-            ...newEntry,
-            created_at: new Date().toISOString()
-          };
-          setEntries(prev => [savedEntry, ...prev]);
-          
-          console.log('Journal entry saved successfully!', savedEntry);
-          
-          // Entry saved successfully
-        }
-      } catch (backendError) {
-        console.warn('Backend save failed, saving to localStorage:', backendError);
-        // Fallback to localStorage
-        const savedEntry = {
-          id: Date.now(),
-          ...newEntry,
-          createdAt: new Date().toISOString(),
-          mood: 'neutral'
-        };
+      // try {
+      //   const response = await apiService.createJournalEntry(newEntry);
+      //   if (response.entry_id) {
+      //     // Backend saved successfully
+      //     const savedEntry = {
+      //       id: response.entry_id,
+      //       ...newEntry,
+      //       created_at: new Date().toISOString()
+      //     };
+      //     setEntries(prev => [savedEntry, ...prev]);
+      //     
+      //     console.log('Journal entry saved successfully!', savedEntry);
+      //     
+      //     // Entry saved successfully
+      //   }
+      // } catch (backendError) {
+      //   console.warn('Backend save failed, saving to localStorage:', backendError);
+      
+      // Use localStorage directly
+      const savedEntry = {
+        id: Date.now(),
+        ...newEntry,
+        createdAt: new Date().toISOString(),
+        mood: 'neutral'
+      };
         
-        const existingEntries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
-        const updatedEntries = [savedEntry, ...existingEntries];
-        localStorage.setItem('journal_entries', JSON.stringify(updatedEntries));
+      const existingEntries = JSON.parse(localStorage.getItem('ayubi_journal') || '[]');
+      const updatedEntries = [savedEntry, ...existingEntries];
+      localStorage.setItem('ayubi_journal', JSON.stringify(updatedEntries));
         
-        setEntries(updatedEntries);
+      setEntries(updatedEntries);
         
-        console.log('Journal entry saved locally!', savedEntry);
-        alert('Journal entry saved locally!');
-      }
+      console.log('Journal entry saved locally!', savedEntry);
+      alert('Journal entry saved locally!');
       
       setFormData({ title: '', content: '', tags: '' });
       setShowEditor(false);
