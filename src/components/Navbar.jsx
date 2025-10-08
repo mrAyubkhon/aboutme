@@ -32,6 +32,21 @@ export default function Navbar() {
     return location.pathname.startsWith(path);
   };
 
+  // Get page title for better UX
+  const getPageTitle = (path) => {
+    const titles = {
+      '/': 'Dashboard',
+      '/routine': 'Habits',
+      '/water': 'Water Tracker', 
+      '/finance': 'Finance',
+      '/journal': 'Journal',
+      '/gamestats': 'Game Stats',
+      '/diagnostics': 'Diagnostics',
+      '/settings': 'Settings'
+    };
+    return titles[path] || 'Ayubi System';
+  };
+
   // Get icon component by name
   const getIcon = (iconName) => {
     const icons = {

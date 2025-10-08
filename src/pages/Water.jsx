@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Droplets, Settings } from 'lucide-react';
+import { Droplets, Settings, TrendingUp, Target, Zap } from 'lucide-react';
 import { useWater } from '../hooks/useWater';
 import Card from '../components/Card';
 import WaterTracker from '../components/WaterTracker';
 import PhysicsButton from '../components/PhysicsButton';
+import EnhancedCard, { EnhancedStatCard } from '../components/EnhancedCard';
+import EnhancedProgressBar, { CircularProgress } from '../components/EnhancedProgressBar';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -68,6 +70,72 @@ export default function Water() {
               Settings
             </PhysicsButton>
           </div>
+        </motion.div>
+
+        {/* Enhanced Stats Grid */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <EnhancedStatCard
+              title="Today's Progress"
+              value={`${Math.round((waterData.current / waterData.goal) * 100)}%`}
+              icon={<Droplets className="w-6 h-6" />}
+              color="blue"
+              trend={waterData.current > waterData.goal * 0.8 ? 'up' : 'neutral'}
+              change={`${waterData.current}ml / ${waterData.goal}ml`}
+            />
+            
+            <EnhancedStatCard
+              title="Remaining"
+              value={`${getRemaining()}ml`}
+              icon={<Target className="w-6 h-6" />}
+              color={getRemaining() > 500 ? 'yellow' : 'green'}
+              trend={getRemaining() < 500 ? 'up' : 'neutral'}
+              change={getRemaining() > 0 ? `${Math.ceil(getRemaining() / 250)} glasses` : 'Goal reached!'}
+            />
+            
+            <EnhancedStatCard
+              title="Streak"
+              value="7 days"
+              icon={<Zap className="w-6 h-6" />}
+              color="purple"
+              trend="up"
+              change="Keep it up!"
+            />
+          </div>
+        </motion.div>
+
+        {/* Circular Progress */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <EnhancedCard className="text-center" glow={true}>
+            <div className="flex items-center justify-center space-x-8">
+              <CircularProgress
+                value={waterData.current}
+                max={waterData.goal}
+                size={150}
+                variant="blue"
+                label="Daily Goal"
+                animated={true}
+              />
+              <div className="text-left">
+                <h3 className="text-xl font-semibold text-gray-50 mb-2">Hydration Status</h3>
+                <p className="text-gray-400 mb-4">
+                  {waterData.current >= waterData.goal 
+                    ? "🎉 Excellent! You've reached your daily goal!" 
+                    : `Keep going! ${getRemaining()}ml more to reach your goal.`
+                  }
+                </p>
+                <EnhancedProgressBar
+                  value={waterData.current}
+                  max={waterData.goal}
+                  size="lg"
+                  variant="blue"
+                  glow={true}
+                  animated={true}
+                  label="Progress"
+                />
+              </div>
+            </div>
+          </EnhancedCard>
         </motion.div>
 
         {/* Main Water Tracker */}

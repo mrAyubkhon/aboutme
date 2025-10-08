@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Plus, Target, Sparkles } from 'lucide-react';
+import { Plus, Target, Sparkles, TrendingUp, Calendar, Zap } from 'lucide-react';
 import { useHabits } from '../hooks/useHabits';
 import { DEFAULT_HABITS } from '../data/constants';
 import { PREDEFINED_HABITS } from '../data/habitsData';
 import Card from '../components/Card';
 import HabitItem from '../components/HabitItem';
 import PhysicsButton from '../components/PhysicsButton';
-import EnhancedProgressBar from '../components/EnhancedProgressBar';
+import EnhancedProgressBar, { CircularProgress } from '../components/EnhancedProgressBar';
+import EnhancedCard, { EnhancedStatCard } from '../components/EnhancedCard';
 import AddHabitModal from '../components/AddHabitModal';
 
 const containerVariants = {
@@ -90,31 +91,67 @@ export default function Routine() {
           </div>
         </motion.div>
 
-        {/* Progress Overview */}
+        {/* Enhanced Progress Overview */}
         <motion.div variants={itemVariants} className="mb-8">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-50 flex items-center">
-                <Target className="mr-2 text-blue-400" size={20} />
-                Daily Progress
-              </h3>
-              <span className="text-2xl font-bold text-blue-400">
-                {completedCount}/{habits.length}
-              </span>
-            </div>
-            <EnhancedProgressBar 
-              current={completedCount}
-              goal={habits.length}
-              label="Daily Habits"
-              type="habits"
-              className="mb-4"
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <EnhancedStatCard
+              title="Today's Progress"
+              value={`${completionRate}%`}
+              icon={<Target className="w-6 h-6" />}
+              color="blue"
+              trend={completionRate > 70 ? 'up' : 'neutral'}
+              change={`${completedCount} of ${habits.length} habits`}
             />
-            <p className="text-sm text-gray-400">
-              {completionRate === 100 
-                ? "🎉 All habits completed! Great job!" 
-                : `${habits.length - completedCount} habits remaining`}
-            </p>
-          </Card>
+            
+            <EnhancedStatCard
+              title="Streak"
+              value="12 days"
+              icon={<Zap className="w-6 h-6" />}
+              color="purple"
+              trend="up"
+              change="Personal best!"
+            />
+            
+            <EnhancedStatCard
+              title="Weekly Goal"
+              value="85%"
+              icon={<Calendar className="w-6 h-6" />}
+              color="green"
+              trend="up"
+              change="On track"
+            />
+          </div>
+
+          <EnhancedCard className="text-center" glow={true}>
+            <div className="flex items-center justify-center space-x-8">
+              <CircularProgress
+                value={completedCount}
+                max={habits.length}
+                size={150}
+                variant="blue"
+                label="Completed"
+                animated={true}
+              />
+              <div className="text-left">
+                <h3 className="text-xl font-semibold text-gray-50 mb-2">Daily Habits</h3>
+                <p className="text-gray-400 mb-4">
+                  {completionRate === 100 
+                    ? "🎉 Perfect! All habits completed today!" 
+                    : `${habits.length - completedCount} habits remaining today.`
+                  }
+                </p>
+                <EnhancedProgressBar
+                  value={completedCount}
+                  max={habits.length}
+                  size="lg"
+                  variant="blue"
+                  glow={true}
+                  animated={true}
+                  label="Progress"
+                />
+              </div>
+            </div>
+          </EnhancedCard>
         </motion.div>
 
         {/* Quick Add Popular Habits */}
