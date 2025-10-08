@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Plus, Edit3 } from 'lucide-react';
 import PhysicsButton from '../components/PhysicsButton';
-import { useNotificationHelpers } from '../components/NotificationSystem';
+// import { useNotificationHelpers } from '../components/NotificationSystem';
 
 /**
  * Debug version of Journal page
@@ -14,7 +14,7 @@ export default function JournalDebug() {
     content: '',
     tags: ''
   });
-  const { showEntrySaved, showError } = useNotificationHelpers();
+  // const { showEntrySaved, showError } = useNotificationHelpers();
 
   const handleSaveEntry = async () => {
     try {

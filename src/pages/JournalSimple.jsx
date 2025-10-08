@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { BookOpen, Plus, Edit3, Save, X } from 'lucide-react';
 import PhysicsButton from '../components/PhysicsButton';
-import { useNotificationHelpers } from '../components/NotificationSystem';
+// import { useNotificationHelpers } from '../components/NotificationSystem';
 import apiService from '../services/api';
 
 const containerVariants = {
@@ -33,7 +33,7 @@ export default function JournalSimple() {
     tags: ''
   });
   const [loading, setLoading] = useState(false);
-  const { showEntrySaved, showError } = useNotificationHelpers();
+  // const { showEntrySaved, showError } = useNotificationHelpers();
 
   // Load entries from backend
   useEffect(() => {
@@ -59,10 +59,11 @@ export default function JournalSimple() {
 
   const handleSaveEntry = async () => {
     try {
-      if (!formData.title.trim() || !formData.content.trim()) {
-        showError('Validation Error', 'Please fill in both title and content fields.');
-        return;
-      }
+        if (!formData.title.trim() || !formData.content.trim()) {
+          console.error('Validation Error: Please fill in both title and content fields.');
+          alert('Please fill in both title and content fields.');
+          return;
+        }
 
       const newEntry = {
         title: formData.title,
@@ -84,33 +85,8 @@ export default function JournalSimple() {
           };
           setEntries(prev => [savedEntry, ...prev]);
           
-          showEntrySaved('Journal entry saved successfully!', {
-            actions: [
-              {
-                label: 'View Entry',
-                primary: true,
-                onClick: () => {
-                  // Scroll to the new entry
-                  const entryElement = document.querySelector(`[data-entry-id="${savedEntry.id}"]`);
-                  if (entryElement) {
-                    entryElement.scrollIntoView({ behavior: 'smooth' });
-                    entryElement.style.backgroundColor = '#1f2937';
-                    setTimeout(() => {
-                      entryElement.style.backgroundColor = '';
-                    }, 2000);
-                  }
-                }
-              },
-              {
-                label: 'Add Another',
-                primary: false,
-                onClick: () => {
-                  setShowEditor(true);
-                  setFormData({ title: '', content: '', tags: '' });
-                }
-              }
-            ]
-          });
+          console.log('Journal entry saved successfully!', savedEntry);
+          alert('Journal entry saved successfully!');
         }
       } catch (backendError) {
         console.warn('Backend save failed, saving to localStorage:', backendError);
@@ -128,23 +104,16 @@ export default function JournalSimple() {
         
         setEntries(updatedEntries);
         
-        showEntrySaved('journal entry (saved locally)', {
-          actions: [
-            {
-              label: 'View Entry',
-              primary: true,
-              onClick: () => console.log('View entry:', savedEntry)
-            }
-          ]
-        });
+        console.log('Journal entry saved locally!', savedEntry);
+        alert('Journal entry saved locally!');
       }
       
       setFormData({ title: '', content: '', tags: '' });
       setShowEditor(false);
       
     } catch (error) {
-      showError('Save Error', 'Failed to save journal entry. Please try again.');
-      console.error('Error saving entry:', error);
+      console.error('Save Error: Failed to save journal entry. Please try again.', error);
+      alert('Failed to save journal entry. Please try again.');
     } finally {
       setLoading(false);
     }

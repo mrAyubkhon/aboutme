@@ -23,7 +23,7 @@ import {
 import PhysicsButton from '../components/PhysicsButton';
 import { useNavigate } from 'react-router-dom';
 import gameStatsService from '../services/gameStatsService';
-import { useNotificationHelpers } from '../components/NotificationSystem';
+// import { useNotificationHelpers } from '../components/NotificationSystem';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -42,7 +42,7 @@ const itemVariants = {
 
 export default function GameStats() {
   const navigate = useNavigate();
-  const { showError, showSuccess } = useNotificationHelpers();
+  // const { showError, showSuccess } = useNotificationHelpers();
   const [activeTab, setActiveTab] = useState('overview');
   const [steamData, setSteamData] = useState(null);
   const [faceitData, setFaceitData] = useState(null);
