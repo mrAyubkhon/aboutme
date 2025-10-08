@@ -52,15 +52,6 @@ export default function Home() {
   const { getTodayTotals = () => ({ income: 0, expenses: 0 }), getRemainingBudget = () => 0 } = useFinance() || {};
 
   // Get current time for dynamic greeting
-  const getTimeBasedGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return { text: "Good Morning", emoji: "🌅" };
-    if (hour < 17) return { text: "Good Afternoon", emoji: "☀️" };
-    if (hour < 21) return { text: "Good Evening", emoji: "🌆" };
-    return { text: "Good Night", emoji: "🌙" };
-  };
-
-  const greeting = getTimeBasedGreeting();
   const { getRecentEntries = () => [] } = useJournal() || {};
   
   const [showQuickAdd, setShowQuickAdd] = useState(false);

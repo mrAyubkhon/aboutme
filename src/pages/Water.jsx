@@ -7,7 +7,6 @@ import WaterTracker from '../components/WaterTracker';
 import PhysicsButton from '../components/PhysicsButton';
 import EnhancedCard, { EnhancedStatCard } from '../components/EnhancedCard';
 import EnhancedProgressBar, { CircularProgress } from '../components/EnhancedProgressBar';
-import { showSuccess, showInfo } from '../utils/notifications';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,24 +34,9 @@ export default function Water() {
     addWater(-amount);
   };
 
-  // Enhanced water addition with notifications
+  // Simple water addition
   const handleAddWater = (amount) => {
-    const oldProgress = getProgress();
     addWater(amount);
-    
-    // Show notification based on progress
-    setTimeout(() => {
-      const newProgress = getProgress();
-      if (newProgress >= 100) {
-        showSuccess('🎉 Water goal reached! Great job staying hydrated!');
-      } else if (newProgress >= 75) {
-        showInfo(`Almost there! ${Math.round(getRemaining())}ml more to reach your goal.`);
-      } else if (newProgress >= 50) {
-        showInfo(`Good progress! ${Math.round(getRemaining())}ml remaining today.`);
-      } else {
-        showInfo(`+${amount}ml added. Keep drinking water! 💧`);
-      }
-    }, 100);
   };
   const [showSettings, setShowSettings] = useState(false);
   const [newGoal, setNewGoal] = useState(waterData.goal);

@@ -10,7 +10,6 @@ import PhysicsButton from '../components/PhysicsButton';
 import EnhancedProgressBar, { CircularProgress } from '../components/EnhancedProgressBar';
 import EnhancedCard, { EnhancedStatCard } from '../components/EnhancedCard';
 import AddHabitModal from '../components/AddHabitModal';
-import { showSuccess, showInfo } from '../utils/notifications';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -46,23 +45,14 @@ export default function Routine() {
   const handleQuickAdd = (habitName) => {
     addHabit(habitName);
     setShowQuickAdd(false);
-    showSuccess(`✨ Added "${habitName}" to your habits!`);
   };
 
   const addDefaultHabits = () => {
-    const addedCount = DEFAULT_HABITS.filter(habitName => {
+    DEFAULT_HABITS.forEach(habitName => {
       if (!habits.find(h => h.name === habitName)) {
         addHabit(habitName);
-        return true;
       }
-      return false;
-    }).length;
-    
-    if (addedCount > 0) {
-      showSuccess(`🎯 Added ${addedCount} default habits to get you started!`);
-    } else {
-      showInfo('All default habits are already added!');
-    }
+    });
   };
 
   return (
