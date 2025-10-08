@@ -709,6 +709,40 @@ export default function GameStats() {
                       Currently showing demo data.
                     </p>
                   )}
+                  
+                  {/* API Test Buttons */}
+                  <div className="flex space-x-2 mt-3">
+                    <PhysicsButton
+                      onClick={async () => {
+                        const result = await gameStatsService.testSteamApi();
+                        if (result.success) {
+                          alert('✅ Steam API test successful!');
+                        } else {
+                          alert(`❌ Steam API test failed: ${result.error}`);
+                        }
+                      }}
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1"
+                    >
+                      Test Steam API
+                    </PhysicsButton>
+                    <PhysicsButton
+                      onClick={async () => {
+                        const result = await gameStatsService.testFaceitApi();
+                        if (result.success) {
+                          alert('✅ Faceit API test successful!');
+                        } else {
+                          alert(`❌ Faceit API test failed: ${result.error}`);
+                        }
+                      }}
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1"
+                    >
+                      Test Faceit API
+                    </PhysicsButton>
+                  </div>
                 </div>
 
                 {/* Steam Configuration */}

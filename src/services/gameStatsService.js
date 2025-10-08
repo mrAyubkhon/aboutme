@@ -10,23 +10,80 @@ class GameStatsService {
     this.faceitBaseUrl = 'https://open.faceit.com/data/v4';
   }
 
+  // Check API configuration status
+  getApiStatus() {
+    return {
+      steam: {
+        configured: !!this.steamApiKey,
+        key: this.steamApiKey ? `${this.steamApiKey.substring(0, 8)}...` : 'Not configured'
+      },
+      faceit: {
+        configured: !!this.faceitApiKey,
+        key: this.faceitApiKey ? `${this.faceitApiKey.substring(0, 8)}...` : 'Not configured'
+      }
+    };
+  }
+
+  // Test API connectivity
+  async testSteamApi() {
+    if (!this.steamApiKey) {
+      return { success: false, error: 'Steam API key not configured' };
+    }
+
+    try {
+      // Test with a simple request
+      const url = `${this.steamBaseUrl}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.steamApiKey}&steamids=76561199132216007`;
+      const response = await this.request(url);
+      return { success: true, data: response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async testFaceitApi() {
+    if (!this.faceitApiKey) {
+      return { success: false, error: 'Faceit API key not configured' };
+    }
+
+    try {
+      const url = `${this.faceitBaseUrl}/players?nickname=Ayu6i`;
+      const response = await this.request(url, {
+        headers: {
+          'Authorization': `Bearer ${this.faceitApiKey}`,
+        },
+      });
+      return { success: true, data: response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   async request(url, options = {}) {
     try {
+      console.log(`🔄 Making API request to: ${url}`);
+      
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
+          'User-Agent': 'Ayubi-Dashboard/1.0',
           ...options.headers,
         },
         ...options,
       });
 
+      console.log(`📊 Response status: ${response.status}`);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`❌ API Error: ${response.status} - ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log(`✅ API request successful`);
+      return data;
     } catch (error) {
-      console.error('Game stats request failed:', error);
+      console.error('❌ Game stats request failed:', error);
       throw error;
     }
   }
@@ -34,14 +91,22 @@ class GameStatsService {
   // Steam API methods
   async getSteamUser(steamId) {
     if (!this.steamApiKey) {
+      console.warn('⚠️ Steam API key not configured, using mock data');
       throw new Error('Steam API key not configured');
     }
 
-    const url = `${this.steamBaseUrl}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.steamApiKey}&steamids=${steamId}`;
+    console.log(`🎮 Fetching Steam user data for ID: ${steamId}`);
+    
+    // Clean steamId - remove any URL parts
+    const cleanSteamId = steamId.replace(/[^0-9]/g, '');
+    
+    const url = `${this.steamBaseUrl}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.steamApiKey}&steamids=${cleanSteamId}`;
     const response = await this.request(url);
     
     if (response.response && response.response.players && response.response.players.length > 0) {
-      return response.response.players[0];
+      const user = response.response.players[0];
+      console.log(`✅ Steam user found: ${user.personaname}`);
+      return user;
     }
     
     throw new Error('Steam user not found');
@@ -78,9 +143,12 @@ class GameStatsService {
   // Faceit API methods
   async getFaceitPlayer(nickname) {
     if (!this.faceitApiKey) {
+      console.warn('⚠️ Faceit API key not configured, using mock data');
       throw new Error('Faceit API key not configured');
     }
 
+    console.log(`🏆 Fetching Faceit player data for: ${nickname}`);
+    
     const url = `${this.faceitBaseUrl}/players?nickname=${encodeURIComponent(nickname)}`;
     const response = await this.request(url, {
       headers: {
@@ -88,6 +156,7 @@ class GameStatsService {
       },
     });
 
+    console.log(`✅ Faceit player found: ${response.nickname}`);
     return response;
   }
 
