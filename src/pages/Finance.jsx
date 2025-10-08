@@ -6,7 +6,7 @@ import { RippleButton, ParticleSystem } from '../components/MicroInteractions';
 import { useFinance } from '../hooks/useFinance';
 import Card, { StatCard } from '../components/Card';
 import FinanceItem from '../components/FinanceItem';
-import Button from '../components/Button';
+import PhysicsButton from '../components/PhysicsButton';
 
 const containerVariants = {
   hidden: { opacity: 0 },

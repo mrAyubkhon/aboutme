@@ -4,7 +4,7 @@ import { Droplets, Settings } from 'lucide-react';
 import { useWater } from '../hooks/useWater';
 import Card from '../components/Card';
 import WaterTracker from '../components/WaterTracker';
-import Button from '../components/Button';
+import PhysicsButton from '../components/PhysicsButton';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -59,14 +59,14 @@ export default function Water() {
               <h1 className="text-3xl font-bold text-gray-50 mb-2">Water Tracker</h1>
               <p className="text-gray-300">Stay hydrated and track your daily water intake</p>
             </div>
-            <Button
+            <PhysicsButton
               variant="secondary"
               onClick={() => setShowSettings(!showSettings)}
+              icon={Settings}
               className="flex items-center space-x-2"
             >
-              <Settings size={18} />
-              <span>Settings</span>
-            </Button>
+              Settings
+            </PhysicsButton>
           </div>
         </motion.div>
 

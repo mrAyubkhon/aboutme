@@ -4,7 +4,7 @@ import { BookOpen, Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { useJournal } from '../hooks/useJournal';
 import Card from '../components/Card';
 import JournalEditor from '../components/JournalEditor';
-import Button from '../components/Button';
+import PhysicsButton from '../components/PhysicsButton';
 
 const containerVariants = {
   hidden: { opacity: 0 },

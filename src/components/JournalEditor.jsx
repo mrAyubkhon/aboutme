@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Save, X, Tag } from 'lucide-react';
-import Button from './Button';
+import PhysicsButton from './PhysicsButton';
 
 /**
  * Journal entry editor component

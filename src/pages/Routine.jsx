@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Plus, Target } from 'lucide-react';
+import { Plus, Target, Sparkles } from 'lucide-react';
 import { useHabits } from '../hooks/useHabits';
 import { DEFAULT_HABITS } from '../data/constants';
+import { PREDEFINED_HABITS } from '../data/habitsData';
 import Card from '../components/Card';
 import HabitItem from '../components/HabitItem';
-import Button from '../components/Button';
-import ProgressBar from '../components/ProgressBar';
+import PhysicsButton from '../components/PhysicsButton';
+import EnhancedProgressBar from '../components/EnhancedProgressBar';
+import AddHabitModal from '../components/AddHabitModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -29,18 +31,19 @@ const itemVariants = {
 
 export default function Routine() {
   const { habits, addHabit, toggleHabit, deleteHabit, getCompletionRate, getCompletedCount } = useHabits();
-  const [newHabitName, setNewHabitName] = useState('');
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
 
   const completionRate = getCompletionRate();
   const completedCount = getCompletedCount();
 
-  const handleAddHabit = () => {
-    if (newHabitName.trim()) {
-      addHabit(newHabitName);
-      setNewHabitName('');
-      setShowAddForm(false);
-    }
+  const handleAddHabit = (habitData) => {
+    addHabit(habitData.name, habitData.description, habitData.icon, habitData.color, habitData.category);
+  };
+
+  const handleQuickAdd = (habitName) => {
+    addHabit(habitName);
+    setShowQuickAdd(false);
   };
 
   const addDefaultHabits = () => {
@@ -66,13 +69,24 @@ export default function Routine() {
               <h1 className="text-3xl font-bold text-gray-50 mb-2">Routine Tracker</h1>
               <p className="text-gray-300">Track your daily habits and build consistency</p>
             </div>
-            <Button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center space-x-2"
-            >
-              <Plus size={18} />
-              <span>Add Habit</span>
-            </Button>
+            <div className="flex items-center space-x-3">
+              <PhysicsButton
+                onClick={() => setShowAddModal(true)}
+                icon={Plus}
+                variant="primary"
+                className="flex items-center space-x-2"
+              >
+                Add Habit
+              </PhysicsButton>
+              <PhysicsButton
+                onClick={() => setShowQuickAdd(true)}
+                icon={Sparkles}
+                variant="secondary"
+                size="sm"
+              >
+                Quick Add
+              </PhysicsButton>
+            </div>
           </div>
         </motion.div>
 
@@ -88,9 +102,11 @@ export default function Routine() {
                 {completedCount}/{habits.length}
               </span>
             </div>
-            <ProgressBar 
-              progress={completionRate} 
-              label={`${completionRate}% Complete`}
+            <EnhancedProgressBar 
+              current={completedCount}
+              goal={habits.length}
+              label="Daily Habits"
+              type="habits"
               className="mb-4"
             />
             <p className="text-sm text-gray-400">
@@ -101,8 +117,8 @@ export default function Routine() {
           </Card>
         </motion.div>
 
-        {/* Add Habit Form */}
-        {showAddForm && (
+        {/* Quick Add Popular Habits */}
+        {showQuickAdd && (
           <motion.div
             variants={itemVariants}
             initial={{ opacity: 0, height: 0 }}
@@ -111,25 +127,33 @@ export default function Routine() {
             className="mb-6"
           >
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-50 mb-4">Add New Habit</h3>
-              <div className="flex space-x-3">
-                <input
-                  type="text"
-                  value={newHabitName}
-                  onChange={(e) => setNewHabitName(e.target.value)}
-                  placeholder="Enter habit name..."
-                  className="flex-1 px-3 py-2 border border-gray-800 rounded-xl bg-gray-800 text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddHabit()}
-                />
-                <Button onClick={handleAddHabit} disabled={!newHabitName.trim()}>
-                  Add
-                </Button>
-                <Button 
-                  variant="secondary" 
-                  onClick={() => setShowAddForm(false)}
+              <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
+                <Sparkles className="mr-2 text-yellow-400" size={20} />
+                Quick Add Popular Habits
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {PREDEFINED_HABITS.slice(0, 8).map((habit) => (
+                  <PhysicsButton
+                    key={habit.id}
+                    onClick={() => handleQuickAdd(habit.name)}
+                    variant="ghost"
+                    className="flex flex-col items-center space-y-2 p-3 h-auto"
+                  >
+                    <span className="text-2xl">{habit.icon}</span>
+                    <span className="text-sm font-medium text-gray-300 text-center">
+                      {habit.name}
+                    </span>
+                  </PhysicsButton>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-800">
+                <PhysicsButton
+                  onClick={() => setShowQuickAdd(false)}
+                  variant="secondary"
+                  className="w-full"
                 >
-                  Cancel
-                </Button>
+                  Close Quick Add
+                </PhysicsButton>
               </div>
             </Card>
           </motion.div>
@@ -168,14 +192,25 @@ export default function Routine() {
               <Target className="mx-auto text-gray-500 mb-4" size={48} />
               <h3 className="text-lg font-semibold text-gray-50 mb-2">No habits yet</h3>
               <p className="text-gray-400 mb-4">Start building your daily routine by adding your first habit.</p>
-              <Button onClick={() => setShowAddForm(true)}>
-                <Plus size={18} className="mr-2" />
+              <PhysicsButton
+                onClick={() => setShowAddModal(true)}
+                icon={Plus}
+                variant="primary"
+                className="flex items-center space-x-2"
+              >
                 Add Your First Habit
-              </Button>
+              </PhysicsButton>
             </Card>
           )}
         </motion.div>
       </div>
+
+      {/* Add Habit Modal */}
+      <AddHabitModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAddHabit={handleAddHabit}
+      />
     </motion.div>
   );
 }

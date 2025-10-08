@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Droplets, Plus, Minus } from 'lucide-react';
 import ProgressBar from './ProgressBar';
-import Button from './Button';
+import PhysicsButton from './PhysicsButton';
 
 /**
  * Water tracking component with intake controls and progress

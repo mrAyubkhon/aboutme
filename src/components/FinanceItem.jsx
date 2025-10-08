@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowUp, ArrowDown, X } from 'lucide-react';
-import Button from './Button';
+import PhysicsButton from './PhysicsButton';
 
 /**
  * Finance entry component for displaying income/expense items

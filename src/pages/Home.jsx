@@ -11,13 +11,19 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import Logo from '../components/Logo';
+import ModernLogo from '../components/ModernLogo';
+import LiveClock from '../components/LiveClock';
 import { useHabits } from '../hooks/useHabits';
 import { useWater } from '../hooks/useWater';
 import { useFinance } from '../hooks/useFinance';
 import { useJournal } from '../hooks/useJournal';
 import Card, { StatCard, ActionCard } from '../components/Card';
-import ProgressBar from '../components/ProgressBar';
+import EnhancedProgressBar from '../components/EnhancedProgressBar';
+import IntegrationsPanel from '../components/IntegrationsPanel';
+import PhysicsButton from '../components/PhysicsButton';
+import FloatingParticles from '../components/FloatingParticles';
+import MagneticCard from '../components/MagneticCard';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -40,10 +46,10 @@ const itemVariants = {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { habits, getCompletionRate, getCompletedCount } = useHabits();
-  const { waterData, getProgress } = useWater();
-  const { getTodayTotals, getRemainingBudget } = useFinance();
-  const { getRecentEntries } = useJournal();
+  const { habits = [], getCompletionRate = () => 0, getCompletedCount = () => 0 } = useHabits() || {};
+  const { waterData = { current: 0, goal: 2500 }, getProgress = () => 0 } = useWater() || {};
+  const { getTodayTotals = () => ({ income: 0, expenses: 0 }), getRemainingBudget = () => 0 } = useFinance() || {};
+  const { getRecentEntries = () => [] } = useJournal() || {};
   
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   
@@ -53,25 +59,54 @@ export default function Home() {
   const remainingBudget = getRemainingBudget();
   const recentEntries = getRecentEntries(3);
 
+  // Dynamic greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    
+    if (hour >= 5 && hour < 12) {
+      return { text: "Good morning", emoji: "🌅" };
+    } else if (hour >= 12 && hour < 17) {
+      return { text: "Good afternoon", emoji: "☀️" };
+    } else if (hour >= 17 && hour < 22) {
+      return { text: "Good evening", emoji: "🌆" };
+    } else {
+      return { text: "Good night", emoji: "🌙" };
+    }
+  };
+
+  const greeting = getGreeting();
+
   return (
     <motion.div
-      className="min-h-screen bg-gray-950 pt-16"
+      className="min-h-screen bg-gray-950 pt-16 relative overflow-hidden"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
+      {/* Floating particles background */}
+      <FloatingParticles 
+        count={15} 
+        colors={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']}
+        className="opacity-20"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div variants={itemVariants} className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <Logo size="lg" animated={true} />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-50 mb-2">
-                Good morning! 👋
-              </h1>
-              <p className="text-gray-300">
-                Here's your daily overview
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <ModernLogo 
+                size="lg" 
+                animated={true} 
+                greeting={{
+                  text: `${greeting.text}! ${greeting.emoji}`,
+                  subtext: "Here's your daily overview"
+                }}
+              />
+            </div>
+            
+            {/* Live Clock */}
+            <div className="hidden md:block">
+              <LiveClock />
             </div>
           </div>
         </motion.div>
@@ -115,71 +150,94 @@ export default function Home() {
           />
         </motion.div>
 
-        {/* Progress Overview */}
+        {/* Enhanced Progress Overview */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
-              <Calendar className="mr-2 text-blue-400" size={20} />
-              Habit Progress
-            </h3>
-            <ProgressBar 
-              progress={habitCompletion} 
+          <MagneticCard>
+            <EnhancedProgressBar 
+              current={getCompletedCount()}
+              goal={Math.max(habits.length, 1)}
               label="Daily Habits"
-              className="mb-4"
+              type="habits"
+              showGoal={true}
+              showMotivation={true}
             />
-            <p className="text-sm text-gray-400">
-              {getCompletedCount()} of {habits.length} habits completed today
-            </p>
-          </Card>
+          </MagneticCard>
           
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
-              <Droplets className="mr-2 text-blue-400" size={20} />
-              Water Progress
-            </h3>
-            <ProgressBar 
-              progress={waterProgress} 
-              label="Daily Goal"
-              className="mb-4"
+          <MagneticCard>
+            <EnhancedProgressBar 
+              current={waterData.current}
+              goal={waterData.goal}
+              label="Water Intake"
+              type="water"
+              showGoal={true}
+              showMotivation={true}
             />
-            <p className="text-sm text-gray-400">
-              {waterData.current}ml of {waterData.goal}ml consumed
-            </p>
-          </Card>
+          </MagneticCard>
+        </motion.div>
+
+        {/* Smart Integrations */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <IntegrationsPanel />
         </motion.div>
 
         {/* Quick Actions */}
         <motion.div variants={itemVariants}>
           <h3 className="text-xl font-semibold text-gray-50 mb-6">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <ActionCard
-              title="Add Habit"
-              description="Track a new daily habit"
-              icon={Plus}
+          <ErrorBoundary>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <PhysicsButton
               onClick={() => setShowQuickAdd(true)}
-            />
+              icon={Plus}
+              variant="primary"
+              size="lg"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+            >
+              <div className="text-center">
+                <div className="font-semibold text-base mb-1">Add Habit</div>
+                <div className="text-xs opacity-75 leading-tight">Track a new daily habit</div>
+              </div>
+            </PhysicsButton>
             
-            <ActionCard
-              title="Log Water"
-              description="Record water intake"
-              icon={Droplets}
+            <PhysicsButton
               onClick={() => navigate('/water')}
-            />
+              icon={Droplets}
+              variant="secondary"
+              size="lg"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+            >
+              <div className="text-center">
+                <div className="font-semibold text-base mb-1">Log Water</div>
+                <div className="text-xs opacity-75 leading-tight">Record water intake</div>
+              </div>
+            </PhysicsButton>
             
-            <ActionCard
-              title="Add Expense"
-              description="Track spending"
-              icon={DollarSign}
+            <PhysicsButton
               onClick={() => navigate('/finance')}
-            />
+              icon={DollarSign}
+              variant="success"
+              size="lg"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+            >
+              <div className="text-center">
+                <div className="font-semibold text-base mb-1">Add Expense</div>
+                <div className="text-xs opacity-75 leading-tight">Track spending</div>
+              </div>
+            </PhysicsButton>
             
-            <ActionCard
-              title="Write Journal"
-              description="Record thoughts"
-              icon={BookOpen}
+            <PhysicsButton
               onClick={() => navigate('/journal')}
-            />
-          </div>
+              icon={BookOpen}
+              variant="primary"
+              size="lg"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+            >
+              <div className="text-center">
+                <div className="font-semibold text-base mb-1">Write Journal</div>
+                <div className="text-xs opacity-75 leading-tight">Record thoughts</div>
+              </div>
+            </PhysicsButton>
+            </div>
+          </ErrorBoundary>
         </motion.div>
 
         {/* Recent Journal Entries */}

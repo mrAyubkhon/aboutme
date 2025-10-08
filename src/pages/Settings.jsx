@@ -10,7 +10,7 @@ import {
 import { useWater } from '../hooks/useWater';
 import { useFinance } from '../hooks/useFinance';
 import Card from '../components/Card';
-import Button from '../components/Button';
+import PhysicsButton from '../components/PhysicsButton';
 
 const containerVariants = {
   hidden: { opacity: 0 },

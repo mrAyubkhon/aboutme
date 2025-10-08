@@ -12,7 +12,8 @@ import {
   X
 } from 'lucide-react';
 import { NAV_ITEMS, APP_NAME } from '../data/constants';
-import Logo from './Logo';
+import ModernLogo from './ModernLogo';
+import PhysicsButton from './PhysicsButton';
 
 /**
  * Navigation bar component with responsive mobile menu
@@ -60,7 +61,7 @@ export default function Navbar() {
             transition={{ delay: 0.1 }}
           >
             <Link to="/" className="hover:scale-105 transition-transform duration-200">
-              <Logo size="md" animated={true} />
+              <ModernLogo size="md" animated={true} />
             </Link>
           </motion.div>
 
@@ -105,12 +106,13 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="flex items-center space-x-2">
-            <button
+            <PhysicsButton
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-300 hover:text-white hover:border-blue-500 transition-colors duration-200"
-            >
-              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
+              icon={isMobileMenuOpen ? X : Menu}
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+            />
           </div>
         </div>
 

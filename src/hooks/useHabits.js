@@ -8,12 +8,18 @@ export function useHabits() {
   const [habits, setHabits] = useLocalStorage('ayubi_habits', []);
   
   // Add a new habit
-  const addHabit = (name) => {
+  const addHabit = (name, description = '', icon = '🎯', color = 'blue', category = 'personal') => {
     const newHabit = {
       id: Date.now().toString(),
       name: name.trim(),
+      description: description.trim(),
+      icon,
+      color,
+      category,
       completed: false,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      streak: 0,
+      lastCompleted: null
     };
     setHabits(prev => [...prev, newHabit]);
   };
