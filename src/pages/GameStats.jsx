@@ -52,17 +52,18 @@ export default function GameStats() {
   const [faceitNickname, setFaceitNickname] = useState(localStorage.getItem('faceit_nickname') || 'Ayu6i');
   const [apiKeysConfigured, setApiKeysConfigured] = useState(false);
 
-  // Real data based on Ayubi's Steam profile
+  // Real data based on Ayubi's Steam profile from API
   const mockSteamData = {
     profile: {
       steamid: "76561199132216007",
       personaname: "Ayubi",
-      avatar: "https://avatars.steamstatic.com/avatar.jpg",
-      realname: "Ayubi",
-      loccountrycode: "FR", // Paris, France
-      timecreated: 1234567890,
+      avatar: "https://avatars.steamstatic.com/179b6cd337924277a6b6d6abab5cfec04ed8dd55.jpg",
+      realname: "Zidane",
+      loccountrycode: "FR", // France
+      timecreated: 1611141567, // Real creation date
       level: 16,
-      friends: 35
+      friends: 35,
+      profileurl: "https://steamcommunity.com/profiles/76561199132216007/"
     },
     games: [
       {
@@ -100,18 +101,27 @@ export default function GameStats() {
 
   const mockFaceitData = {
     player: {
-      player_id: "ayu6i_player",
+      player_id: "4a9a2858-0dcc-40ab-9f86-2a51ff211509",
       nickname: "Ayu6i",
-      avatar: "https://cdn.faceit.com/avatars/ayu6i.jpg",
-      country: "RU", // Russian region
-      membership_type: "premium",
-      faceit_url: "https://www.faceit.com/ru/players/Ayu6i"
+      avatar: "https://distribution.faceit-cdn.net/images/ec8b989a-4834-46e4-aa16-886067ef1983.jpeg",
+      country: "FR", // France
+      membership_type: "free",
+      faceit_url: "https://www.faceit.com/ru/players/Ayu6i",
+      steam_id_64: "76561199132216007"
+    },
+    cs2_stats: {
+      game_id: "cs2",
+      region: "EU",
+      skill_level: 10, // Real CS2 level
+      faceit_elo: 2139, // Real CS2 ELO
+      game_player_name: "character"
     },
     csgo_stats: {
-      game_id: "csgo",
+      game_id: "csgo", 
       region: "EU",
-      skill_level: 8,
-      faceit_elo: 2456,
+      skill_level: 1, // Real CS:GO level
+      faceit_elo: 691, // Real CS:GO ELO
+      game_player_name: "elec",
       matches: 423,
       wins: 267,
       losses: 156,
@@ -309,7 +319,7 @@ export default function GameStats() {
                 🎮 Game Statistics
               </h1>
               <p className="text-gray-400">
-                Real gaming stats from Ayubi's Steam & Faceit profiles
+                Live gaming stats from Ayubi's Steam & Faceit profiles via API
               </p>
             </div>
             
@@ -411,7 +421,7 @@ export default function GameStats() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-400 text-sm">Faceit ELO</p>
-                    <p className="text-2xl font-bold text-gray-50">{faceitData?.csgo_stats.faceit_elo || 0}</p>
+                    <p className="text-2xl font-bold text-gray-50">{faceitData?.cs2_stats?.faceit_elo || faceitData?.csgo_stats?.faceit_elo || 0}</p>
                   </div>
                   <Trophy className="w-8 h-8 text-yellow-400" />
                 </div>
@@ -421,8 +431,8 @@ export default function GameStats() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-400 text-sm">Win Rate</p>
-                    <p className={`text-2xl font-bold ${getWinRateColor(faceitData?.csgo_stats.win_rate || 0)}`}>
-                      {faceitData?.csgo_stats.win_rate || 0}%
+                    <p className={`text-2xl font-bold ${getWinRateColor(faceitData?.csgo_stats?.win_rate || 0)}`}>
+                      {faceitData?.csgo_stats?.win_rate || 0}%
                     </p>
                   </div>
                   <Target className="w-8 h-8 text-red-400" />
@@ -466,8 +476,8 @@ export default function GameStats() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400">Skill Level</span>
-                    <span className={`font-bold ${getSkillLevelColor(faceitData?.csgo_stats.skill_level || 0)}`}>
-                      Level {faceitData?.csgo_stats.skill_level || 0}
+                    <span className={`font-bold ${getSkillLevelColor(faceitData?.cs2_stats?.skill_level || faceitData?.csgo_stats?.skill_level || 0)}`}>
+                      Level {faceitData?.cs2_stats?.skill_level || faceitData?.csgo_stats?.skill_level || 0}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -571,8 +581,8 @@ export default function GameStats() {
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
-                    <div className={`text-2xl font-bold ${getSkillLevelColor(faceitData.csgo_stats.skill_level)}`}>
-                      Level {faceitData.csgo_stats.skill_level}
+                    <div className={`text-2xl font-bold ${getSkillLevelColor(faceitData.cs2_stats?.skill_level || faceitData.csgo_stats?.skill_level)}`}>
+                      Level {faceitData.cs2_stats?.skill_level || faceitData.csgo_stats?.skill_level}
                     </div>
                     <div className="text-gray-400 text-sm">Skill Level</div>
                   </div>
@@ -594,7 +604,7 @@ export default function GameStats() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-400 text-sm">ELO</p>
-                    <p className="text-2xl font-bold text-yellow-400">{faceitData.csgo_stats.faceit_elo}</p>
+                    <p className="text-2xl font-bold text-yellow-400">{faceitData.cs2_stats?.faceit_elo || faceitData.csgo_stats?.faceit_elo}</p>
                   </div>
                   <Trophy className="w-8 h-8 text-yellow-400" />
                 </div>
