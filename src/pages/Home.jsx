@@ -187,27 +187,29 @@ export default function Home() {
 
         {/* Enhanced Progress Overview */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <MagneticCard>
-            <EnhancedProgressBar 
-              current={getCompletedCount()}
-              goal={Math.max(habits.length, 1)}
-              label="Daily Habits"
-              type="habits"
-              showGoal={true}
-              showMotivation={true}
-            />
-          </MagneticCard>
-          
-          <MagneticCard>
-            <EnhancedProgressBar 
-              current={waterData.current}
-              goal={waterData.goal}
-              label="Water Intake"
-              type="water"
-              showGoal={true}
-              showMotivation={true}
-            />
-          </MagneticCard>
+            <MagneticCard>
+              <EnhancedProgressBar 
+                value={getCompletedCount()}
+                max={Math.max(habits.length, 1)}
+                label="Daily Habits"
+                variant="blue"
+                size="lg"
+                glow={true}
+                animated={true}
+              />
+            </MagneticCard>
+            
+            <MagneticCard>
+              <EnhancedProgressBar 
+                value={waterData.current}
+                max={waterData.goal}
+                label="Water Intake"
+                variant="blue"
+                size="lg"
+                glow={true}
+                animated={true}
+              />
+            </MagneticCard>
         </motion.div>
 
         {/* Smart Integrations */}

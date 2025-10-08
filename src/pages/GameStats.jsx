@@ -189,7 +189,9 @@ export default function GameStats() {
   const loadSteamData = async () => {
     try {
       if (!apiKeysConfigured) {
-        throw new Error('Steam API key not configured');
+        console.log('Steam API key not configured, using demo data');
+        setSteamData(mockSteamData);
+        return;
       }
       
       const [userData, gamesData] = await Promise.all([
@@ -211,7 +213,7 @@ export default function GameStats() {
       setSteamData(formattedData);
       
     } catch (error) {
-      console.error('Failed to load Steam data:', error);
+      console.log('Steam API error, using demo data:', error.message);
       // Use mock data as fallback
       setSteamData(mockSteamData);
     }
@@ -220,7 +222,9 @@ export default function GameStats() {
   const loadFaceitData = async () => {
     try {
       if (!apiKeysConfigured) {
-        throw new Error('Faceit API key not configured');
+        console.log('Faceit API key not configured, using demo data');
+        setFaceitData(mockFaceitData);
+        return;
       }
       
       const playerData = await gameStatsService.getFaceitPlayer(faceitNickname);
@@ -245,7 +249,7 @@ export default function GameStats() {
       setFaceitData(formattedData);
       
     } catch (error) {
-      console.error('Failed to load Faceit data:', error);
+      console.log('Faceit API error, using demo data:', error.message);
       // Use mock data as fallback
       setFaceitData(mockFaceitData);
     }
