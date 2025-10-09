@@ -240,7 +240,13 @@ export default function Home() {
 
         {/* Quick Actions */}
         <motion.div variants={itemVariants}>
-          <h3 className="text-xl font-semibold text-gray-50 mb-6">Quick Actions</h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-gray-50">Quick Actions</h3>
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>System Online</span>
+            </div>
+          </div>
           <ErrorBoundary>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <PhysicsButton

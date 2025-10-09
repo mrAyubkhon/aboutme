@@ -47,6 +47,12 @@ function normalize(geo) {
   const continent = p.CONTINENT || p.continent || p.REGION_UN || p.region_un || 'Unknown';
   const iso2 = isoMap[iso3] || null;
   
+  // Debug logging for first few countries
+  if (geo.rsmKey < 3) {
+    console.log(`Normalize debug - Properties:`, p);
+    console.log(`Normalize debug - Result:`, { iso3, iso2, name, continent });
+  }
+  
   return { iso3, iso2, name, continent };
 }
 
@@ -89,6 +95,7 @@ export default function TravelMap() {
 
   // Save wishlist to localStorage whenever it changes
   useEffect(() => {
+    console.log('Wishlist updated:', [...wishlist]);
     localStorage.setItem('travel_wishlist_iso', JSON.stringify([...wishlist]));
   }, [wishlist]);
 
@@ -126,6 +133,8 @@ export default function TravelMap() {
   // Get country fill color - FIXED LOGIC
   const getCountryFill = useCallback((geo) => {
     const country = normalize(geo);
+    
+    console.log(`Country: ${country.name}, ISO: ${country.iso3}, In wishlist: ${wishlist.has(country.iso3)}`);
     
     // African countries should be disabled (gray)
     if (isAfrica(country.continent)) {
@@ -236,6 +245,22 @@ export default function TravelMap() {
             glow={true}
             animated={true}
           />
+        </motion.div>
+
+        {/* Debug Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gray-900 p-4 rounded-xl border border-gray-800"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-semibold text-gray-300">Debug Info</h3>
+            <span className="text-xs text-gray-500">Wishlist size: {wishlist.size}</span>
+          </div>
+          <div className="text-xs text-gray-400 font-mono">
+            Selected countries: {wishlist.size > 0 ? [...wishlist].join(', ') : 'None'}
+          </div>
         </motion.div>
 
         {/* Controls */}

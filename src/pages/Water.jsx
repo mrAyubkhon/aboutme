@@ -63,17 +63,26 @@ export default function Water() {
         <motion.div variants={itemVariants} className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-50 mb-2">Water Tracker</h1>
+              <h1 className="text-3xl font-bold text-gray-50 mb-2 flex items-center gap-3">
+                <Droplets className="text-blue-400" size={32} />
+                Water Tracker
+              </h1>
               <p className="text-gray-300">Stay hydrated and track your daily water intake</p>
             </div>
-            <PhysicsButton
-              variant="secondary"
-              onClick={() => setShowSettings(!showSettings)}
-              icon={Settings}
-              className="flex items-center space-x-2"
-            >
-              Settings
-            </PhysicsButton>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                <span>Hydration Active</span>
+              </div>
+              <PhysicsButton
+                variant="secondary"
+                onClick={() => setShowSettings(!showSettings)}
+                icon={Settings}
+                className="flex items-center space-x-2"
+              >
+                Settings
+              </PhysicsButton>
+            </div>
           </div>
         </motion.div>
 
