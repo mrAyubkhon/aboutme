@@ -395,7 +395,6 @@ export default function TravelMap() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
     </div>
   );
 }
