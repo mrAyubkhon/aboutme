@@ -24,7 +24,6 @@ import PhysicsButton from '../components/PhysicsButton';
 import FloatingParticles from '../components/FloatingParticles';
 import MagneticCard from '../components/MagneticCard';
 import ErrorBoundary from '../components/ErrorBoundary';
-import TestProgressBar from '../components/TestProgressBar';
 import AddHabitModal from '../components/AddHabitModal';
 // import TestLoadingButton from '../components/TestLoadingButton';
 
@@ -49,8 +48,8 @@ const itemVariants = {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { habits = [], getCompletionRate = () => 0, getCompletedCount = () => 0, addHabit } = useHabits() || {};
-  const { getWater, getToday, state } = useSport();
+  const { habits = [], getCompletionRate = () => 0, getCompletedCount = () => 0, addHabit, toggleHabit } = useHabits() || {};
+  const { getWater, getToday, state, addWater } = useSport();
   
   // Ensure Sport context is ready
   if (!state || !state.goals) {
@@ -102,6 +101,36 @@ export default function Home() {
       addHabit('Morning Stretch', 'Start your day with gentle stretching', '🤸', 'green', 'health');
     }
   }, [habits.length, addHabit]);
+
+  // Force re-render when data changes
+  const [, forceUpdate] = useState({});
+  const triggerUpdate = () => forceUpdate({});
+
+  // Listen for storage changes to update UI
+  React.useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'ayubi_habits' || e.key === 'SPORT_STATE_V1') {
+        console.log('Storage change detected:', e.key);
+        triggerUpdate();
+      }
+    };
+    
+    // Listen for custom events from other components
+    const handleCustomUpdate = () => {
+      console.log('Custom update event received');
+      triggerUpdate();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('habitsUpdated', handleCustomUpdate);
+    window.addEventListener('waterUpdated', handleCustomUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('habitsUpdated', handleCustomUpdate);
+      window.removeEventListener('waterUpdated', handleCustomUpdate);
+    };
+  }, []);
 
   // Sport context handles all data updates automatically
 
@@ -222,9 +251,31 @@ export default function Home() {
           />
         </motion.div>
 
-        {/* Test Progress Bar */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <TestProgressBar />
+
+        {/* Test Buttons */}
+        <motion.div variants={itemVariants} className="mb-4 flex gap-4 justify-center">
+          <PhysicsButton
+            onClick={() => {
+              if (habits.length > 0 && toggleHabit) {
+                toggleHabit(habits[0].id);
+              }
+            }}
+            variant="primary"
+            className="hover:shadow-green-500/25 hover:shadow-lg transition-all duration-300"
+          >
+            Toggle Habit
+          </PhysicsButton>
+          <PhysicsButton
+            onClick={() => {
+              if (addWater && getToday) {
+                addWater(getToday(), 250);
+              }
+            }}
+            variant="primary"
+            className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
+          >
+            +250ml Water
+          </PhysicsButton>
         </motion.div>
 
         {/* Enhanced Progress Overview */}

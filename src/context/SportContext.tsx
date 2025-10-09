@@ -199,6 +199,11 @@ export const SportProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         [date]: (prev.water[date] || 0) + ml
       }
     }));
+    
+    // Dispatch custom event for UI updates
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('waterUpdated'));
+    }, 100);
   };
 
   const setWater = (date: string, ml: number) => {

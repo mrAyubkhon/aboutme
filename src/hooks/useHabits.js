@@ -78,6 +78,11 @@ export function useHabits() {
     setHabits(prev => prev.map(habit => 
       habit.id === id ? { ...habit, completed: !habit.completed } : habit
     ));
+    
+    // Dispatch custom event for UI updates
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('habitsUpdated'));
+    }, 100);
   };
   
   // Delete a habit

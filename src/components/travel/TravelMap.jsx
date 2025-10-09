@@ -13,8 +13,8 @@ import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simp
 import PhysicsButton from '../PhysicsButton';
 import EnhancedProgressBar from '../EnhancedProgressBar';
 
-// Use a reliable geo source
-const GEO_URL = "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
+// Use a reliable geo source - corrected URL
+const GEO_URL = "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json";
 
 // ISO3 to ISO2 mapping for flags
 const isoMap = {
@@ -46,12 +46,6 @@ function normalize(geo) {
   const name = p.NAME || p.ADMIN || p.NAME_LONG || p.NAME_EN || p.name || p.admin || 'Unknown';
   const continent = p.CONTINENT || p.continent || p.REGION_UN || p.region_un || 'Unknown';
   const iso2 = isoMap[iso3] || null;
-  
-  // Debug logging for first few countries
-  if (geo.rsmKey < 3) {
-    console.log(`Normalize debug - Properties:`, p);
-    console.log(`Normalize debug - Result:`, { iso3, iso2, name, continent });
-  }
   
   return { iso3, iso2, name, continent };
 }
