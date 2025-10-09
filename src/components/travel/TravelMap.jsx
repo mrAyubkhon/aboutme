@@ -13,60 +13,56 @@ import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simp
 import PhysicsButton from '../PhysicsButton';
 import EnhancedProgressBar from '../EnhancedProgressBar';
 
-// Use a reliable geo source from Natural Earth
-const geoUrl = "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
+// Use a reliable geo source
+const GEO_URL = "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
 
-/**
- * Normalize country data to handle different property name formats
- */
-const normalize = (geo) => {
-  const properties = geo.properties;
-  
-  // Try different property name formats for GeoJSON
-  const iso = properties.ISO_A3 || properties.iso_a3 || properties.ISO_A3_EH || properties.iso_a3_eh || properties.ADM0_A3 || properties.adm0_a3 || properties.ISO || properties.iso;
-  const name = properties.NAME || properties.name || properties.NAME_EN || properties.name_en || properties.NAME_LONG || properties.name_long || properties.ADMIN || properties.admin || properties.COUNTRY || properties.country;
-  const continent = properties.CONTINENT || properties.continent || properties.REGION_UN || properties.region_un || properties.REGION_WB || properties.region_wb || properties.REGION || properties.region;
-  
-  return {
-    iso: iso || 'UNK',
-    name: name || 'Unknown Country',
-    continent: continent || 'Unknown'
-  };
+// ISO3 to ISO2 mapping for flags
+const isoMap = {
+  'RUS': 'ru', 'USA': 'us', 'CAN': 'ca', 'MEX': 'mx', 'BRA': 'br', 'ARG': 'ar', 'CHL': 'cl', 'PER': 'pe', 'COL': 'co', 'VEN': 've',
+  'ECU': 'ec', 'BOL': 'bo', 'PRY': 'py', 'URY': 'uy', 'GUY': 'gy', 'SUR': 'sr', 'FRA': 'fr', 'DEU': 'de', 'GBR': 'gb', 'ITA': 'it',
+  'ESP': 'es', 'PRT': 'pt', 'NLD': 'nl', 'BEL': 'be', 'CHE': 'ch', 'AUT': 'at', 'POL': 'pl', 'CZE': 'cz', 'SVK': 'sk', 'HUN': 'hu',
+  'ROU': 'ro', 'BGR': 'bg', 'GRC': 'gr', 'HRV': 'hr', 'SVN': 'si', 'SRB': 'rs', 'BIH': 'ba', 'MNE': 'me', 'ALB': 'al', 'MKD': 'mk',
+  'JPN': 'jp', 'CHN': 'cn', 'KOR': 'kr', 'IND': 'in', 'THA': 'th', 'VNM': 'vn', 'IDN': 'id', 'SGP': 'sg', 'PHL': 'ph', 'MYS': 'my',
+  'NPL': 'np', 'PAK': 'pk', 'LKA': 'lk', 'KHM': 'kh', 'BGD': 'bd', 'LAO': 'la', 'MNG': 'mn', 'UZB': 'uz', 'KAZ': 'kz', 'TKM': 'tm',
+  'KGZ': 'kg', 'TJK': 'tj', 'GEO': 'ge', 'ARM': 'am', 'AZE': 'az', 'TUR': 'tr', 'SAU': 'sa', 'ARE': 'ae', 'QAT': 'qa', 'KWT': 'kw',
+  'BHR': 'bh', 'OMN': 'om', 'JOR': 'jo', 'ISR': 'il', 'LBN': 'lb', 'IRN': 'ir', 'IRQ': 'iq', 'SYR': 'sy', 'YEM': 'ye', 'AUS': 'au',
+  'NZL': 'nz', 'FJI': 'fj', 'PNG': 'pg', 'WSM': 'ws', 'TON': 'to', 'VUT': 'vu', 'FSM': 'fm', 'PLW': 'pw', 'KIR': 'ki', 'UKR': 'ua',
+  'BLR': 'by', 'MDA': 'md', 'LTU': 'lt', 'LVA': 'lv', 'EST': 'ee', 'FIN': 'fi', 'SWE': 'se', 'NOR': 'no', 'DNK': 'dk', 'ISL': 'is',
+  'IRL': 'ie', 'LUX': 'lu', 'MLT': 'mt', 'CYP': 'cy', 'EGY': 'eg', 'LBY': 'ly', 'TUN': 'tn', 'DZA': 'dz', 'MAR': 'ma', 'SDN': 'sd',
+  'SSD': 'ss', 'ETH': 'et', 'KEN': 'ke', 'UGA': 'ug', 'TZA': 'tz', 'ZAF': 'za', 'ZWE': 'zw', 'BWA': 'bw', 'NAM': 'na', 'ZMB': 'zm',
+  'MWI': 'mw', 'MOZ': 'mz', 'MDG': 'mg', 'MUS': 'mu', 'SYC': 'sc', 'COM': 'km', 'DJI': 'dj', 'SOM': 'so', 'ERI': 'er', 'GAB': 'ga',
+  'GNQ': 'gq', 'STP': 'st', 'CAF': 'cf', 'TCD': 'td', 'CMR': 'cm', 'NER': 'ne', 'NGA': 'ng', 'BEN': 'bj', 'TGO': 'tg', 'GHA': 'gh',
+  'BFA': 'bf', 'MLI': 'ml', 'SEN': 'sn', 'GMB': 'gm', 'GIN': 'gn', 'GNB': 'gw', 'SLE': 'sl', 'LBR': 'lr', 'CIV': 'ci', 'GHA': 'gh',
+  'BEN': 'bj', 'TGO': 'tg', 'BFA': 'bf', 'MLI': 'ml', 'SEN': 'sn', 'GMB': 'gm', 'GIN': 'gn', 'GNB': 'gw', 'SLE': 'sl', 'LBR': 'lr',
+  'CIV': 'ci', 'COD': 'cd', 'COG': 'cg', 'AGO': 'ao', 'ZMB': 'zm', 'MWI': 'mw', 'MOZ': 'mz', 'MDG': 'mg', 'MUS': 'mu', 'SYC': 'sc'
 };
 
 /**
- * Get country flag emoji based on ISO code or name
+ * Normalize country data from TopoJSON/GeoJSON
  */
-const getCountryFlag = (iso, name) => {
-  const flagMap = {
-    'USA': '🇺🇸', 'CAN': '🇨🇦', 'MEX': '🇲🇽', 'GBR': '🇬🇧', 'FRA': '🇫🇷',
-    'DEU': '🇩🇪', 'ITA': '🇮🇹', 'ESP': '🇪🇸', 'PRT': '🇵🇹', 'NLD': '🇳🇱',
-    'BEL': '🇧🇪', 'CHE': '🇨🇭', 'AUT': '🇦🇹', 'POL': '🇵🇱', 'CZE': '🇨🇿',
-    'SVK': '🇸🇰', 'HUN': '🇭🇺', 'ROU': '🇷🇴', 'BGR': '🇧🇬', 'GRC': '🇬🇷',
-    'HRV': '🇭🇷', 'SVN': '🇸🇮', 'SRB': '🇷🇸', 'BIH': '🇧🇦', 'MNE': '🇲🇪',
-    'ALB': '🇦🇱', 'MKD': '🇲🇰', 'JPN': '🇯🇵', 'KOR': '🇰🇷', 'CHN': '🇨🇳',
-    'IND': '🇮🇳', 'THA': '🇹🇭', 'VNM': '🇻🇳', 'IDN': '🇮🇩', 'SGP': '🇸🇬',
-    'PHL': '🇵🇭', 'MYS': '🇲🇾', 'NPL': '🇳🇵', 'PAK': '🇵🇰', 'LKA': '🇱🇰',
-    'KHM': '🇰🇭', 'BGD': '🇧🇩', 'LAO': '🇱🇦', 'MNG': '🇲🇳', 'UZB': '🇺🇿',
-    'KAZ': '🇰🇿', 'TKM': '🇹🇲', 'KGZ': '🇰🇬', 'TJK': '🇹🇯', 'GEO': '🇬🇪',
-    'ARM': '🇦🇲', 'AZE': '🇦🇿', 'TUR': '🇹🇷', 'SAU': '🇸🇦', 'ARE': '🇦🇪',
-    'QAT': '🇶🇦', 'KWT': '🇰🇼', 'BHR': '🇧🇭', 'OMN': '🇴🇲', 'JOR': '🇯🇴',
-    'ISR': '🇮🇱', 'LBN': '🇱🇧', 'IRN': '🇮🇷', 'IRQ': '🇮🇶', 'SYR': '🇸🇾',
-    'YEM': '🇾🇪', 'BRA': '🇧🇷', 'ARG': '🇦🇷', 'CHL': '🇨🇱', 'PER': '🇵🇪',
-    'COL': '🇨🇴', 'URY': '🇺🇾', 'PRY': '🇵🇾', 'BOL': '🇧🇴', 'ECU': '🇪🇨',
-    'VEN': '🇻🇪', 'AUS': '🇦🇺', 'NZL': '🇳🇿', 'FJI': '🇫🇯', 'PNG': '🇵🇬',
-    'WSM': '🇼🇸', 'TON': '🇹🇴', 'VUT': '🇻🇺', 'FSM': '🇫🇲', 'PLW': '🇵🇼',
-    'KIR': '🇰🇮', 'RUS': '🇷🇺', 'UKR': '🇺🇦', 'BLR': '🇧🇾', 'MDA': '🇲🇩'
-  };
+function normalize(geo) {
+  const p = geo.properties || {};
+  const iso3 = p.ISO_A3 || p.ADM0_A3 || p.iso_a3 || p.ISO || p.iso || 'UNK';
+  const name = p.NAME || p.ADMIN || p.NAME_LONG || p.NAME_EN || p.name || p.admin || 'Unknown';
+  const continent = p.CONTINENT || p.continent || p.REGION_UN || p.region_un || 'Unknown';
+  const iso2 = isoMap[iso3] || null;
   
-  return flagMap[iso] || '🏳️';
-};
+  return { iso3, iso2, name, continent };
+}
 
 /**
  * Check if country is in Africa
  */
 const isAfrica = (continent) => {
   return continent === 'Africa' || continent === 'AF' || continent === 'africa';
+};
+
+/**
+ * Get country flag URL from Flagpedia
+ */
+const getFlagUrl = (iso2) => {
+  if (!iso2) return null;
+  return `https://flagcdn.com/${iso2.toLowerCase()}.svg`;
 };
 
 /**
@@ -127,7 +123,7 @@ export default function TravelMap() {
     localStorage.removeItem('travel_wishlist_iso');
   }, []);
 
-  // Get country fill color
+  // Get country fill color - FIXED LOGIC
   const getCountryFill = useCallback((geo) => {
     const country = normalize(geo);
     
@@ -137,7 +133,7 @@ export default function TravelMap() {
     }
     
     // Selected countries should be red
-    if (wishlist.has(country.iso)) {
+    if (wishlist.has(country.iso3)) {
       return '#EF4444'; // Red for selected
     }
     
@@ -288,7 +284,7 @@ export default function TravelMap() {
               style={{ width: '100%', height: '500px' }}
             >
               <ZoomableGroup center={mapCenter} zoom={zoom}>
-                <Geographies geography={geoUrl}>
+                <Geographies geography={GEO_URL}>
                   {({ geographies }) => {
                     if (!geographies || geographies.length === 0) {
                       return (
@@ -315,7 +311,7 @@ export default function TravelMap() {
                     return geographies.map((geo) => {
                       const country = normalize(geo);
                       const isDisabled = isAfrica(country.continent);
-                      const isSelected = wishlist.has(country.iso);
+                      const isSelected = wishlist.has(country.iso3);
                       
                       return (
                         <Geography
@@ -403,7 +399,21 @@ export default function TravelMap() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">{getCountryFlag(selectedCountry.iso, selectedCountry.name)}</span>
+                    {/* Flag Display */}
+                    {selectedCountry.iso2 ? (
+                      <img 
+                        src={getFlagUrl(selectedCountry.iso2)} 
+                        alt={`${selectedCountry.name} flag`}
+                        className="w-12 h-8 object-cover rounded border border-gray-600"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-12 h-8 bg-gray-700 rounded border border-gray-600 flex items-center justify-center">
+                        <span className="text-xs text-gray-400">🏳️</span>
+                      </div>
+                    )}
                     <div>
                       <h3 className="text-xl font-bold text-gray-50">{selectedCountry.name}</h3>
                       <p className="text-gray-400 flex items-center gap-1">
@@ -424,11 +434,11 @@ export default function TravelMap() {
                   <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
                     <span className="text-gray-300">Status</span>
                     <span className={`font-semibold ${
-                      wishlist.has(selectedCountry.iso)
+                      wishlist.has(selectedCountry.iso3)
                         ? 'text-green-400'
                         : 'text-gray-400'
                     }`}>
-                      {wishlist.has(selectedCountry.iso)
+                      {wishlist.has(selectedCountry.iso3)
                         ? 'In Wishlist ❤️'
                         : 'Not Selected'
                       }
@@ -437,20 +447,20 @@ export default function TravelMap() {
 
                   <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
                     <span className="text-gray-300">ISO Code</span>
-                    <span className="text-gray-400 font-mono">{selectedCountry.iso}</span>
+                    <span className="text-gray-400 font-mono">{selectedCountry.iso3}</span>
                   </div>
 
                   {!isAfrica(selectedCountry.continent) && (
                     <PhysicsButton
                       onClick={() => {
-                        toggleCountry(selectedCountry.iso);
+                        toggleCountry(selectedCountry.iso3);
                         setSelectedCountry(null);
                       }}
                       icon={Heart}
-                      variant={wishlist.has(selectedCountry.iso) ? "danger" : "primary"}
+                      variant={wishlist.has(selectedCountry.iso3) ? "danger" : "primary"}
                       className="w-full hover:shadow-red-500/25 hover:shadow-lg transition-all duration-300"
                     >
-                      {wishlist.has(selectedCountry.iso)
+                      {wishlist.has(selectedCountry.iso3)
                         ? 'Remove from Wishlist'
                         : 'Add to Wishlist'
                       }
