@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Map, Globe, List, ArrowRight } from 'lucide-react';
+import { Map, Globe, List, MapPinned } from 'lucide-react';
 import TravelWishlist from '../components/TravelWishlist';
 import TravelMap from '../components/travel/TravelMap';
+import InteractiveWorldMap from '../components/travel/InteractiveWorldMap';
 import PhysicsButton from '../components/PhysicsButton';
 
 /**
@@ -32,7 +33,7 @@ export default function Travel() {
             </div>
             
             {/* Tab Switcher */}
-            <div className="flex items-center gap-2 bg-gray-800 p-1 rounded-xl">
+            <div className="flex items-center gap-2 bg-gray-800 p-1 rounded-xl flex-wrap">
               <PhysicsButton
                 onClick={() => setActiveTab('wishlist')}
                 icon={List}
@@ -49,7 +50,16 @@ export default function Travel() {
                 size="sm"
                 className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
               >
-                Interactive Map
+                Country Cards
+              </PhysicsButton>
+              <PhysicsButton
+                onClick={() => setActiveTab('world')}
+                icon={MapPinned}
+                variant={activeTab === 'world' ? 'primary' : 'ghost'}
+                size="sm"
+                className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
+              >
+                World Map
               </PhysicsButton>
             </div>
           </div>
@@ -62,7 +72,9 @@ export default function Travel() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {activeTab === 'wishlist' ? <TravelWishlist /> : <TravelMap />}
+          {activeTab === 'wishlist' && <TravelWishlist />}
+          {activeTab === 'map' && <TravelMap />}
+          {activeTab === 'world' && <InteractiveWorldMap />}
         </motion.div>
       </div>
     </div>
