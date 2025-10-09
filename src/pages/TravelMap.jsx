@@ -1,4 +1,4 @@
-import TravelMap from '../components/TravelMap';
+import TravelMap from '../components/travel/TravelMap';
 
 /**
  * Travel Map page - displays the interactive world map
