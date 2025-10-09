@@ -41,5 +41,15 @@ class User(Base):
     finance_entries = relationship("FinanceEntry", back_populates="user", cascade="all, delete-orphan")
     journal_entries = relationship("JournalEntry", back_populates="user", cascade="all, delete-orphan")
     
+    # Sport/Fitness relationships
+    sport_water_entries = relationship("SportWater", back_populates="user", cascade="all, delete-orphan")
+    sport_food_entries = relationship("SportFood", back_populates="user", cascade="all, delete-orphan")
+    sport_workout_entries = relationship("SportWorkout", back_populates="user", cascade="all, delete-orphan")
+    sport_goals = relationship("SportGoals", back_populates="user", cascade="all, delete-orphan", uselist=False)
+    
+    # Travel relationships
+    travel_wishlist = relationship("TravelWishlist", back_populates="user", cascade="all, delete-orphan")
+    travel_visited = relationship("TravelVisited", back_populates="user", cascade="all, delete-orphan")
+    
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"

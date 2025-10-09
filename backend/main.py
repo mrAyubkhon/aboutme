@@ -10,13 +10,15 @@ from typing import Dict, Any
 
 from config import settings
 from database import create_tables, get_db
-from routes import auth, habits, water, finance, journal
+from routes import auth, habits, water, finance, journal, sport, travel
 from utils.logger import setup_logger, log_request, log_error
 from models.user import User
 from models.habit import Habit, HabitCompletion
 from models.water import WaterEntry, WaterGoal
 from models.finance import FinanceEntry, FinanceCategory, FinanceBudget
 from models.journal import JournalEntry, JournalTemplate
+from models.sport import SportWater, SportFood, SportWorkout, SportGoals
+from models.travel import TravelWishlist, TravelVisited
 from routes.auth import get_current_active_user
 
 
@@ -130,6 +132,18 @@ app.include_router(
     journal.router,
     prefix=settings.api_v1_prefix,
     tags=["Journal"]
+)
+
+app.include_router(
+    sport.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Sport & Fitness"]
+)
+
+app.include_router(
+    travel.router,
+    prefix=settings.api_v1_prefix,
+    tags=["Travel"]
 )
 
 
