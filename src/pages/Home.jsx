@@ -252,43 +252,6 @@ export default function Home() {
         </motion.div>
 
 
-        {/* Quick Actions */}
-        <motion.div variants={itemVariants} className="mb-6">
-          <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center gap-2">
-              <Zap className="text-blue-400" size={20} />
-              Quick Actions
-              <div className="flex items-center gap-2 ml-auto text-sm text-gray-400">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>System Online</span>
-              </div>
-            </h3>
-            <div className="flex gap-4 justify-center">
-              <PhysicsButton
-                onClick={() => {
-                  if (habits.length > 0 && toggleHabit) {
-                    toggleHabit(habits[0].id);
-                  }
-                }}
-                variant="primary"
-                className="hover:shadow-green-500/25 hover:shadow-lg transition-all duration-300"
-              >
-                Toggle Habit
-              </PhysicsButton>
-              <PhysicsButton
-                onClick={() => {
-                  if (addWater && getToday) {
-                    addWater(getToday(), 250);
-                  }
-                }}
-                variant="primary"
-                className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
-              >
-                +250ml Water
-              </PhysicsButton>
-            </div>
-          </div>
-        </motion.div>
 
         {/* Enhanced Progress Overview */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -330,74 +293,6 @@ export default function Home() {
           </div>
         </motion.div> */}
 
-        {/* Quick Actions */}
-        <motion.div variants={itemVariants}>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-50">Quick Actions</h3>
-            <div className="flex items-center gap-2 text-sm text-gray-400">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span>System Online</span>
-            </div>
-          </div>
-          <ErrorBoundary>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <PhysicsButton
-              onClick={() => {
-                console.log('Add Habit button clicked');
-                setShowQuickAdd(true);
-              }}
-              icon={Plus}
-              variant="primary"
-              size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
-            >
-              <div className="text-center">
-                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Add Habit</div>
-                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Track a new daily habit</div>
-              </div>
-            </PhysicsButton>
-            
-            <PhysicsButton
-              onClick={() => navigate('/water')}
-              icon={Droplets}
-              variant="secondary"
-              size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-cyan-500/25 hover:shadow-lg transition-all duration-300"
-            >
-              <div className="text-center">
-                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Log Water</div>
-                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Record water intake</div>
-              </div>
-            </PhysicsButton>
-            
-            <PhysicsButton
-              onClick={() => navigate('/finance')}
-              icon={DollarSign}
-              variant="success"
-              size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-green-500/25 hover:shadow-lg transition-all duration-300"
-            >
-              <div className="text-center">
-                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Add Expense</div>
-                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Track spending</div>
-              </div>
-            </PhysicsButton>
-            
-            <PhysicsButton
-              onClick={() => navigate('/journal')}
-              icon={BookOpen}
-              variant="primary"
-              size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-purple-500/25 hover:shadow-lg transition-all duration-300"
-            >
-              <div className="text-center">
-                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Write Journal</div>
-                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Record thoughts</div>
-              </div>
-            </PhysicsButton>
-            </div>
-          </ErrorBoundary>
-        </motion.div>
 
         {/* Recent Journal Entries */}
         {recentEntries.length > 0 && (
