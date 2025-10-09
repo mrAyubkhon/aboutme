@@ -9,6 +9,8 @@ import TabsNavigation from '../components/game-stats/TabsNavigation';
 import StatsOverview from '../components/game-stats/StatsOverview';
 import ProfileCard from '../components/game-stats/ProfileCard';
 import RecentGames from '../components/game-stats/RecentGames';
+import MatchHistory from '../components/game-stats/MatchHistory';
+import RecentResults from '../components/game-stats/RecentResults';
 
 // Import hooks
 import useGameStats from '../hooks/useGameStats';
@@ -99,6 +101,9 @@ const GameStats = () => {
     { match: 7, elo: 2139 }
   ];
 
+  // Mock data for recent results (Win/Lose circles)
+  const recentResults = ['W', 'W', 'L', 'W', 'W', 'L', 'W', 'W', 'W', 'L'];
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-950 text-gray-50 flex items-center justify-center">
@@ -168,6 +173,11 @@ const GameStats = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <ProfileCard profile={gameData.steam?.profile} />
                   <RecentGames games={recentGames} />
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <MatchHistory matches={recentMatches} />
+                  <RecentResults results={recentResults} />
                 </div>
               </div>
             )}
@@ -305,11 +315,14 @@ const GameStats = () => {
             {/* Faceit Tab */}
             {activeTab === 'faceit' && (
               <div className="space-y-8">
+                <StatsOverview 
+                  steamData={gameData.steam}
+                  faceitData={gameData.faceit}
+                />
+                
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <StatsOverview 
-                    steamData={gameData.steam}
-                    faceitData={gameData.faceit}
-                  />
+                  <MatchHistory matches={recentMatches} />
+                  <RecentResults results={recentResults} />
                 </div>
               </div>
             )}
