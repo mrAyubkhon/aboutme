@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Map, Globe, List, MapPinned, Earth } from 'lucide-react';
+import { Map, Globe, List, MapPinned, Globe2 } from 'lucide-react';
 import TravelWishlist from '../components/TravelWishlist';
 import TravelMap from '../components/travel/TravelMap';
 import InteractiveWorldMap from '../components/travel/InteractiveWorldMap';
@@ -64,7 +64,7 @@ export default function Travel() {
               </PhysicsButton>
               <PhysicsButton
                 onClick={() => setActiveTab('globe')}
-                icon={Earth}
+                icon={Globe2}
                 variant={activeTab === 'globe' ? 'primary' : 'ghost'}
                 size="sm"
                 className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
