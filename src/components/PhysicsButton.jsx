@@ -157,8 +157,8 @@ export default function PhysicsButton({
       // Physics animations
       whileHover={!disabled ? {
         scale: 1.05,
-        y: -2,
-        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+        y: -3,
+        boxShadow: "0 15px 35px rgba(0,0,0,0.3)",
         transition: {
           type: "spring",
           stiffness: 400,

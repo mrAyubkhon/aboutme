@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ErrorBoundary from '../ErrorBoundary';
 import { 
   Heart, 
   Globe, 
@@ -159,8 +160,25 @@ export default function TravelMap() {
   const progress = totalCountries > 0 ? (selectedCount / totalCountries) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gray-950 pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <ErrorBoundary fallback={
+      <div className="min-h-screen bg-gray-950 pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <X size={48} />
+          </div>
+          <h2 className="text-xl font-bold text-gray-50 mb-2">Map Loading Error</h2>
+          <p className="text-gray-400 mb-4">Failed to load travel map. Please try again later.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    }>
+      <div className="min-h-screen bg-gray-950 pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -189,7 +207,7 @@ export default function TravelMap() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg"
+          className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-2xl border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg hover:shadow-2xl"
         >
           <h3 className="text-xl font-semibold text-gray-50 mb-4">Travel Progress</h3>
           <EnhancedProgressBar
@@ -438,7 +456,8 @@ export default function TravelMap() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }

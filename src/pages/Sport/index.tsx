@@ -128,12 +128,22 @@ const SportPage: React.FC = () => {
         {/* Today's Overview Cards */}
         <motion.div variants={itemVariants} className="mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-2">
+            <motion.div 
+              className="lg:col-span-2"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <WaterCard date={selectedDate} />
-            </div>
-            <div className="lg:col-span-2">
+            </motion.div>
+            <motion.div 
+              className="lg:col-span-2"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <KcalCards date={selectedDate} />
-            </div>
+            </motion.div>
           </div>
         </motion.div>
 

@@ -215,13 +215,23 @@ export default function Routine() {
           </h3>
           {habits.length > 0 ? (
             <div className="space-y-3">
-              {habits.map((habit) => (
-                <HabitItem
+              {habits.map((habit, index) => (
+                <motion.div
                   key={habit.id}
-                  habit={habit}
-                  onToggle={toggleHabit}
-                  onDelete={deleteHabit}
-                />
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ 
+                    scale: 1.02,
+                    transition: { duration: 0.2 }
+                  }}
+                >
+                  <HabitItem
+                    habit={habit}
+                    onToggle={toggleHabit}
+                    onDelete={deleteHabit}
+                  />
+                </motion.div>
               ))}
             </div>
           ) : (

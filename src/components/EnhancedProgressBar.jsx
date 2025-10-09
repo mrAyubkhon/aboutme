@@ -41,7 +41,15 @@ export default function EnhancedProgressBar({
   const glowClasses = glow ? 'shadow-lg shadow-current/50' : '';
 
   return (
-    <div className={`w-full ${className}`} {...props}>
+    <div 
+      className={`w-full ${className}`} 
+      role="progressbar"
+      aria-valuenow={safeValue}
+      aria-valuemin={0}
+      aria-valuemax={safeMax}
+      aria-label={label || `Progress: ${Math.round(percentage)}%`}
+      {...props}
+    >
       {/* Label */}
       {showLabel && (label || showPercentage) && (
         <div className="flex justify-between items-center mb-2">
@@ -60,14 +68,19 @@ export default function EnhancedProgressBar({
       <div className={`w-full bg-gray-800 rounded-full overflow-hidden ${sizeClasses[size]}`}>
         <motion.div
           className={`h-full rounded-full ${variantClasses[variant]} ${glowClasses}`}
-          initial={{ width: 0 }}
-          animate={{ width: animated ? `${percentage}%` : `${percentage}%` }}
+          initial={{ width: 0, opacity: 0.8 }}
+          animate={{ 
+            width: animated ? `${percentage}%` : `${percentage}%`,
+            opacity: 1
+          }}
           transition={{
             duration: animated ? 1.5 : 0,
-            ease: "easeOut"
+            ease: "easeOut",
+            opacity: { duration: 0.8 }
           }}
           whileHover={glow ? {
-            boxShadow: "0 0 20px currentColor",
+            boxShadow: "0 0 25px currentColor",
+            scale: 1.02,
             transition: { duration: 0.3 }
           } : {}}
         />

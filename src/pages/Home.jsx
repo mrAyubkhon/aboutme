@@ -252,30 +252,42 @@ export default function Home() {
         </motion.div>
 
 
-        {/* Test Buttons */}
-        <motion.div variants={itemVariants} className="mb-4 flex gap-4 justify-center">
-          <PhysicsButton
-            onClick={() => {
-              if (habits.length > 0 && toggleHabit) {
-                toggleHabit(habits[0].id);
-              }
-            }}
-            variant="primary"
-            className="hover:shadow-green-500/25 hover:shadow-lg transition-all duration-300"
-          >
-            Toggle Habit
-          </PhysicsButton>
-          <PhysicsButton
-            onClick={() => {
-              if (addWater && getToday) {
-                addWater(getToday(), 250);
-              }
-            }}
-            variant="primary"
-            className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
-          >
-            +250ml Water
-          </PhysicsButton>
+        {/* Quick Actions */}
+        <motion.div variants={itemVariants} className="mb-6">
+          <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center gap-2">
+              <Zap className="text-blue-400" size={20} />
+              Quick Actions
+              <div className="flex items-center gap-2 ml-auto text-sm text-gray-400">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span>System Online</span>
+              </div>
+            </h3>
+            <div className="flex gap-4 justify-center">
+              <PhysicsButton
+                onClick={() => {
+                  if (habits.length > 0 && toggleHabit) {
+                    toggleHabit(habits[0].id);
+                  }
+                }}
+                variant="primary"
+                className="hover:shadow-green-500/25 hover:shadow-lg transition-all duration-300"
+              >
+                Toggle Habit
+              </PhysicsButton>
+              <PhysicsButton
+                onClick={() => {
+                  if (addWater && getToday) {
+                    addWater(getToday(), 250);
+                  }
+                }}
+                variant="primary"
+                className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
+              >
+                +250ml Water
+              </PhysicsButton>
+            </div>
+          </div>
         </motion.div>
 
         {/* Enhanced Progress Overview */}
