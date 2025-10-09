@@ -15,6 +15,7 @@ import Travel from './pages/Travel';
 import GameStats from './pages/GameStats';
 import Diagnostics from './pages/Diagnostics';
 import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
 
 function App() {
   useEffect(() => {
@@ -38,6 +39,7 @@ function App() {
               <Route path="/gamestats" element={<GameStats />} />
               <Route path="/diagnostics" element={<Diagnostics />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
         </div>

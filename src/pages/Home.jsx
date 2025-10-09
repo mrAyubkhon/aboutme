@@ -251,11 +251,11 @@ export default function Home() {
               icon={Plus}
               variant="primary"
               size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
             >
               <div className="text-center">
-                <div className="font-semibold text-base mb-1">Add Habit</div>
-                <div className="text-xs opacity-75 leading-tight">Track a new daily habit</div>
+                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Add Habit</div>
+                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Track a new daily habit</div>
               </div>
             </PhysicsButton>
             
@@ -264,11 +264,11 @@ export default function Home() {
               icon={Droplets}
               variant="secondary"
               size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-cyan-500/25 hover:shadow-lg transition-all duration-300"
             >
               <div className="text-center">
-                <div className="font-semibold text-base mb-1">Log Water</div>
-                <div className="text-xs opacity-75 leading-tight">Record water intake</div>
+                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Log Water</div>
+                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Record water intake</div>
               </div>
             </PhysicsButton>
             
@@ -277,11 +277,11 @@ export default function Home() {
               icon={DollarSign}
               variant="success"
               size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-green-500/25 hover:shadow-lg transition-all duration-300"
             >
               <div className="text-center">
-                <div className="font-semibold text-base mb-1">Add Expense</div>
-                <div className="text-xs opacity-75 leading-tight">Track spending</div>
+                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Add Expense</div>
+                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Track spending</div>
               </div>
             </PhysicsButton>
             
@@ -290,11 +290,11 @@ export default function Home() {
               icon={BookOpen}
               variant="primary"
               size="lg"
-              className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+              className="h-24 flex flex-col items-center justify-center space-y-2 p-4 group hover:shadow-purple-500/25 hover:shadow-lg transition-all duration-300"
             >
               <div className="text-center">
-                <div className="font-semibold text-base mb-1">Write Journal</div>
-                <div className="text-xs opacity-75 leading-tight">Record thoughts</div>
+                <div className="font-semibold text-base mb-1 group-hover:text-white transition-colors">Write Journal</div>
+                <div className="text-xs opacity-75 leading-tight group-hover:opacity-100 transition-opacity">Record thoughts</div>
               </div>
             </PhysicsButton>
             </div>

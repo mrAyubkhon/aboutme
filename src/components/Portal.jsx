@@ -14,7 +14,12 @@ export default function Portal({ children, targetId = 'modal-root' }) {
     if (!document.getElementById(targetId)) {
       const modalRoot = document.createElement('div');
       modalRoot.id = targetId;
-      modalRoot.style.position = 'relative';
+      modalRoot.style.position = 'fixed';
+      modalRoot.style.top = '0';
+      modalRoot.style.left = '0';
+      modalRoot.style.width = '100%';
+      modalRoot.style.height = '100%';
+      modalRoot.style.pointerEvents = 'none';
       modalRoot.style.zIndex = '9999';
       document.body.appendChild(modalRoot);
     }

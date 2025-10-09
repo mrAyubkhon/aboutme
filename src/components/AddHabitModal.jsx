@@ -130,6 +130,7 @@ export default function AddHabitModal({
             {/* Backdrop */}
             <motion.div
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              style={{ pointerEvents: 'auto' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -139,6 +140,7 @@ export default function AddHabitModal({
           {/* Modal */}
           <motion.div
             className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-2xl border border-gray-800 shadow-2xl z-50 overflow-hidden ${className}`}
+            style={{ pointerEvents: 'auto' }}
             initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -20 }}
