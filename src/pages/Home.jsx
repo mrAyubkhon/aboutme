@@ -24,6 +24,7 @@ import PhysicsButton from '../components/PhysicsButton';
 import FloatingParticles from '../components/FloatingParticles';
 import MagneticCard from '../components/MagneticCard';
 import ErrorBoundary from '../components/ErrorBoundary';
+import TestProgressBar from '../components/TestProgressBar';
 import AddHabitModal from '../components/AddHabitModal';
 // import TestLoadingButton from '../components/TestLoadingButton';
 
@@ -50,6 +51,18 @@ export default function Home() {
   const navigate = useNavigate();
   const { habits = [], getCompletionRate = () => 0, getCompletedCount = () => 0, addHabit } = useHabits() || {};
   const { getWater, getToday, state } = useSport();
+  
+  // Ensure Sport context is ready
+  if (!state || !state.goals) {
+    return (
+      <div className="min-h-screen bg-gray-950 pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   const { getTodayTotals = () => ({ income: 0, expenses: 0 }), getRemainingBudget = () => 0 } = useFinance() || {};
 
   // Get current time for dynamic greeting
@@ -68,6 +81,27 @@ export default function Home() {
 
   // Use Sport context water data
   const currentWaterProgress = waterProgress;
+  
+  // Debug logging
+  console.log('Home Debug:', {
+    habits: habits.length,
+    completedCount: getCompletedCount(),
+    habitCompletion,
+    todayWater,
+    waterGoal,
+    waterProgress,
+    today,
+    state
+  });
+  
+  // Force habits to be created if none exist
+  React.useEffect(() => {
+    if (habits.length === 0 && addHabit) {
+      console.log('Creating default habits from Home page');
+      addHabit('Walk 10,000 Steps', 'Reach your daily step goal', '🚶', 'blue', 'fitness');
+      addHabit('Morning Stretch', 'Start your day with gentle stretching', '🤸', 'green', 'health');
+    }
+  }, [habits.length, addHabit]);
 
   // Sport context handles all data updates automatically
 
@@ -188,12 +222,17 @@ export default function Home() {
           />
         </motion.div>
 
+        {/* Test Progress Bar */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <TestProgressBar />
+        </motion.div>
+
         {/* Enhanced Progress Overview */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <MagneticCard>
               <EnhancedProgressBar 
-                value={getCompletedCount()}
-                max={Math.max(habits.length, 1)}
+                value={Math.max(getCompletedCount() || 0, 0)}
+                max={Math.max(habits.length || 0, 1)}
                 label="Daily Habits"
                 variant="blue"
                 size="lg"
@@ -204,8 +243,8 @@ export default function Home() {
             
             <MagneticCard>
             <EnhancedProgressBar 
-              value={todayWater}
-              max={waterGoal}
+              value={Math.max(todayWater || 0, 0)}
+              max={Math.max(waterGoal || 3000, 1)}
               label="Water Intake"
               variant="blue"
               size="lg"

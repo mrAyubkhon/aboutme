@@ -145,12 +145,13 @@ export const SportProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Initialize state from localStorage
   useEffect(() => {
+    console.log('SportContext: Initializing...');
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         setState(parsed);
-        console.log('Loaded sport state from localStorage:', parsed);
+        console.log('SportContext: Loaded sport state from localStorage:', parsed);
       } else {
         // No saved data, try to migrate old water data
         const migratedWater = migrateOldWaterData();
@@ -177,6 +178,7 @@ export const SportProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
       }
     } finally {
+      console.log('SportContext: Initialization complete');
       setIsInitialized(true);
     }
   }, []);
