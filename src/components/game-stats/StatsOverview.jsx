@@ -7,15 +7,15 @@ const StatsOverview = ({ steamData, faceitData }) => {
     if (!steamData || !faceitData) return null;
     
     return {
-      totalGames: steamData.games?.length || 0,
-      totalPlaytime: steamData.games?.reduce((acc, game) => acc + game.playtime_forever, 0) || 0,
-      faceitElo: faceitData.stats?.faceit_elo || 0,
-      winRate: faceitData.stats?.lifetime?.Average || 0,
-      skillLevel: faceitData.stats?.skill_level || 0,
-      kdRatio: 1.34,
-      totalMatches: 1247,
-      wins: 786,
-      losses: 461
+      totalGames: steamData.totalGames || steamData.ownedGames?.length || 0,
+      totalPlaytime: steamData.totalPlaytime || steamData.ownedGames?.reduce((acc, game) => acc + (game.playtime_forever || 0), 0) || 0,
+      faceitElo: faceitData.elo || faceitData.stats?.faceit_elo || 0,
+      winRate: faceitData.winRate || faceitData.stats?.lifetime?.Average || 0,
+      skillLevel: faceitData.skillLevel || faceitData.stats?.skill_level || 0,
+      kdRatio: faceitData.kdRatio || faceitData.stats?.lifetime?.['Average K/D Ratio'] || 0,
+      totalMatches: faceitData.totalMatches || faceitData.stats?.lifetime?.Matches || 0,
+      wins: Math.round((faceitData.totalMatches || 0) * (faceitData.winRate || 0) / 100),
+      losses: (faceitData.totalMatches || 0) - Math.round((faceitData.totalMatches || 0) * (faceitData.winRate || 0) / 100)
     };
   }, [steamData, faceitData]);
 

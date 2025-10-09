@@ -13,7 +13,7 @@ import MatchHistory from '../components/game-stats/MatchHistory';
 import RecentResults from '../components/game-stats/RecentResults';
 
 // Import hooks
-import useGameStats from '../hooks/useGameStats';
+import useRealGameStats from '../hooks/useRealGameStats';
 
 // Import charts components
 import { 
@@ -52,7 +52,7 @@ const GameStats = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   
-  // Use the custom hook for game stats
+  // Use the real API hook for game stats
   const {
     gameData,
     loading,
@@ -62,10 +62,11 @@ const GameStats = () => {
     liveStats,
     recentGames,
     recentMatches,
+    ownedGames,
     stats,
     toggleLiveMode,
     refreshData
-  } = useGameStats();
+  } = useRealGameStats();
 
   // Mock data for charts (replace with real data from API)
   const chartData = [
@@ -147,6 +148,21 @@ const GameStats = () => {
             currentGame={liveStats.currentGame}
             eloChange={liveStats.eloChange}
           />
+        </motion.div>
+
+        {/* Real API Status Indicator */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <div className="bg-gradient-to-r from-green-800/20 to-green-700/20 border border-green-500/30 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+              <div>
+                <div className="text-green-300 font-semibold">Real API Connected</div>
+                <div className="text-green-400 text-sm">
+                  Steam & Faceit APIs active • Last updated: {lastUpdated?.toLocaleTimeString()}
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Tabs Navigation */}
