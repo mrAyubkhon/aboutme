@@ -557,13 +557,13 @@ export default function GameStats() {
       initial="hidden"
       animate="visible"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Header */}
-        <motion.div variants={itemVariants} className="mb-6 sm:mb-8 pt-4">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <motion.div variants={itemVariants} className="mb-8 sm:mb-10">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="flex-1">
               <motion.h1 
-                className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2"
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-3 leading-tight"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -571,12 +571,12 @@ export default function GameStats() {
                 🎮 Game Statistics
               </motion.h1>
               <motion.p 
-                className="text-gray-400 text-sm sm:text-base lg:text-lg"
+                className="text-gray-300 text-base sm:text-lg lg:text-xl font-medium"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Live gaming stats from Ayubi's Steam & Faceit profiles via API
+                🚀 Live gaming performance & achievements dashboard
               </motion.p>
               {lastUpdated && (
                 <motion.div 
@@ -592,20 +592,21 @@ export default function GameStats() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              {/* Live Status Indicator */}
+              {/* Enhanced Live Status Indicator */}
               <motion.div 
-                className="flex items-center gap-3 px-4 py-2 bg-gray-800/50 rounded-lg border border-gray-700"
+                className="flex items-center gap-4 px-6 py-3 bg-gradient-to-r from-gray-800/80 to-gray-700/80 rounded-xl border border-gray-600/50 backdrop-blur-sm"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5 }}
+                whileHover={{ scale: 1.02 }}
               >
                 <motion.div 
-                  className={`w-3 h-3 rounded-full ${
-                    liveStats.isOnline ? 'bg-green-400' : 'bg-red-400'
+                  className={`w-4 h-4 rounded-full shadow-lg ${
+                    liveStats.isOnline ? 'bg-green-400 shadow-green-400/50' : 'bg-red-400 shadow-red-400/50'
                   }`}
                   animate={{ 
-                    scale: liveStats.isOnline ? [1, 1.2, 1] : 1,
-                    opacity: liveStats.isOnline ? [1, 0.7, 1] : 1
+                    scale: liveStats.isOnline ? [1, 1.3, 1] : 1,
+                    opacity: liveStats.isOnline ? [1, 0.6, 1] : 1
                   }}
                   transition={{ 
                     duration: 2, 
@@ -614,37 +615,37 @@ export default function GameStats() {
                   }}
                 />
                 <div className="text-sm">
-                  <div className="text-gray-300 font-medium">
+                  <div className="text-gray-100 font-semibold">
                     {liveStats.currentStatus}
                   </div>
                   {liveStats.currentGame && (
-                    <div className="text-xs text-gray-500">
-                      Playing {liveStats.currentGame}
+                    <div className="text-xs text-green-400 font-medium">
+                      🎮 Playing {liveStats.currentGame}
                     </div>
                   )}
                 </div>
                 {liveStats.eloChange !== 0 && (
                   <motion.div 
-                    className={`text-xs font-bold px-2 py-1 rounded ${
+                    className={`text-sm font-bold px-3 py-1 rounded-lg ${
                       liveStats.eloChange > 0 
-                        ? 'bg-green-500/20 text-green-400' 
-                        : 'bg-red-500/20 text-red-400'
+                        ? 'bg-green-500/30 text-green-300 border border-green-400/30' 
+                        : 'bg-red-500/30 text-red-300 border border-red-400/30'
                     }`}
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 10, opacity: 0 }}
                   >
-                    {liveStats.eloChange > 0 ? '+' : ''}{liveStats.eloChange} ELO
+                    {liveStats.eloChange > 0 ? '↗️ +' : '↘️ '}{liveStats.eloChange} ELO
                   </motion.div>
                 )}
               </motion.div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <PhysicsButton
                   onClick={toggleLiveMode}
                   variant={isLive ? "success" : "secondary"}
                   size="sm"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500"
                 >
                   <motion.div
                     animate={isLive ? { rotate: 360 } : { rotate: 0 }}
@@ -652,7 +653,7 @@ export default function GameStats() {
                   >
                     <Zap className="w-4 h-4" />
                   </motion.div>
-                  <span>{isLive ? 'Live' : 'Go Live'}</span>
+                  <span className="font-medium">{isLive ? '🔴 Live' : '⚡ Go Live'}</span>
                 </PhysicsButton>
 
                 <PhysicsButton
@@ -660,29 +661,29 @@ export default function GameStats() {
                   disabled={loading}
                   variant="secondary"
                   size="sm"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600"
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                  <span>Refresh</span>
+                  <span className="font-medium">🔄 Refresh</span>
                 </PhysicsButton>
                 
                 <PhysicsButton
                   onClick={() => navigate('/settings')}
                   variant="secondary"
                   size="sm"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600"
                 >
                   <Settings className="w-4 h-4" />
-                  <span>Settings</span>
+                  <span className="font-medium">⚙️ Settings</span>
                 </PhysicsButton>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Tabs */}
-        <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
-          <div className="flex overflow-x-auto space-x-1 bg-gray-900 p-1 rounded-lg scrollbar-hide">
+        {/* Enhanced Tabs */}
+        <motion.div variants={itemVariants} className="mb-8 sm:mb-10">
+          <div className="flex overflow-x-auto space-x-2 bg-gradient-to-r from-gray-900 to-gray-800 p-2 rounded-xl border border-gray-700/50 scrollbar-hide">
             {[
               { id: 'overview', label: 'Overview', icon: Activity, shortLabel: 'Overview' },
               { id: 'charts', label: 'Charts', icon: BarChart3, shortLabel: 'Charts' },
@@ -693,13 +694,13 @@ export default function GameStats() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-md transition-colors whitespace-nowrap ${
+                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-300 whitespace-nowrap font-medium ${
                   activeTab === tab.id
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-400 hover:text-gray-50'
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 transform scale-105'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/50 hover:scale-102'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-white' : ''}`} />
                 <span className="hidden sm:inline">{tab.label}</span>
                 <span className="sm:hidden">{tab.shortLabel}</span>
               </button>
@@ -730,10 +731,10 @@ export default function GameStats() {
         {activeTab === 'overview' && !loading && (
           <div className="space-y-8">
             {/* Enhanced Quick Stats */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               <motion.div 
-                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 group"
-                whileHover={{ y: -5, scale: 1.02 }}
+                className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-2xl p-6 border border-gray-600/50 hover:border-blue-500/70 transition-all duration-300 group backdrop-blur-sm shadow-lg hover:shadow-xl"
+                whileHover={{ y: -8, scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center justify-between">
