@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useWater } from '../hooks/useWater';
 import { useFinance } from '../hooks/useFinance';
+import { useSport } from '../context/SportContext';
 import Card from '../components/Card';
 import PhysicsButton from '../components/PhysicsButton';
 
@@ -38,11 +40,16 @@ export default function Settings() {
   const navigate = useNavigate();
   const { waterData, setGoal } = useWater();
   const { financeData, setDailyLimit } = useFinance();
+  const { state: sportState, getToday, getWater } = useSport();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showExportData, setShowExportData] = useState(false);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
-  // Quick diagnostics function
+  // Enhanced diagnostics function
   const runQuickDiagnostics = () => {
+    const today = getToday();
+    const todayWater = getWater(today);
+    
     const diagnostics = {
       localStorage: {
         habits: !!localStorage.getItem('ayubi_habits'),
@@ -50,7 +57,17 @@ export default function Settings() {
         finances: !!localStorage.getItem('ayubi_finances'),
         journal: !!localStorage.getItem('ayubi_journal'),
         settings: !!localStorage.getItem('ayubi_settings'),
-        travel: !!localStorage.getItem('ayubi_travel_wishlist')
+        travel: !!localStorage.getItem('ayubi_travel_wishlist'),
+        sport: !!localStorage.getItem('SPORT_STATE_V1'),
+        travelMap: !!localStorage.getItem('travel_wishlist_iso')
+      },
+      sportContext: {
+        waterGoal: sportState?.goals?.waterMlPerDay || 0,
+        kcalGoal: sportState?.goals?.kcalPerDay || 0,
+        todayWater: todayWater,
+        waterEntries: Object.keys(sportState?.water || {}).length,
+        foodEntries: sportState?.foods?.length || 0,
+        workoutEntries: sportState?.workouts?.length || 0
       },
       browser: {
         userAgent: navigator.userAgent,
@@ -71,7 +88,9 @@ export default function Settings() {
     };
 
     console.log('🔍 Quick Diagnostics:', diagnostics);
-    alert(`Diagnostics completed! Check console for details.\n\nQuick Summary:\n- LocalStorage: ${Object.values(diagnostics.localStorage).filter(Boolean).length}/6 items\n- Browser: ${diagnostics.browser.online ? 'Online' : 'Offline'}\n- Performance: ${diagnostics.performance.memory}\n- Environment: ${diagnostics.environment.nodeEnv}`);
+    setShowDiagnostics(true);
+    
+    return diagnostics;
   };
 
   const handleExportData = () => {
@@ -334,6 +353,160 @@ export default function Settings() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Diagnostics Modal */}
+      {showDiagnostics && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <motion.div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowDiagnostics(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="relative bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-50 flex items-center gap-2">
+                <Wrench className="text-blue-400" />
+                System Diagnostics
+              </h3>
+              <PhysicsButton
+                onClick={() => setShowDiagnostics(false)}
+                icon={X}
+                variant="ghost"
+                size="sm"
+              />
+            </div>
+
+            <div className="space-y-6">
+              {/* LocalStorage Status */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-50 mb-3">LocalStorage Status</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.entries({
+                    'Habits': localStorage.getItem('ayubi_habits'),
+                    'Water': localStorage.getItem('ayubi_water'),
+                    'Finances': localStorage.getItem('ayubi_finances'),
+                    'Journal': localStorage.getItem('ayubi_journal'),
+                    'Sport': localStorage.getItem('SPORT_STATE_V1'),
+                    'Travel Map': localStorage.getItem('travel_wishlist_iso')
+                  }).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                      <span className="text-gray-300">{key}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        value ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {value ? '✓ Stored' : '✗ Missing'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sport Context Status */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-50 mb-3">Sport Context Status</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Water Goal</span>
+                    <span className="text-blue-400 font-mono">{sportState?.goals?.waterMlPerDay || 0}ml</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Calorie Goal</span>
+                    <span className="text-blue-400 font-mono">{sportState?.goals?.kcalPerDay || 0}kcal</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Today's Water</span>
+                    <span className="text-blue-400 font-mono">{getWater(getToday())}ml</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Water Entries</span>
+                    <span className="text-blue-400 font-mono">{Object.keys(sportState?.water || {}).length}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Food Entries</span>
+                    <span className="text-blue-400 font-mono">{sportState?.foods?.length || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Workout Entries</span>
+                    <span className="text-blue-400 font-mono">{sportState?.workouts?.length || 0}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Browser Info */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-50 mb-3">Browser Information</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Status</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      navigator.onLine ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                    }`}>
+                      {navigator.onLine ? 'Online' : 'Offline'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Language</span>
+                    <span className="text-gray-400">{navigator.language}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Platform</span>
+                    <span className="text-gray-400">{navigator.platform}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Environment Info */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-50 mb-3">Environment</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Mode</span>
+                    <span className="text-gray-400">{import.meta.env.MODE}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">API URL</span>
+                    <span className="text-gray-400">{import.meta.env.VITE_API_URL || 'Not configured'}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Steam API</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      import.meta.env.VITE_STEAM_API_KEY ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                    }`}>
+                      {import.meta.env.VITE_STEAM_API_KEY ? 'Configured' : 'Missing'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                    <span className="text-gray-300">Faceit API</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      import.meta.env.VITE_FACEIT_API_KEY ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                    }`}>
+                      {import.meta.env.VITE_FACEIT_API_KEY ? 'Configured' : 'Missing'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <PhysicsButton
+                onClick={() => setShowDiagnostics(false)}
+                variant="primary"
+              >
+                Close
+              </PhysicsButton>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

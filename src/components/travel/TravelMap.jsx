@@ -7,16 +7,17 @@ import {
   X,
   MapPin,
   Target,
-  TrendingUp
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps';
 import PhysicsButton from '../PhysicsButton';
 import EnhancedProgressBar from '../EnhancedProgressBar';
 
-// Use a reliable geo source - corrected URL
-const GEO_URL = "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json";
+// Simple and reliable world data source
+const GEO_URL = "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
 
-// ISO3 to ISO2 mapping for flags
+// Simple ISO mapping for major countries
 const isoMap = {
   'RUS': 'ru', 'USA': 'us', 'CAN': 'ca', 'MEX': 'mx', 'BRA': 'br', 'ARG': 'ar', 'CHL': 'cl', 'PER': 'pe', 'COL': 'co', 'VEN': 've',
   'ECU': 'ec', 'BOL': 'bo', 'PRY': 'py', 'URY': 'uy', 'GUY': 'gy', 'SUR': 'sr', 'FRA': 'fr', 'DEU': 'de', 'GBR': 'gb', 'ITA': 'it',
@@ -28,41 +29,37 @@ const isoMap = {
   'BHR': 'bh', 'OMN': 'om', 'JOR': 'jo', 'ISR': 'il', 'LBN': 'lb', 'IRN': 'ir', 'IRQ': 'iq', 'SYR': 'sy', 'YEM': 'ye', 'AUS': 'au',
   'NZL': 'nz', 'FJI': 'fj', 'PNG': 'pg', 'WSM': 'ws', 'TON': 'to', 'VUT': 'vu', 'FSM': 'fm', 'PLW': 'pw', 'KIR': 'ki', 'UKR': 'ua',
   'BLR': 'by', 'MDA': 'md', 'LTU': 'lt', 'LVA': 'lv', 'EST': 'ee', 'FIN': 'fi', 'SWE': 'se', 'NOR': 'no', 'DNK': 'dk', 'ISL': 'is',
-  'IRL': 'ie', 'LUX': 'lu', 'MLT': 'mt', 'CYP': 'cy', 'EGY': 'eg', 'LBY': 'ly', 'TUN': 'tn', 'DZA': 'dz', 'MAR': 'ma', 'SDN': 'sd',
-  'SSD': 'ss', 'ETH': 'et', 'KEN': 'ke', 'UGA': 'ug', 'TZA': 'tz', 'ZAF': 'za', 'ZWE': 'zw', 'BWA': 'bw', 'NAM': 'na', 'ZMB': 'zm',
-  'MWI': 'mw', 'MOZ': 'mz', 'MDG': 'mg', 'MUS': 'mu', 'SYC': 'sc', 'COM': 'km', 'DJI': 'dj', 'SOM': 'so', 'ERI': 'er', 'GAB': 'ga',
-  'GNQ': 'gq', 'STP': 'st', 'CAF': 'cf', 'TCD': 'td', 'CMR': 'cm', 'NER': 'ne', 'NGA': 'ng', 'BEN': 'bj', 'TGO': 'tg', 'GHA': 'gh',
-  'BFA': 'bf', 'MLI': 'ml', 'SEN': 'sn', 'GMB': 'gm', 'GIN': 'gn', 'GNB': 'gw', 'SLE': 'sl', 'LBR': 'lr', 'CIV': 'ci', 'GHA': 'gh',
-  'BEN': 'bj', 'TGO': 'tg', 'BFA': 'bf', 'MLI': 'ml', 'SEN': 'sn', 'GMB': 'gm', 'GIN': 'gn', 'GNB': 'gw', 'SLE': 'sl', 'LBR': 'lr',
-  'CIV': 'ci', 'COD': 'cd', 'COG': 'cg', 'AGO': 'ao', 'ZMB': 'zm', 'MWI': 'mw', 'MOZ': 'mz', 'MDG': 'mg', 'MUS': 'mu', 'SYC': 'sc'
+  'IRL': 'ie', 'LUX': 'lu', 'MLT': 'mt', 'CYP': 'cy', 'EGY': 'eg', 'LBY': 'ly', 'TUN': 'tn', 'DZA': 'dz', 'MAR': 'ma', 'SDN': 'sd'
 };
 
 /**
- * Normalize country data from TopoJSON/GeoJSON
+ * Extract country data from geo object
  */
-function normalize(geo) {
-  const p = geo.properties || {};
-  const iso3 = p.ISO_A3 || p.ADM0_A3 || p.iso_a3 || p.ISO || p.iso || 'UNK';
-  const name = p.NAME || p.ADMIN || p.NAME_LONG || p.NAME_EN || p.name || p.admin || 'Unknown';
-  const continent = p.CONTINENT || p.continent || p.REGION_UN || p.region_un || 'Unknown';
+function extractCountryData(geo) {
+  const props = geo.properties || {};
+  
+  // Try different property names for country identification
+  const iso3 = props.ISO_A3 || props.ADM0_A3 || props.iso_a3 || props.ISO || props.iso || 'UNK';
+  const name = props.NAME || props.ADMIN || props.NAME_LONG || props.NAME_EN || props.name || props.admin || 'Unknown';
+  const continent = props.CONTINENT || props.continent || props.REGION_UN || props.region_un || 'Unknown';
   const iso2 = isoMap[iso3] || null;
   
   return { iso3, iso2, name, continent };
 }
 
 /**
- * Check if country is in Africa
+ * Check if country is in Africa (disabled)
  */
 const isAfrica = (continent) => {
-  return continent === 'Africa' || continent === 'AF' || continent === 'africa';
+  return continent === 'Africa';
 };
 
 /**
- * Get country flag URL from Flagpedia
+ * Get country flag URL
  */
-const getFlagUrl = (iso2) => {
+const getCountryFlagUrl = (iso2) => {
   if (!iso2) return null;
-  return `https://flagcdn.com/${iso2.toLowerCase()}.svg`;
+  return `https://flagcdn.com/w320/${iso2.toLowerCase()}.png`;
 };
 
 /**
@@ -73,14 +70,17 @@ export default function TravelMap() {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [mapCenter, setMapCenter] = useState([0, 0]);
   const [zoom, setZoom] = useState(1);
+  const [mapLoading, setMapLoading] = useState(true);
+  const [mapError, setMapError] = useState(false);
 
   // Load wishlist from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('travel_wishlist_iso');
     if (saved) {
       try {
-        const savedArray = JSON.parse(saved);
-        setWishlist(new Set(savedArray));
+        const parsedWishlist = JSON.parse(saved);
+        setWishlist(new Set(parsedWishlist));
+        console.log('Loaded wishlist:', parsedWishlist);
       } catch (error) {
         console.error('Error loading wishlist:', error);
       }
@@ -89,57 +89,66 @@ export default function TravelMap() {
 
   // Save wishlist to localStorage whenever it changes
   useEffect(() => {
-    console.log('Wishlist updated:', [...wishlist]);
     localStorage.setItem('travel_wishlist_iso', JSON.stringify([...wishlist]));
   }, [wishlist]);
 
   // Handle country click
   const handleCountryClick = useCallback((geo) => {
-    const country = normalize(geo);
-    
-    // Don't allow interaction with African countries
+    const country = extractCountryData(geo);
+    console.log('Country clicked:', country);
+
     if (isAfrica(country.continent)) {
+      setSelectedCountry(null);
       return;
     }
-    
+
     setSelectedCountry(country);
   }, []);
 
   // Toggle country in wishlist
-  const toggleCountry = useCallback((countryIso) => {
-    setWishlist(prev => {
-      const newWishlist = new Set(prev);
-      if (newWishlist.has(countryIso)) {
-        newWishlist.delete(countryIso);
-      } else {
-        newWishlist.add(countryIso);
-      }
-      return newWishlist;
-    });
+  const toggleWishlist = useCallback(() => {
+    if (selectedCountry) {
+      setWishlist(prev => {
+        const newWishlist = new Set(prev);
+        if (newWishlist.has(selectedCountry.iso3)) {
+          newWishlist.delete(selectedCountry.iso3);
+          console.log(`Removed ${selectedCountry.name} from wishlist`);
+        } else {
+          newWishlist.add(selectedCountry.iso3);
+          console.log(`Added ${selectedCountry.name} to wishlist`);
+        }
+        return newWishlist;
+      });
+      setSelectedCountry(null);
+    }
+  }, [selectedCountry]);
+
+  // Reset map view
+  const resetMapView = useCallback(() => {
+    setMapCenter([0, 0]);
+    setZoom(1);
   }, []);
 
-  // Reset wishlist
-  const resetWishlist = useCallback(() => {
+  // Clear all countries from wishlist
+  const clearWishlist = useCallback(() => {
     setWishlist(new Set());
     localStorage.removeItem('travel_wishlist_iso');
   }, []);
 
-  // Get country fill color - FIXED LOGIC
+  // Get country fill color
   const getCountryFill = useCallback((geo) => {
-    const country = normalize(geo);
-    
-    console.log(`Country: ${country.name}, ISO: ${country.iso3}, In wishlist: ${wishlist.has(country.iso3)}`);
-    
+    const country = extractCountryData(geo);
+
     // African countries should be disabled (gray)
     if (isAfrica(country.continent)) {
       return '#4B5563'; // Gray for disabled
     }
-    
+
     // Selected countries should be red
     if (wishlist.has(country.iso3)) {
       return '#EF4444'; // Red for selected
     }
-    
+
     // Default color for available countries
     return '#374151'; // Dark gray for available
   }, [wishlist]);
@@ -150,111 +159,48 @@ export default function TravelMap() {
   const progress = totalCountries > 0 ? (selectedCount / totalCountries) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gray-950 p-4 pt-20">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-950 pt-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
-          <h1 className="text-4xl font-bold text-gray-50 mb-2 flex items-center justify-center gap-3">
-            <Globe className="text-blue-400" size={40} />
-            Interactive Travel Map
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Click on countries to add them to your travel wishlist
-          </p>
+          <div>
+            <h1 className="text-4xl font-bold text-gray-50 mb-2 flex items-center gap-3">
+              <Globe className="text-blue-400" size={40} />
+              Travel Map
+            </h1>
+            <p className="text-gray-400 text-lg">
+              Explore the world and plan your next adventure
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span>Map Active</span>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Statistics Cards */}
+        {/* Travel Progress */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg"
         >
-          {/* Total Countries */}
-          <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <Target className="text-blue-400" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-50">Available</h3>
-            </div>
-            <p className="text-3xl font-bold text-blue-400">{totalCountries}</p>
-            <p className="text-gray-400 text-sm">Countries to visit</p>
-          </motion.div>
-
-          {/* Selected Countries */}
-          <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-red-500/50 transition-all duration-300 hover:shadow-red-500/25 hover:shadow-lg"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-red-500/20 rounded-lg">
-                <Heart className="text-red-400" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-50">In Wishlist</h3>
-            </div>
-            <p className="text-3xl font-bold text-red-400">{selectedCount}</p>
-            <p className="text-gray-400 text-sm">Countries selected</p>
-          </motion.div>
-
-          {/* Progress */}
-          <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-green-500/50 transition-all duration-300 hover:shadow-green-500/25 hover:shadow-lg"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <TrendingUp className="text-green-400" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-50">Progress</h3>
-            </div>
-            <p className="text-3xl font-bold text-green-400">{Math.round(progress)}%</p>
-            <p className="text-gray-400 text-sm">Of total countries</p>
-          </motion.div>
-        </motion.div>
-
-        {/* Progress Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gray-900 p-6 rounded-2xl border border-gray-800"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-50">Travel Progress</h3>
-            <span className="text-gray-400">{selectedCount} / {totalCountries} countries</span>
-          </div>
+          <h3 className="text-xl font-semibold text-gray-50 mb-4">Travel Progress</h3>
           <EnhancedProgressBar
             value={selectedCount}
             max={totalCountries}
-            variant="gradient"
+            label={`${selectedCount} / ${totalCountries} countries`}
+            variant="blue"
             size="lg"
             glow={true}
             animated={true}
           />
-        </motion.div>
-
-        {/* Debug Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gray-900 p-4 rounded-xl border border-gray-800"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-gray-300">Debug Info</h3>
-            <span className="text-xs text-gray-500">Wishlist size: {wishlist.size}</span>
-          </div>
-          <div className="text-xs text-gray-400 font-mono">
-            Selected countries: {wishlist.size > 0 ? [...wishlist].join(', ') : 'None'}
-          </div>
         </motion.div>
 
         {/* Controls */}
@@ -265,10 +211,7 @@ export default function TravelMap() {
           className="flex flex-wrap gap-4 justify-center"
         >
           <PhysicsButton
-            onClick={() => {
-              setMapCenter([0, 0]);
-              setZoom(1);
-            }}
+            onClick={resetMapView}
             icon={Globe}
             variant="secondary"
             className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
@@ -277,7 +220,7 @@ export default function TravelMap() {
           </PhysicsButton>
 
           <PhysicsButton
-            onClick={resetWishlist}
+            onClick={clearWishlist}
             icon={RotateCcw}
             variant="danger"
             className="hover:shadow-red-500/25 hover:shadow-lg transition-all duration-300"
@@ -294,6 +237,35 @@ export default function TravelMap() {
           className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg"
         >
           <div className="relative">
+            {mapLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80 rounded-xl z-10">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                  <p className="text-gray-400">Loading world map...</p>
+                </div>
+              </div>
+            )}
+
+            {mapError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80 rounded-xl z-10">
+                <div className="text-center">
+                  <div className="text-red-500 mb-4">
+                    <X size={48} />
+                  </div>
+                  <p className="text-red-400 mb-4">Failed to load map</p>
+                  <PhysicsButton
+                    onClick={() => {
+                      setMapError(false);
+                      setMapLoading(true);
+                    }}
+                    variant="primary"
+                  >
+                    Retry
+                  </PhysicsButton>
+                </div>
+              </div>
+            )}
+
             <ComposableMap
               projection="geoMercator"
               projectionConfig={{
@@ -303,35 +275,29 @@ export default function TravelMap() {
               style={{ width: '100%', height: '500px' }}
             >
               <ZoomableGroup center={mapCenter} zoom={zoom}>
-                <Geographies geography={GEO_URL}>
+                <Geographies 
+                  geography={GEO_URL}
+                  onError={() => {
+                    console.error('Map loading error');
+                    setMapError(true);
+                    setMapLoading(false);
+                  }}
+                  onReady={() => {
+                    console.log('Map loaded successfully');
+                    setMapLoading(false);
+                    setMapError(false);
+                  }}
+                >
                   {({ geographies }) => {
                     if (!geographies || geographies.length === 0) {
-                      return (
-                        <g>
-                          <rect 
-                            width="100%" 
-                            height="100%" 
-                            fill="#1f2937" 
-                            opacity="0.5"
-                          />
-                          <text 
-                            x="50%" 
-                            y="50%" 
-                            textAnchor="middle" 
-                            fill="#9ca3af" 
-                            fontSize="16"
-                          >
-                            Loading world map...
-                          </text>
-                        </g>
-                      );
+                      return null;
                     }
-                    
+
                     return geographies.map((geo) => {
-                      const country = normalize(geo);
+                      const country = extractCountryData(geo);
                       const isDisabled = isAfrica(country.continent);
                       const isSelected = wishlist.has(country.iso3);
-                      
+
                       return (
                         <Geography
                           key={geo.rsmKey}
@@ -347,10 +313,10 @@ export default function TravelMap() {
                               outline: 'none',
                             },
                             hover: {
-                              fill: isDisabled 
-                                ? '#4B5563' 
-                                : isSelected 
-                                  ? '#F87171' 
+                              fill: isDisabled
+                                ? '#4B5563'
+                                : isSelected
+                                  ? '#F87171'
                                   : '#6B7280',
                               stroke: isDisabled ? '#374151' : '#3B82F6',
                               strokeWidth: isDisabled ? 0.5 : 1,
@@ -358,8 +324,8 @@ export default function TravelMap() {
                               cursor: isDisabled ? 'not-allowed' : 'pointer'
                             },
                             pressed: {
-                              fill: isDisabled 
-                                ? '#4B5563' 
+                              fill: isDisabled
+                                ? '#4B5563'
                                 : '#3B82F6',
                               stroke: isDisabled ? '#374151' : '#1D4ED8',
                               strokeWidth: isDisabled ? 0.5 : 2,
@@ -380,16 +346,16 @@ export default function TravelMap() {
             <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg border border-gray-700">
               <h4 className="text-sm font-semibold text-gray-50 mb-2">Legend</h4>
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <div className="flex items-center">
+                  <span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
                   <span className="text-xs text-gray-300">In Wishlist</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-600 rounded"></div>
+                <div className="flex items-center">
+                  <span className="w-3 h-3 bg-gray-700 rounded-full mr-2"></span>
                   <span className="text-xs text-gray-300">Available</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-500 rounded"></div>
+                <div className="flex items-center">
+                  <span className="w-3 h-3 bg-gray-600 rounded-full mr-2"></span>
                   <span className="text-xs text-gray-300">Disabled (Africa)</span>
                 </div>
               </div>
@@ -397,103 +363,77 @@ export default function TravelMap() {
           </div>
         </motion.div>
 
-        {/* Country Details Modal */}
+        {/* Country Detail Modal */}
         <AnimatePresence>
           {selectedCountry && (
             <motion.div
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
               <motion.div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                 onClick={() => setSelectedCountry(null)}
               />
               <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                className="relative bg-gray-900 p-6 rounded-xl border border-gray-700 shadow-2xl max-w-md w-full"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                className="relative bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-2xl max-w-md w-full"
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ duration: 0.2 }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    {/* Flag Display */}
-                    {selectedCountry.iso2 ? (
-                      <img 
-                        src={getFlagUrl(selectedCountry.iso2)} 
-                        alt={`${selectedCountry.name} flag`}
-                        className="w-12 h-8 object-cover rounded border border-gray-600"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-12 h-8 bg-gray-700 rounded border border-gray-600 flex items-center justify-center">
-                        <span className="text-xs text-gray-400">🏳️</span>
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-50">{selectedCountry.name}</h3>
-                      <p className="text-gray-400 flex items-center gap-1">
-                        <MapPin size={16} />
-                        {selectedCountry.continent}
-                      </p>
-                    </div>
+                <PhysicsButton
+                  onClick={() => setSelectedCountry(null)}
+                  icon={X}
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-3 right-3 text-gray-400 hover:text-gray-50"
+                />
+                <div className="flex items-center mb-4">
+                  {selectedCountry.iso2 && (
+                    <img
+                      src={getCountryFlagUrl(selectedCountry.iso2)}
+                      alt={`${selectedCountry.name} flag`}
+                      className="w-10 h-auto mr-3 rounded shadow-md"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-50">{selectedCountry.name}</h3>
+                    <p className="text-gray-400 text-sm flex items-center gap-1">
+                      <MapPin size={14} /> {selectedCountry.continent}
+                    </p>
                   </div>
-                  <PhysicsButton
-                    onClick={() => setSelectedCountry(null)}
-                    icon={X}
-                    variant="ghost"
-                    size="sm"
-                  />
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
-                    <span className="text-gray-300">Status</span>
-                    <span className={`font-semibold ${
+                <div className="space-y-2 mb-6">
+                  <div className="flex justify-between items-center text-gray-300">
+                    <span className="font-medium">Status:</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                       wishlist.has(selectedCountry.iso3)
-                        ? 'text-green-400'
-                        : 'text-gray-400'
+                        ? 'bg-red-500/20 text-red-400'
+                        : 'bg-gray-700/20 text-gray-400'
                     }`}>
-                      {wishlist.has(selectedCountry.iso3)
-                        ? 'In Wishlist ❤️'
-                        : 'Not Selected'
-                      }
+                      {wishlist.has(selectedCountry.iso3) ? 'In Wishlist' : 'Not Selected'}
                     </span>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
-                    <span className="text-gray-300">ISO Code</span>
+                  <div className="flex justify-between items-center text-gray-300">
+                    <span className="font-medium">ISO Code:</span>
                     <span className="text-gray-400 font-mono">{selectedCountry.iso3}</span>
                   </div>
-
-                  {!isAfrica(selectedCountry.continent) && (
-                    <PhysicsButton
-                      onClick={() => {
-                        toggleCountry(selectedCountry.iso3);
-                        setSelectedCountry(null);
-                      }}
-                      icon={Heart}
-                      variant={wishlist.has(selectedCountry.iso3) ? "danger" : "primary"}
-                      className="w-full hover:shadow-red-500/25 hover:shadow-lg transition-all duration-300"
-                    >
-                      {wishlist.has(selectedCountry.iso3)
-                        ? 'Remove from Wishlist'
-                        : 'Add to Wishlist'
-                      }
-                    </PhysicsButton>
-                  )}
-
-                  {isAfrica(selectedCountry.continent) && (
-                    <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                      <p className="text-yellow-400 text-sm text-center">
-                        🚫 Africa is disabled in this travel map
-                      </p>
-                    </div>
-                  )}
                 </div>
+
+                <PhysicsButton
+                  onClick={toggleWishlist}
+                  icon={wishlist.has(selectedCountry.iso3) ? Heart : Heart}
+                  variant={wishlist.has(selectedCountry.iso3) ? 'danger' : 'primary'}
+                  className="w-full"
+                >
+                  {wishlist.has(selectedCountry.iso3) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                </PhysicsButton>
               </motion.div>
             </motion.div>
           )}

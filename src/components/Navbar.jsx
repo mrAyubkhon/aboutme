@@ -11,7 +11,6 @@ import {
   Map,
   Settings,
   Gamepad2,
-  Wrench,
   Menu,
   X
 } from 'lucide-react';
@@ -52,7 +51,7 @@ export default function Navbar() {
   // Get icon component by name
   const getIcon = (iconName) => {
     const icons = {
-      Home, Calendar, TrendingUp, DollarSign, BookOpen, Globe, Map, Settings, Gamepad2, Wrench
+      Home, Calendar, TrendingUp, DollarSign, BookOpen, Globe, Map, Settings, Gamepad2
     };
     return icons[iconName] || Home;
   };
