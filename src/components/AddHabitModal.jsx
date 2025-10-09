@@ -9,7 +9,6 @@ import {
   Clock,
   Target
 } from 'lucide-react';
-import Portal from './Portal';
 import { 
   PREDEFINED_HABITS, 
   HABIT_CATEGORIES, 
@@ -123,34 +122,31 @@ export default function AddHabitModal({
   };
 
   return (
-    <Portal>
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-              style={{ pointerEvents: 'auto' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleClose}
-            />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+          {/* Backdrop */}
+          <motion.div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleClose}
+          />
 
           {/* Modal */}
           <motion.div
-            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-2xl border border-gray-800 shadow-2xl z-50 overflow-hidden ${className}`}
-            style={{ pointerEvents: 'auto' }}
+            className={`relative w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl max-h-[95vh] sm:max-h-[90vh] bg-gray-900 rounded-xl sm:rounded-2xl border border-gray-800 shadow-2xl overflow-hidden ${className}`}
             initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: -20 }}
             transition={{ duration: 0.3 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-800">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-800">
               <div>
-                <h2 className="text-2xl font-bold text-gray-50">Add New Habit</h2>
-                <p className="text-gray-400 mt-1">Choose from {PREDEFINED_HABITS.length} predefined habits or create your own</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-50">Add New Habit</h2>
+                <p className="text-gray-400 mt-1 text-sm sm:text-base">Choose from {PREDEFINED_HABITS.length} predefined habits or create your own</p>
               </div>
               <PhysicsButton
                 onClick={handleClose}
@@ -161,16 +157,16 @@ export default function AddHabitModal({
             </div>
 
             {/* Search and Filters */}
-            <div className="p-6 border-b border-gray-800">
+            <div className="p-4 sm:p-6 border-b border-gray-800">
               {/* Search */}
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
                   placeholder="Search habits..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-50 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-2 sm:py-3 bg-gray-800 border border-gray-700 rounded-lg sm:rounded-xl text-gray-50 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors text-sm sm:text-base"
                 />
               </div>
 
@@ -193,12 +189,12 @@ export default function AddHabitModal({
             </div>
 
             {/* Habits Grid */}
-            <div className="p-6 max-h-96 overflow-y-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="p-4 sm:p-6 max-h-80 sm:max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {filteredHabits.map((habit, index) => (
                   <motion.div
                     key={habit.id}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border cursor-pointer transition-all ${
                       selectedHabit?.id === habit.id 
                         ? `${getColorClass(habit.color)} border-opacity-100` 
                         : 'border-gray-700 bg-gray-800 hover:border-gray-600'
@@ -248,14 +244,15 @@ export default function AddHabitModal({
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between p-6 border-t border-gray-800 bg-gray-800/50">
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 border-t border-gray-800 bg-gray-800/50 space-y-3 sm:space-y-0">
               <div className="text-sm text-gray-400">
                 {selectedHabit ? `Selected: ${selectedHabit.name}` : 'Select a habit to continue'}
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 w-full sm:w-auto">
                 <PhysicsButton
                   onClick={handleClose}
                   variant="ghost"
+                  className="flex-1 sm:flex-none"
                 >
                   Cancel
                 </PhysicsButton>
@@ -264,15 +261,15 @@ export default function AddHabitModal({
                   variant="primary"
                   disabled={!selectedHabit}
                   icon={Plus}
+                  className="flex-1 sm:flex-none"
                 >
                   Add Habit
                 </PhysicsButton>
               </div>
             </div>
           </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </Portal>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
