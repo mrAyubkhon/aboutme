@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Map, Globe, List, MapPinned } from 'lucide-react';
+import { Map, Globe, List, MapPinned, Earth } from 'lucide-react';
 import TravelWishlist from '../components/TravelWishlist';
 import TravelMap from '../components/travel/TravelMap';
 import InteractiveWorldMap from '../components/travel/InteractiveWorldMap';
+import RealWorldMap from '../components/travel/RealWorldMap';
 import PhysicsButton from '../components/PhysicsButton';
 
 /**
@@ -41,7 +42,7 @@ export default function Travel() {
                 size="sm"
                 className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
               >
-                Country List
+                List
               </PhysicsButton>
               <PhysicsButton
                 onClick={() => setActiveTab('map')}
@@ -50,7 +51,7 @@ export default function Travel() {
                 size="sm"
                 className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
               >
-                Country Cards
+                Cards
               </PhysicsButton>
               <PhysicsButton
                 onClick={() => setActiveTab('world')}
@@ -59,7 +60,16 @@ export default function Travel() {
                 size="sm"
                 className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
               >
-                World Map
+                Regions
+              </PhysicsButton>
+              <PhysicsButton
+                onClick={() => setActiveTab('globe')}
+                icon={Earth}
+                variant={activeTab === 'globe' ? 'primary' : 'ghost'}
+                size="sm"
+                className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
+              >
+                Globe
               </PhysicsButton>
             </div>
           </div>
@@ -75,6 +85,7 @@ export default function Travel() {
           {activeTab === 'wishlist' && <TravelWishlist />}
           {activeTab === 'map' && <TravelMap />}
           {activeTab === 'world' && <InteractiveWorldMap />}
+          {activeTab === 'globe' && <RealWorldMap />}
         </motion.div>
       </div>
     </div>
