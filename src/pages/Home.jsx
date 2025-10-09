@@ -83,8 +83,12 @@ export default function Home() {
 
   // Handle adding habit from modal
   const handleAddHabit = (habitData) => {
+    console.log('Adding habit:', habitData);
     if (addHabit) {
       addHabit(habitData.name, habitData.description, habitData.icon, habitData.color, habitData.category);
+      console.log('Habit added successfully');
+    } else {
+      console.error('addHabit function not available');
     }
     setShowQuickAdd(false);
   };
@@ -240,7 +244,10 @@ export default function Home() {
           <ErrorBoundary>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <PhysicsButton
-              onClick={() => setShowQuickAdd(true)}
+              onClick={() => {
+                console.log('Add Habit button clicked');
+                setShowQuickAdd(true);
+              }}
               icon={Plus}
               variant="primary"
               size="lg"

@@ -9,6 +9,7 @@ import {
   Clock,
   Target
 } from 'lucide-react';
+import Portal from './Portal';
 import { 
   PREDEFINED_HABITS, 
   HABIT_CATEGORIES, 
@@ -69,8 +70,9 @@ export default function AddHabitModal({
   };
 
   const handleAddHabit = () => {
+    console.log('AddHabitModal: handleAddHabit called', selectedHabit);
     if (selectedHabit) {
-      onAddHabit({
+      const habitData = {
         id: `custom-${Date.now()}`,
         name: selectedHabit.name,
         description: selectedHabit.description,
@@ -80,8 +82,12 @@ export default function AddHabitModal({
         tags: selectedHabit.tags,
         frequency: selectedHabit.frequency,
         difficulty: selectedHabit.difficulty
-      });
+      };
+      console.log('AddHabitModal: calling onAddHabit with:', habitData);
+      onAddHabit(habitData);
       handleClose();
+    } else {
+      console.log('AddHabitModal: no habit selected');
     }
   };
 
@@ -117,17 +123,18 @@ export default function AddHabitModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-          />
+    <Portal>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleClose}
+            />
 
           {/* Modal */}
           <motion.div
@@ -261,8 +268,9 @@ export default function AddHabitModal({
               </div>
             </div>
           </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          </>
+        )}
+      </AnimatePresence>
+    </Portal>
   );
 }
