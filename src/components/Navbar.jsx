@@ -12,11 +12,13 @@ import {
   Settings,
   Gamepad2,
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { NAV_ITEMS, APP_NAME } from '../data/constants';
 import ModernLogo from './ModernLogo';
 import PhysicsButton from './PhysicsButton';
+import { logout } from '../services/authService';
 
 /**
  * Navigation bar component with responsive mobile menu
@@ -24,6 +26,11 @@ import PhysicsButton from './PhysicsButton';
 export default function Navbar() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    window.location.reload();
+  };
 
   // Check if a navigation item is active
   const isActive = (path) => {
@@ -123,8 +130,18 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Logout Button & Mobile Menu Button */}
           <div className="flex items-center space-x-2">
+            <PhysicsButton
+              onClick={handleLogout}
+              icon={LogOut}
+              variant="ghost"
+              size="sm"
+              className="hidden md:flex text-red-400 hover:text-red-300"
+            >
+              <span className="ml-2 text-sm">Logout</span>
+            </PhysicsButton>
+            
             <PhysicsButton
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               icon={isMobileMenuOpen ? X : Menu}
@@ -161,6 +178,17 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            
+            {/* Mobile Logout Button */}
+            <div className="border-t border-gray-700 mt-2 pt-2">
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 w-full"
+              >
+                <LogOut size={20} />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>

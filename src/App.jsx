@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { testSiteFunctionality } from './utils/testSite';
 import { SportProvider } from './context/SportContext';
+import { isAuthenticated } from './services/authService';
 import Navbar from './components/Navbar';
 import CommandPalette from './components/CommandPalette';
-// import NotificationSystem, { NotificationProvider } from './components/NotificationSystem';
-// import { LoadingProvider } from './context/LoadingContext';
-// import LoadingIndicator from './components/LoadingIndicator';
+import AuthPage from './pages/AuthPage';
+import WelcomePage from './pages/WelcomePage';
 import Home from './pages/Home';
 import Routine from './pages/Routine';
 import Sport from './pages/Sport';
@@ -17,12 +17,50 @@ import GameStats from './pages/GameStats';
 import Diagnostics from './pages/Diagnostics';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
+import Dashboard from './pages/Dashboard';
+import RegisterForm from './components/auth/RegisterForm';
+import LoginForm from './components/auth/LoginForm';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
   useEffect(() => {
     testSiteFunctionality();
+    // Check if user is already authenticated
+    setIsLoggedIn(isAuthenticated());
   }, []);
 
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setShowWelcome(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setShowWelcome(false);
+  };
+
+  // Show welcome page after successful login
+  if (showWelcome) {
+    return (
+      <SportProvider>
+        <WelcomePage onLogout={handleLogout} onContinue={() => setShowWelcome(false)} />
+      </SportProvider>
+    );
+  }
+
+  // Show auth page if not logged in
+  if (!isLoggedIn) {
+    return (
+      <SportProvider>
+        <AuthPage onLoginSuccess={handleLoginSuccess} />
+      </SportProvider>
+    );
+  }
+
+  // Show main app if logged in and welcome is done
   return (
     <SportProvider>
       <Router
@@ -37,6 +75,17 @@ function App() {
             
             <main className="min-h-screen">
               <Routes>
+              {/* Public Routes */}
+              <Route path="/register" element={<RegisterForm />} />
+              <Route path="/login" element={<LoginForm />} />
+              
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              
               <Route path="/" element={<Home />} />
               <Route path="/routine" element={<Routine />} />
               <Route path="/sport" element={<Sport />} />

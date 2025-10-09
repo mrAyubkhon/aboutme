@@ -13,6 +13,12 @@ dist
 dist-ssr
 *.local
 
+# Old backend
+backend/
+backend-auth/node_modules/
+backend-auth/prisma/dev.db
+backend-auth/prisma/dev.db-journal
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -30,6 +36,20 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+# API Keys and Configuration
+config/api-keys.js
+backend-auth/.env
+backend-auth/prisma/dev.db
+backend-auth/prisma/dev.db-journal
+
+# Sensitive data
+*.key
+*.pem
+*.p12
+*.jks
+secrets/
+private/
 
 # Testing
 coverage
