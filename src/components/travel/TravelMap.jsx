@@ -13,8 +13,8 @@ import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simp
 import PhysicsButton from '../PhysicsButton';
 import EnhancedProgressBar from '../EnhancedProgressBar';
 
-// Use the correct geo source
-const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json";
+// Use the correct geo source with fallback
+const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 /**
  * Normalize country data to handle different property name formats
@@ -22,10 +22,10 @@ const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/wo
 const normalize = (geo) => {
   const properties = geo.properties;
   
-  // Try different property name formats
-  const iso = properties.ISO_A3 || properties.iso_a3 || properties.ISO_A3_EH || properties.iso_a3_eh;
-  const name = properties.NAME || properties.name || properties.NAME_EN || properties.name_en || properties.NAME_LONG || properties.name_long;
-  const continent = properties.CONTINENT || properties.continent || properties.REGION_UN || properties.region_un;
+  // Try different property name formats for world-atlas
+  const iso = properties.ISO_A3 || properties.iso_a3 || properties.ISO_A3_EH || properties.iso_a3_eh || properties.ADM0_A3 || properties.adm0_a3;
+  const name = properties.NAME || properties.name || properties.NAME_EN || properties.name_en || properties.NAME_LONG || properties.name_long || properties.ADMIN || properties.admin;
+  const continent = properties.CONTINENT || properties.continent || properties.REGION_UN || properties.region_un || properties.REGION_WB || properties.region_wb;
   
   return {
     iso: iso || 'UNK',
@@ -77,6 +77,8 @@ export default function TravelMap() {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [mapCenter, setMapCenter] = useState([0, 0]);
   const [zoom, setZoom] = useState(1);
+  const [mapError, setMapError] = useState(null);
+  const [mapLoading, setMapLoading] = useState(true);
 
   // Load wishlist from localStorage on mount
   useEffect(() => {
@@ -279,65 +281,125 @@ export default function TravelMap() {
           className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-blue-500/25 hover:shadow-lg"
         >
           <div className="relative">
-            <ComposableMap
-              projection="geoMercator"
-              projectionConfig={{
-                scale: 140,
-                center: mapCenter
-              }}
-              style={{ width: '100%', height: '500px' }}
-            >
-              <ZoomableGroup center={mapCenter} zoom={zoom}>
-                <Geographies geography={geoUrl}>
-                  {({ geographies }) =>
-                    geographies.map((geo) => {
-                      const country = normalize(geo);
-                      const isDisabled = isAfrica(country.continent);
-                      const isSelected = wishlist.has(country.iso);
+            {mapError ? (
+              <div className="flex items-center justify-center h-[500px] bg-gray-800 rounded-lg border border-gray-700">
+                <div className="text-center">
+                  <Globe className="mx-auto text-gray-500 mb-4" size={64} />
+                  <h3 className="text-xl font-semibold text-gray-300 mb-2">Map Loading Error</h3>
+                  <p className="text-gray-400 mb-4">Unable to load world map data</p>
+                  <PhysicsButton
+                    onClick={() => {
+                      setMapError(null);
+                      setMapLoading(true);
+                      window.location.reload();
+                    }}
+                    variant="primary"
+                  >
+                    Retry Loading
+                  </PhysicsButton>
+                </div>
+              </div>
+            ) : (
+              <ComposableMap
+                projection="geoMercator"
+                projectionConfig={{
+                  scale: 140,
+                  center: mapCenter
+                }}
+                style={{ width: '100%', height: '500px' }}
+              >
+                <ZoomableGroup center={mapCenter} zoom={zoom}>
+                  <Geographies 
+                    geography={geoUrl}
+                    onError={(error) => {
+                      console.error('Map loading error:', error);
+                      console.error('Geo URL:', geoUrl);
+                      setMapError(error);
+                      setMapLoading(false);
+                    }}
+                    onReady={() => {
+                      console.log('Map loaded successfully');
+                      setMapLoading(false);
+                      setMapError(null);
+                    }}
+                  >
+                    {({ geographies }) => {
+                      if (mapLoading) {
+                        return (
+                          <g>
+                            <rect 
+                              width="100%" 
+                              height="100%" 
+                              fill="#1f2937" 
+                              opacity="0.5"
+                            />
+                            <text 
+                              x="50%" 
+                              y="50%" 
+                              textAnchor="middle" 
+                              fill="#9ca3af" 
+                              fontSize="16"
+                            >
+                              Loading map...
+                            </text>
+                          </g>
+                        );
+                      }
                       
-                      return (
-                        <Geography
-                          key={geo.rsmKey}
-                          geography={geo}
-                          fill={getCountryFill(geo)}
-                          stroke="#1f2937"
-                          strokeWidth={0.5}
-                          style={{
-                            default: {
-                              fill: getCountryFill(geo),
-                              stroke: '#1f2937',
-                              strokeWidth: 0.5,
-                              outline: 'none',
-                            },
-                            hover: {
-                              fill: isDisabled 
-                                ? '#4B5563' 
-                                : isSelected 
-                                  ? '#F87171' 
-                                  : '#6B7280',
-                              stroke: isDisabled ? '#374151' : '#3B82F6',
-                              strokeWidth: isDisabled ? 0.5 : 1,
-                              outline: 'none',
-                              cursor: isDisabled ? 'not-allowed' : 'pointer'
-                            },
-                            pressed: {
-                              fill: isDisabled 
-                                ? '#4B5563' 
-                                : '#3B82F6',
-                              stroke: isDisabled ? '#374151' : '#1D4ED8',
-                              strokeWidth: isDisabled ? 0.5 : 2,
-                              outline: 'none',
-                            },
-                          }}
-                          onClick={() => handleCountryClick(geo)}
-                          className={isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}
-                        />
-                      );
-                    })
-                  }
-                </Geographies>
-              </ZoomableGroup>
-            </ComposableMap>
+                      return geographies.map((geo) => {
+                        const country = normalize(geo);
+                        const isDisabled = isAfrica(country.continent);
+                        const isSelected = wishlist.has(country.iso);
+                        
+                        // Debug logging for first few countries
+                        if (geo.rsmKey < 5) {
+                          console.log(`Country ${geo.rsmKey}:`, country);
+                        }
+                        
+                        return (
+                          <Geography
+                            key={geo.rsmKey}
+                            geography={geo}
+                            fill={getCountryFill(geo)}
+                            stroke="#1f2937"
+                            strokeWidth={0.5}
+                            style={{
+                              default: {
+                                fill: getCountryFill(geo),
+                                stroke: '#1f2937',
+                                strokeWidth: 0.5,
+                                outline: 'none',
+                              },
+                              hover: {
+                                fill: isDisabled 
+                                  ? '#4B5563' 
+                                  : isSelected 
+                                    ? '#F87171' 
+                                    : '#6B7280',
+                                stroke: isDisabled ? '#374151' : '#3B82F6',
+                                strokeWidth: isDisabled ? 0.5 : 1,
+                                outline: 'none',
+                                cursor: isDisabled ? 'not-allowed' : 'pointer'
+                              },
+                              pressed: {
+                                fill: isDisabled 
+                                  ? '#4B5563' 
+                                  : '#3B82F6',
+                                stroke: isDisabled ? '#374151' : '#1D4ED8',
+                                strokeWidth: isDisabled ? 0.5 : 2,
+                                outline: 'none',
+                              },
+                            }}
+                            onClick={() => handleCountryClick(geo)}
+                            className={isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}
+                          />
+                        );
+                      });
+                    }}
+                  </Geographies>
+                </ZoomableGroup>
+              </ComposableMap>
+            )}
 
             {/* Map Legend */}
             <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg border border-gray-700">
