@@ -14,7 +14,7 @@ import {
 import ModernLogo from '../components/ModernLogo';
 import LiveClock from '../components/LiveClock';
 import { useHabits } from '../hooks/useHabits';
-import { useWater } from '../hooks/useWater';
+import { useSport } from '../context/SportContext';
 import { useFinance } from '../hooks/useFinance';
 import { useJournal } from '../hooks/useJournal';
 import Card, { StatCard, ActionCard } from '../components/Card';
@@ -49,7 +49,7 @@ const itemVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { habits = [], getCompletionRate = () => 0, getCompletedCount = () => 0, addHabit } = useHabits() || {};
-  const { waterData = { current: 0, goal: 2500 }, getProgress = () => 0 } = useWater() || {};
+  const { getWater, getToday, state } = useSport();
   const { getTodayTotals = () => ({ income: 0, expenses: 0 }), getRemainingBudget = () => 0 } = useFinance() || {};
 
   // Get current time for dynamic greeting
@@ -59,27 +59,17 @@ export default function Home() {
   
   const todayTotals = getTodayTotals();
   const habitCompletion = getCompletionRate() || 0;
-  const waterProgress = getProgress() || 0;
+  const today = getToday();
+  const todayWater = getWater(today);
+  const waterGoal = state.goals.waterMlPerDay;
+  const waterProgress = waterGoal > 0 ? Math.min((todayWater / waterGoal) * 100, 100) : 0;
   const remainingBudget = getRemainingBudget() || 0;
   const recentEntries = getRecentEntries(3);
 
-  // Recalculate water progress when waterData changes
-  const currentWaterProgress = waterData.goal > 0 ? Math.min(Math.round((waterData.current / waterData.goal) * 100), 100) : 0;
+  // Use Sport context water data
+  const currentWaterProgress = waterProgress;
 
-  // Force re-render when water data changes
-  const [, forceUpdate] = useState({});
-  const triggerUpdate = () => forceUpdate({});
-  
-  // Listen for storage changes to update UI
-  React.useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'ayubi_water') {
-        triggerUpdate();
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  // Sport context handles all data updates automatically
 
   // Handle adding habit from modal
   const handleAddHabit = (habitData) => {
@@ -167,14 +157,14 @@ export default function Home() {
           </motion.div>
           
           <motion.div
-            key={`water-${waterData.current}`}
+            key={`water-${todayWater}`}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
             <StatCard
               title="Water Intake"
-              value={`${Math.round(waterData.current / 1000 * 10) / 10}L`}
+              value={`${Math.round(todayWater / 1000 * 10) / 10}L`}
               subtitle={`${Math.round(currentWaterProgress)}% of goal`}
               icon={Droplets}
               color="blue"
@@ -213,15 +203,15 @@ export default function Home() {
             </MagneticCard>
             
             <MagneticCard>
-              <EnhancedProgressBar 
-                value={waterData.current}
-                max={waterData.goal}
-                label="Water Intake"
-                variant="blue"
-                size="lg"
-                glow={true}
-                animated={true}
-              />
+            <EnhancedProgressBar 
+              value={todayWater}
+              max={waterGoal}
+              label="Water Intake"
+              variant="blue"
+              size="lg"
+              glow={true}
+              animated={true}
+            />
             </MagneticCard>
         </motion.div>
 

@@ -1,5 +1,6 @@
 import { useLocalStorage } from './useLocalStorage';
 import { safePercentage, safeRound, safeArray } from '../utils/safeMath';
+import { useEffect } from 'react';
 
 /**
  * Custom hook for managing habits
@@ -7,9 +8,53 @@ import { safePercentage, safeRound, safeArray } from '../utils/safeMath';
  */
 export function useHabits() {
   const [habits, setHabits] = useLocalStorage('ayubi_habits', []);
+  const [lastResetDate, setLastResetDate] = useLocalStorage('ayubi_habits_last_reset', '');
   
   // Ensure habits is always an array
   const safeHabits = safeArray(habits, []);
+  
+  // Auto-reset habits daily and add default habits if none exist
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Add default habits if none exist
+    if (safeHabits.length === 0) {
+      console.log('Adding default habits');
+      setHabits([
+        {
+          id: '1',
+          name: 'Walk 10,000 Steps',
+          description: 'Reach your daily step goal',
+          icon: '🚶',
+          color: 'blue',
+          category: 'fitness',
+          completed: false,
+          createdAt: new Date().toISOString(),
+          streak: 0,
+          lastCompleted: null
+        },
+        {
+          id: '2',
+          name: 'Morning Stretch',
+          description: 'Start your day with gentle stretching',
+          icon: '🤸',
+          color: 'green',
+          category: 'health',
+          completed: false,
+          createdAt: new Date().toISOString(),
+          streak: 0,
+          lastCompleted: null
+        }
+      ]);
+    }
+    
+    // Reset habits for new day
+    if (lastResetDate !== today && safeHabits.length > 0) {
+      console.log('Resetting habits for new day:', today);
+      setHabits(prev => prev.map(habit => ({ ...habit, completed: false })));
+      setLastResetDate(today);
+    }
+  }, [lastResetDate, safeHabits.length, setHabits, setLastResetDate]);
   
   // Add a new habit
   const addHabit = (name, description = '', icon = '🎯', color = 'blue', category = 'personal') => {
