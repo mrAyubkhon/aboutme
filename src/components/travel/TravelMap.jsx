@@ -6,6 +6,7 @@ import {
   RotateCcw,
   X,
   MapPin,
+  Map,
   Target,
   TrendingUp,
   Zap
@@ -165,21 +166,20 @@ export default function TravelMap() {
   const progress = totalCountries > 0 ? (selectedCount / totalCountries) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gray-950 pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Header */}
+    <div className="space-y-8">
+        {/* Map Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
           <div>
-            <h1 className="text-4xl font-bold text-gray-50 mb-2 flex items-center gap-3">
-              <Globe className="text-blue-400" size={40} />
-              Travel Map
-            </h1>
-            <p className="text-gray-400 text-lg">
-              Explore the world and plan your next adventure
+            <h2 className="text-2xl font-bold text-gray-50 mb-2 flex items-center gap-3">
+              <Map className="text-blue-400" size={28} />
+              Interactive World Map
+            </h2>
+            <p className="text-gray-400">
+              Click on countries to explore and add to your travel wishlist
             </p>
           </div>
           <div className="flex items-center gap-3">

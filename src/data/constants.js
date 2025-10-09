@@ -23,7 +23,6 @@ export const NAV_ITEMS = [
   { path: '/finance', icon: 'DollarSign', label: 'Finance' },
   { path: '/journal', icon: 'BookOpen', label: 'Journal' },
   { path: '/travel', icon: 'Globe', label: 'Travel' },
-  { path: '/travel-map', icon: 'Map', label: 'Travel Map' },
   { path: '/gamestats', icon: 'Gamepad2', label: 'Game Stats' },
   { path: '/settings', icon: 'Settings', label: 'Settings' },
 ];

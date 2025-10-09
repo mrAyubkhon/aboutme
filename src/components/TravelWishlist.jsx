@@ -106,7 +106,7 @@ export default function TravelWishlist() {
 
   return (
     <motion.div
-      className="min-h-screen bg-slate-900 text-gray-100 pt-16"
+      className="text-gray-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -119,12 +119,12 @@ export default function TravelWishlist() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="text-4xl font-bold text-gray-50 mb-4 flex items-center justify-center space-x-3">
-            <Globe className="w-10 h-10 text-sky-400" />
-            <span>Travel Wishlist</span>
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Explore the world - All continents except Africa 🌍
+          <h2 className="text-2xl font-bold text-gray-50 mb-4 flex items-center justify-center space-x-3">
+            <Globe className="w-8 h-8 text-blue-400" />
+            <span>Country Wishlist</span>
+          </h2>
+          <p className="text-gray-400">
+            Browse and select countries you want to visit 🌍
           </p>
         </motion.div>
 

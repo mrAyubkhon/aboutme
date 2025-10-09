@@ -1,19 +1,20 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Map, Globe, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { Map, Globe, List, ArrowRight } from 'lucide-react';
 import TravelWishlist from '../components/TravelWishlist';
+import TravelMap from '../components/travel/TravelMap';
 import PhysicsButton from '../components/PhysicsButton';
 
 /**
- * Travel page - displays the travel wishlist component with navigation
+ * Travel page - displays both travel wishlist and interactive map
  */
 export default function Travel() {
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('wishlist');
 
   return (
     <div className="min-h-screen bg-gray-950 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header with Navigation */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -23,30 +24,46 @@ export default function Travel() {
             <div>
               <h1 className="text-4xl font-bold text-gray-50 mb-2 flex items-center gap-3">
                 <Globe className="text-blue-400" size={40} />
-                Travel Wishlist
+                Travel Explorer
               </h1>
               <p className="text-gray-400 text-lg">
                 Plan your next adventure around the world
               </p>
             </div>
             
-            <PhysicsButton
-              onClick={() => navigate('/travel-map')}
-              icon={Map}
-              variant="primary"
-              size="lg"
-              className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
-            >
-              <span className="flex items-center gap-2">
+            {/* Tab Switcher */}
+            <div className="flex items-center gap-2 bg-gray-800 p-1 rounded-xl">
+              <PhysicsButton
+                onClick={() => setActiveTab('wishlist')}
+                icon={List}
+                variant={activeTab === 'wishlist' ? 'primary' : 'ghost'}
+                size="sm"
+                className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
+              >
+                Country List
+              </PhysicsButton>
+              <PhysicsButton
+                onClick={() => setActiveTab('map')}
+                icon={Map}
+                variant={activeTab === 'map' ? 'primary' : 'ghost'}
+                size="sm"
+                className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
+              >
                 Interactive Map
-                <ArrowRight size={16} />
-              </span>
-            </PhysicsButton>
+              </PhysicsButton>
+            </div>
           </div>
         </motion.div>
 
-        {/* Travel Wishlist Component */}
-        <TravelWishlist />
+        {/* Content */}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {activeTab === 'wishlist' ? <TravelWishlist /> : <TravelMap />}
+        </motion.div>
       </div>
     </div>
   );

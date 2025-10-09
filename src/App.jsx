@@ -13,7 +13,6 @@ import Sport from './pages/Sport';
 import Finance from './pages/Finance';
 import Journal from './pages/JournalSimple';
 import Travel from './pages/Travel';
-import TravelMap from './pages/TravelMap';
 import GameStats from './pages/GameStats';
 import Diagnostics from './pages/Diagnostics';
 import Settings from './pages/Settings';
@@ -45,7 +44,6 @@ function App() {
               <Route path="/finance" element={<Finance />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/travel" element={<Travel />} />
-              <Route path="/travel-map" element={<TravelMap />} />
               <Route path="/gamestats" element={<GameStats />} />
               <Route path="/diagnostics" element={<Diagnostics />} />
               <Route path="/settings" element={<Settings />} />
