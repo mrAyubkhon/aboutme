@@ -19,7 +19,7 @@ export const COLORS = {
 export const NAV_ITEMS = [
   { path: '/', icon: 'Home', label: 'Home' },
   { path: '/routine', icon: 'Calendar', label: 'Routine' },
-  { path: '/water', icon: 'Droplets', label: 'Water' },
+  { path: '/sport', icon: 'TrendingUp', label: 'Sport' },
   { path: '/finance', icon: 'DollarSign', label: 'Finance' },
   { path: '/journal', icon: 'BookOpen', label: 'Journal' },
   { path: '/travel', icon: 'Globe', label: 'Travel' },

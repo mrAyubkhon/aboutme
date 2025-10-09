@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { 
   Home, 
   Calendar, 
-  Droplets, 
+  TrendingUp,
   DollarSign, 
   BookOpen, 
   Globe,
@@ -52,7 +52,7 @@ export default function Navbar() {
   // Get icon component by name
   const getIcon = (iconName) => {
     const icons = {
-      Home, Calendar, Droplets, DollarSign, BookOpen, Globe, Map, Settings, Gamepad2, Wrench
+      Home, Calendar, TrendingUp, DollarSign, BookOpen, Globe, Map, Settings, Gamepad2, Wrench
     };
     return icons[iconName] || Home;
   };

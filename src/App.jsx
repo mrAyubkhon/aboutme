@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { testSiteFunctionality } from './utils/testSite';
+import { SportProvider } from './context/SportContext';
 import Navbar from './components/Navbar';
 import CommandPalette from './components/CommandPalette';
 // import NotificationSystem, { NotificationProvider } from './components/NotificationSystem';
@@ -8,7 +9,7 @@ import CommandPalette from './components/CommandPalette';
 // import LoadingIndicator from './components/LoadingIndicator';
 import Home from './pages/Home';
 import Routine from './pages/Routine';
-import Water from './pages/Water';
+import Sport from './pages/Sport';
 import Finance from './pages/Finance';
 import Journal from './pages/JournalSimple';
 import Travel from './pages/Travel';
@@ -24,21 +25,23 @@ function App() {
   }, []);
 
   return (
-    <Router
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}
-    >
-        <div className="min-h-screen bg-gray-950 transition-all duration-500 ease-in-out">
-          <Navbar />
-          <CommandPalette />
-          
-          <main className="min-h-screen">
-            <Routes>
+    <SportProvider>
+      <Router
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true
+        }}
+      >
+          <div className="min-h-screen bg-gray-950 transition-all duration-500 ease-in-out">
+            <Navbar />
+            <CommandPalette />
+            
+            <main className="min-h-screen">
+              <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/routine" element={<Routine />} />
-              <Route path="/water" element={<Water />} />
+              <Route path="/sport" element={<Sport />} />
+              <Route path="/water" element={<Sport />} />
               <Route path="/finance" element={<Finance />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/travel" element={<Travel />} />
@@ -51,6 +54,7 @@ function App() {
           </main>
         </div>
       </Router>
+    </SportProvider>
   );
 }
 
