@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Trophy, 
@@ -18,8 +18,26 @@ import {
   RefreshCw,
   Settings,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  BarChart3,
+  PieChart
 } from 'lucide-react';
+import { 
+  LineChart, 
+  Line, 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import PhysicsButton from '../components/PhysicsButton';
 import { useNavigate } from 'react-router-dom';
 import gameStatsService from '../services/gameStatsService';
@@ -51,6 +69,23 @@ export default function GameStats() {
   const [steamId, setSteamId] = useState(localStorage.getItem('steam_id') || '76561199132216007');
   const [faceitNickname, setFaceitNickname] = useState(localStorage.getItem('faceit_nickname') || 'Ayu6i');
   const [apiKeysConfigured, setApiKeysConfigured] = useState(false);
+  const [isLive, setIsLive] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
+  const [liveStats, setLiveStats] = useState({
+    currentGame: null,
+    isOnline: false,
+    currentStatus: 'Offline',
+    lastMatchTime: null,
+    eloChange: 0
+  });
+  const [cache, setCache] = useState({
+    steamData: null,
+    faceitData: null,
+    friendsData: null,
+    multiGameData: null,
+    lastFetch: null
+  });
 
   // Real data based on Ayubi's Steam profile from API
   const mockSteamData = {
@@ -133,10 +168,238 @@ export default function GameStats() {
       recent_results: ["W", "W", "L", "W", "L", "W", "W", "W"]
     },
     achievements: [
-      { name: "First Blood", description: "First kill in match", icon: "🔪" },
-      { name: "Clutch Master", description: "Won 50 1v1 situations", icon: "🎯" },
-      { name: "Headshot King", description: "75% headshot accuracy", icon: "🎯" }
+      { 
+        name: "First Blood", 
+        description: "First kill in match", 
+        icon: "🔪",
+        category: "Combat",
+        rarity: "Common",
+        unlocked: true,
+        progress: 100,
+        xp: 50
+      },
+      { 
+        name: "Clutch Master", 
+        description: "Won 50 1v1 situations", 
+        icon: "🎯",
+        category: "Skill",
+        rarity: "Rare",
+        unlocked: true,
+        progress: 100,
+        xp: 200
+      },
+      { 
+        name: "Headshot King", 
+        description: "75% headshot accuracy", 
+        icon: "🎯",
+        category: "Precision",
+        rarity: "Epic",
+        unlocked: true,
+        progress: 100,
+        xp: 500
+      },
+      { 
+        name: "Win Streak Legend", 
+        description: "Win 10 matches in a row", 
+        icon: "🔥",
+        category: "Consistency",
+        rarity: "Legendary",
+        unlocked: false,
+        progress: 70,
+        xp: 1000,
+        requirement: "Win 7 more matches"
+      },
+      { 
+        name: "ELO Climber", 
+        description: "Reach 2500 ELO rating", 
+        icon: "📈",
+        category: "Ranking",
+        rarity: "Epic",
+        unlocked: false,
+        progress: 85,
+        xp: 750,
+        requirement: "Gain 361 more ELO"
+      },
+      { 
+        name: "Match Veteran", 
+        description: "Play 1000 matches", 
+        icon: "⚔️",
+        category: "Endurance",
+        rarity: "Rare",
+        unlocked: false,
+        progress: 42,
+        xp: 300,
+        requirement: "Play 580 more matches"
+      }
     ]
+  };
+
+  // Mock friends data
+  const mockFriendsData = {
+    friends: [
+      {
+        id: 1,
+        name: "ProGamer123",
+        avatar: "https://avatars.steamstatic.com/avatar.jpg",
+        steamId: "76561198000000001",
+        faceitNickname: "ProGamer123",
+        elo: 2450,
+        level: 10,
+        isOnline: true,
+        currentGame: "Counter-Strike 2",
+        winRate: 68.5,
+        matches: 892,
+        kd: 1.42,
+        hs: 52.1,
+        rank: 1
+      },
+      {
+        id: 2,
+        name: "CS2Legend",
+        avatar: "https://avatars.steamstatic.com/avatar2.jpg",
+        steamId: "76561198000000002",
+        faceitNickname: "CS2Legend",
+        elo: 2380,
+        level: 9,
+        isOnline: false,
+        currentGame: null,
+        winRate: 65.2,
+        matches: 756,
+        kd: 1.38,
+        hs: 48.9,
+        rank: 2
+      },
+      {
+        id: 3,
+        name: "HeadshotMaster",
+        avatar: "https://avatars.steamstatic.com/avatar3.jpg",
+        steamId: "76561198000000003",
+        faceitNickname: "HeadshotMaster",
+        elo: 2200,
+        level: 8,
+        isOnline: true,
+        currentGame: "Counter-Strike 2",
+        winRate: 62.1,
+        matches: 634,
+        kd: 1.35,
+        hs: 56.7,
+        rank: 3
+      },
+      {
+        id: 4,
+        name: "Ayubi",
+        avatar: "https://avatars.steamstatic.com/179b6cd337924277a6b6d6abab5cfec04ed8dd55.jpg",
+        steamId: "76561199132216007",
+        faceitNickname: "Ayu6i",
+        elo: 2139,
+        level: 10,
+        isOnline: true,
+        currentGame: "Counter-Strike 2",
+        winRate: 63.1,
+        matches: 423,
+        kd: 1.34,
+        hs: 45.2,
+        rank: 4
+      }
+    ],
+    leaderboard: {
+      global: [
+        { rank: 1, name: "ProGamer123", elo: 2450, country: "🇺🇸", level: 10 },
+        { rank: 2, name: "CS2Legend", elo: 2380, country: "🇩🇪", level: 9 },
+        { rank: 3, name: "HeadshotMaster", elo: 2200, country: "🇬🇧", level: 8 },
+        { rank: 4, name: "Ayubi", elo: 2139, country: "🇫🇷", level: 10 },
+        { rank: 5, name: "GamingPro", elo: 2050, country: "🇨🇦", level: 8 },
+        { rank: 6, name: "CS2King", elo: 1980, country: "🇦🇺", level: 7 },
+        { rank: 7, name: "FragMachine", elo: 1920, country: "🇸🇪", level: 7 },
+        { rank: 8, name: "AcePlayer", elo: 1850, country: "🇳🇱", level: 6 }
+      ],
+      friends: [
+        { rank: 1, name: "ProGamer123", elo: 2450, isYou: false },
+        { rank: 2, name: "CS2Legend", elo: 2380, isYou: false },
+        { rank: 3, name: "HeadshotMaster", elo: 2200, isYou: false },
+        { rank: 4, name: "Ayubi", elo: 2139, isYou: true }
+      ]
+    }
+  };
+
+  // Mock multi-game data
+  const mockMultiGameData = {
+    valorant: {
+      username: "Ayubi#EUW",
+      rank: "Immortal 2",
+      rr: 85,
+      level: 156,
+      actRank: "Diamond 3",
+      peakRank: "Immortal 3",
+      stats: {
+        wins: 234,
+        losses: 189,
+        winRate: 55.3,
+        avgScore: 184.2,
+        headshotPercentage: 23.1,
+        kd: 1.18,
+        adr: 156.7
+      },
+      agents: [
+        { name: "Jett", playtime: 45.2, winRate: 58.1 },
+        { name: "Reyna", playtime: 32.8, winRate: 52.3 },
+        { name: "Phoenix", playtime: 22.0, winRate: 56.7 }
+      ],
+      recentMatches: [
+        { map: "Bind", result: "W", score: "13-8", kd: "18/12/4", rr: "+18" },
+        { map: "Haven", result: "L", score: "11-13", kd: "15/16/3", rr: "-15" },
+        { map: "Ascent", result: "W", score: "13-10", kd: "21/14/5", rr: "+22" }
+      ]
+    },
+    lol: {
+      username: "Ayubi",
+      rank: "Gold II",
+      lp: 67,
+      level: 89,
+      region: "EUW",
+      stats: {
+        wins: 156,
+        losses: 142,
+        winRate: 52.3,
+        kda: 2.4,
+        csPerMin: 7.2,
+        visionScore: 45.8
+      },
+      champions: [
+        { name: "Yasuo", games: 45, winRate: 62.2, kda: 2.8 },
+        { name: "Zed", games: 32, winRate: 53.1, kda: 2.1 },
+        { name: "Akali", games: 28, winRate: 57.1, kda: 2.3 }
+      ],
+      recentMatches: [
+        { champion: "Yasuo", result: "W", kda: "12/3/8", duration: "28:45", cs: 208 },
+        { champion: "Zed", result: "L", kda: "8/7/4", duration: "32:12", cs: 195 },
+        { champion: "Akali", result: "W", kda: "15/2/6", duration: "25:33", cs: 172 }
+      ]
+    },
+    apex: {
+      username: "Ayubi",
+      rank: "Platinum II",
+      rp: 6840,
+      level: 234,
+      stats: {
+        wins: 89,
+        top3: 234,
+        kills: 1234,
+        damage: 456789,
+        kd: 1.45,
+        avgDamage: 567
+      },
+      legends: [
+        { name: "Wraith", kills: 456, wins: 34, winRate: 38.2 },
+        { name: "Pathfinder", kills: 389, wins: 28, winRate: 31.5 },
+        { name: "Bloodhound", kills: 234, wins: 18, winRate: 29.0 }
+      ],
+      recentMatches: [
+        { legend: "Wraith", result: "W", kills: 8, damage: 1847, placement: 1 },
+        { legend: "Pathfinder", result: "Top 3", kills: 5, damage: 1234, placement: 2 },
+        { legend: "Bloodhound", result: "L", kills: 3, damage: 987, placement: 8 }
+      ]
+    }
   };
 
   useEffect(() => {
@@ -155,6 +418,39 @@ export default function GameStats() {
       setLastUpdated(new Date());
     }
   }, [steamId, faceitNickname]);
+
+  // Real-time updates
+  useEffect(() => {
+    let interval;
+    
+    if (autoRefresh && isLive) {
+      interval = setInterval(() => {
+        updateLiveData();
+      }, refreshInterval);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [autoRefresh, isLive, refreshInterval]);
+
+  // Simulate live data updates
+  useEffect(() => {
+    const liveInterval = setInterval(() => {
+      setLiveStats(prev => ({
+        ...prev,
+        isOnline: Math.random() > 0.3, // 70% chance of being online
+        currentStatus: Math.random() > 0.3 ? 'In-Game' : 'Online',
+        currentGame: Math.random() > 0.5 ? 'Counter-Strike 2' : null,
+        eloChange: Math.floor(Math.random() * 20) - 10, // Random ELO change
+        lastMatchTime: Math.random() > 0.7 ? new Date() : prev.lastMatchTime
+      }));
+    }, 5000); // Update every 5 seconds
+    
+    return () => clearInterval(liveInterval);
+  }, []);
 
   const loadGameData = async () => {
     setLoading(true);
@@ -259,6 +555,34 @@ export default function GameStats() {
     await loadGameData();
   };
 
+  const updateLiveData = async () => {
+    try {
+      // Simulate API calls for live data
+      console.log('🔄 Updating live data...');
+      setLastUpdated(new Date());
+      
+      // Update ELO if it changed
+      if (liveStats.eloChange !== 0) {
+        setFaceitData(prev => ({
+          ...prev,
+          cs2_stats: {
+            ...prev.cs2_stats,
+            faceit_elo: Math.max(0, (prev.cs2_stats?.faceit_elo || 2139) + liveStats.eloChange)
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to update live data:', error);
+    }
+  };
+
+  const toggleLiveMode = () => {
+    setIsLive(!isLive);
+    if (!isLive) {
+      setAutoRefresh(true);
+    }
+  };
+
   const saveSteamId = (id) => {
     setSteamId(id);
     localStorage.setItem('steam_id', id);
@@ -307,6 +631,91 @@ export default function GameStats() {
     return 'text-red-400';
   };
 
+  const getRarityColor = (rarity) => {
+    const colors = {
+      'Common': 'text-gray-400 bg-gray-700/50 border-gray-600',
+      'Rare': 'text-blue-400 bg-blue-700/20 border-blue-600',
+      'Epic': 'text-purple-400 bg-purple-700/20 border-purple-600',
+      'Legendary': 'text-orange-400 bg-orange-700/20 border-orange-600'
+    };
+    return colors[rarity] || colors['Common'];
+  };
+
+  const getRarityGradient = (rarity) => {
+    const gradients = {
+      'Common': 'from-gray-500 to-gray-400',
+      'Rare': 'from-blue-500 to-blue-400',
+      'Epic': 'from-purple-500 to-purple-400',
+      'Legendary': 'from-orange-500 to-yellow-400'
+    };
+    return gradients[rarity] || gradients['Common'];
+  };
+
+  // Memoized calculations for performance
+  const gameStats = useMemo(() => {
+    if (!steamData || !faceitData) return null;
+    
+    return {
+      totalGames: steamData.stats?.total_games || 0,
+      totalPlaytime: steamData.stats?.total_playtime || 0,
+      faceitElo: faceitData.cs2_stats?.faceit_elo || faceitData.csgo_stats?.faceit_elo || 0,
+      winRate: faceitData.csgo_stats?.win_rate || 0,
+      skillLevel: faceitData.cs2_stats?.skill_level || faceitData.csgo_stats?.skill_level || 0
+    };
+  }, [steamData, faceitData]);
+
+  const achievementStats = useMemo(() => {
+    if (!faceitData?.achievements) return { unlocked: 0, total: 0, progress: 0 };
+    
+    const unlocked = faceitData.achievements.filter(a => a.unlocked).length;
+    const total = faceitData.achievements.length;
+    const progress = total > 0 ? Math.round((unlocked / total) * 100) : 0;
+    
+    return { unlocked, total, progress };
+  }, [faceitData?.achievements]);
+
+  // Cached data loading with expiration
+  const loadCachedData = useCallback(async () => {
+    const now = Date.now();
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    
+    // Check if cache is still valid
+    if (cache.lastFetch && (now - cache.lastFetch) < CACHE_DURATION) {
+      if (cache.steamData) setSteamData(cache.steamData);
+      if (cache.faceitData) setFaceitData(cache.faceitData);
+      return;
+    }
+    
+    // Load fresh data
+    await loadGameData();
+    
+    // Update cache
+    setCache(prev => ({
+      ...prev,
+      steamData: mockSteamData,
+      faceitData: mockFaceitData,
+      friendsData: mockFriendsData,
+      multiGameData: mockMultiGameData,
+      lastFetch: now
+    }));
+  }, [cache.lastFetch]);
+
+  // Optimized data loading
+  const loadGameDataOptimized = useCallback(async () => {
+    setLoading(true);
+    try {
+      await loadCachedData();
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Failed to load game data:', error);
+      // Fallback to cached data if available
+      if (cache.steamData) setSteamData(cache.steamData);
+      if (cache.faceitData) setFaceitData(cache.faceitData);
+    } finally {
+      setLoading(false);
+    }
+  }, [loadCachedData, cache]);
+
   return (
     <motion.div
       className="min-h-screen bg-gray-950 text-gray-50"
@@ -316,60 +725,151 @@ export default function GameStats() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-50 mb-2">
+        <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            <div className="flex-1">
+              <motion.h1 
+                className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
                 🎮 Game Statistics
-              </h1>
-              <p className="text-gray-400">
+              </motion.h1>
+              <motion.p 
+                className="text-gray-400 text-sm sm:text-base lg:text-lg"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
                 Live gaming stats from Ayubi's Steam & Faceit profiles via API
-              </p>
+              </motion.p>
+              {lastUpdated && (
+                <motion.div 
+                  className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-gray-500"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span>Updated: {lastUpdated.toLocaleTimeString()}</span>
+                </motion.div>
+              )}
             </div>
             
-            <div className="flex items-center space-x-4">
-              <PhysicsButton
-                onClick={refreshData}
-                disabled={loading}
-                variant="secondary"
-                className="flex items-center space-x-2"
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              {/* Live Status Indicator */}
+              <motion.div 
+                className="flex items-center gap-3 px-4 py-2 bg-gray-800/50 rounded-lg border border-gray-700"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                <span>Refresh</span>
-              </PhysicsButton>
-              
-              <PhysicsButton
-                onClick={() => navigate('/settings')}
-                variant="secondary"
-                className="flex items-center space-x-2"
-              >
-                <Settings className="w-4 h-4" />
-                <span>Settings</span>
-              </PhysicsButton>
+                <motion.div 
+                  className={`w-3 h-3 rounded-full ${
+                    liveStats.isOnline ? 'bg-green-400' : 'bg-red-400'
+                  }`}
+                  animate={{ 
+                    scale: liveStats.isOnline ? [1, 1.2, 1] : 1,
+                    opacity: liveStats.isOnline ? [1, 0.7, 1] : 1
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: liveStats.isOnline ? Infinity : 0,
+                    ease: "easeInOut"
+                  }}
+                />
+                <div className="text-sm">
+                  <div className="text-gray-300 font-medium">
+                    {liveStats.currentStatus}
+                  </div>
+                  {liveStats.currentGame && (
+                    <div className="text-xs text-gray-500">
+                      Playing {liveStats.currentGame}
+                    </div>
+                  )}
+                </div>
+                {liveStats.eloChange !== 0 && (
+                  <motion.div 
+                    className={`text-xs font-bold px-2 py-1 rounded ${
+                      liveStats.eloChange > 0 
+                        ? 'bg-green-500/20 text-green-400' 
+                        : 'bg-red-500/20 text-red-400'
+                    }`}
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 10, opacity: 0 }}
+                  >
+                    {liveStats.eloChange > 0 ? '+' : ''}{liveStats.eloChange} ELO
+                  </motion.div>
+                )}
+              </motion.div>
+
+              <div className="flex items-center space-x-2">
+                <PhysicsButton
+                  onClick={toggleLiveMode}
+                  variant={isLive ? "success" : "secondary"}
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <motion.div
+                    animate={isLive ? { rotate: 360 } : { rotate: 0 }}
+                    transition={{ duration: 2, repeat: isLive ? Infinity : 0 }}
+                  >
+                    <Zap className="w-4 h-4" />
+                  </motion.div>
+                  <span>{isLive ? 'Live' : 'Go Live'}</span>
+                </PhysicsButton>
+
+                <PhysicsButton
+                  onClick={refreshData}
+                  disabled={loading}
+                  variant="secondary"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </PhysicsButton>
+                
+                <PhysicsButton
+                  onClick={() => navigate('/settings')}
+                  variant="secondary"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  <span>Settings</span>
+                </PhysicsButton>
+              </div>
             </div>
           </div>
         </motion.div>
 
         {/* Tabs */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <div className="flex space-x-1 bg-gray-900 p-1 rounded-lg">
+        <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
+          <div className="flex overflow-x-auto space-x-1 bg-gray-900 p-1 rounded-lg scrollbar-hide">
             {[
-              { id: 'overview', label: 'Overview', icon: Activity },
-              { id: 'steam', label: 'Steam', icon: Gamepad2 },
-              { id: 'faceit', label: 'Faceit', icon: Trophy },
-              { id: 'settings', label: 'Settings', icon: Settings }
+              { id: 'overview', label: 'Overview', icon: Activity, shortLabel: 'Overview' },
+              { id: 'charts', label: 'Charts', icon: BarChart3, shortLabel: 'Charts' },
+              { id: 'friends', label: 'Friends', icon: Users, shortLabel: 'Friends' },
+              { id: 'games', label: 'All Games', icon: Star, shortLabel: 'Games' },
+              { id: 'steam', label: 'Steam', icon: Gamepad2, shortLabel: 'Steam' },
+              { id: 'faceit', label: 'Faceit', icon: Trophy, shortLabel: 'Faceit' },
+              { id: 'settings', label: 'Settings', icon: Settings, shortLabel: 'Settings' }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-md transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-400 hover:text-gray-50'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
-                <span>{tab.label}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.shortLabel}</span>
               </button>
             ))}
           </div>
@@ -397,51 +897,153 @@ export default function GameStats() {
         {/* Overview Tab */}
         {activeTab === 'overview' && !loading && (
           <div className="space-y-8">
-            {/* Quick Stats */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
+            {/* Enhanced Quick Stats */}
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <motion.div 
+                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 group"
+                whileHover={{ y: -5, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Total Games</p>
-                    <p className="text-2xl font-bold text-gray-50">{steamData?.stats.total_games || 0}</p>
+                    <p className="text-gray-400 text-sm mb-1">Total Games</p>
+                    <motion.p 
+                      className="text-3xl font-bold text-gray-50"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1, type: "spring" }}
+                    >
+                      {gameStats?.totalGames || 0}
+                    </motion.p>
+                    <p className="text-xs text-gray-500 mt-1">Steam Library</p>
                   </div>
-                  <Gamepad2 className="w-8 h-8 text-blue-400" />
+                  <motion.div
+                    className="p-3 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors"
+                    whileHover={{ rotate: 15, scale: 1.1 }}
+                  >
+                    <Gamepad2 className="w-8 h-8 text-blue-400" />
+                  </motion.div>
                 </div>
-              </div>
+                <div className="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: "75%" }}
+                    transition={{ delay: 0.5, duration: 1 }}
+                  />
+                </div>
+              </motion.div>
 
-              <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
+              <motion.div 
+                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-green-500/50 transition-all duration-300 group"
+                whileHover={{ y: -5, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Total Playtime</p>
-                    <p className="text-2xl font-bold text-gray-50">
-                      {steamData ? formatPlaytime(steamData.stats.total_playtime) : '0h 0m'}
-                    </p>
+                    <p className="text-gray-400 text-sm mb-1">Total Playtime</p>
+                    <motion.p 
+                      className="text-3xl font-bold text-gray-50"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring" }}
+                    >
+                      {gameStats ? formatPlaytime(gameStats.totalPlaytime) : '0h 0m'}
+                    </motion.p>
+                    <p className="text-xs text-gray-500 mt-1">Across all games</p>
                   </div>
-                  <Clock className="w-8 h-8 text-green-400" />
+                  <motion.div
+                    className="p-3 bg-green-500/20 rounded-lg group-hover:bg-green-500/30 transition-colors"
+                    whileHover={{ rotate: 15, scale: 1.1 }}
+                  >
+                    <Clock className="w-8 h-8 text-green-400" />
+                  </motion.div>
                 </div>
-              </div>
+                <div className="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: "60%" }}
+                    transition={{ delay: 0.6, duration: 1 }}
+                  />
+                </div>
+              </motion.div>
 
-              <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
+              <motion.div 
+                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-yellow-500/50 transition-all duration-300 group"
+                whileHover={{ y: -5, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Faceit ELO</p>
-                    <p className="text-2xl font-bold text-gray-50">{faceitData?.cs2_stats?.faceit_elo || faceitData?.csgo_stats?.faceit_elo || 0}</p>
+                    <p className="text-gray-400 text-sm mb-1">Faceit ELO</p>
+                    <motion.p 
+                      className="text-3xl font-bold text-yellow-400"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.3, type: "spring" }}
+                    >
+                      {gameStats?.faceitElo || 0}
+                    </motion.p>
+                    <p className="text-xs text-gray-500 mt-1">Current rating</p>
                   </div>
-                  <Trophy className="w-8 h-8 text-yellow-400" />
+                  <motion.div
+                    className="p-3 bg-yellow-500/20 rounded-lg group-hover:bg-yellow-500/30 transition-colors"
+                    whileHover={{ rotate: 15, scale: 1.1 }}
+                  >
+                    <Trophy className="w-8 h-8 text-yellow-400" />
+                  </motion.div>
                 </div>
-              </div>
+                <div className="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: "85%" }}
+                    transition={{ delay: 0.7, duration: 1 }}
+                  />
+                </div>
+              </motion.div>
 
-              <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
+              <motion.div 
+                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-red-500/50 transition-all duration-300 group"
+                whileHover={{ y: -5, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400 text-sm">Win Rate</p>
-                    <p className={`text-2xl font-bold ${getWinRateColor(faceitData?.csgo_stats?.win_rate || 0)}`}>
-                      {faceitData?.csgo_stats?.win_rate || 0}%
-                    </p>
+                    <p className="text-gray-400 text-sm mb-1">Win Rate</p>
+                    <motion.p 
+                      className={`text-3xl font-bold ${getWinRateColor(gameStats?.winRate || 0)}`}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.4, type: "spring" }}
+                    >
+                      {gameStats?.winRate || 0}%
+                    </motion.p>
+                    <p className="text-xs text-gray-500 mt-1">Match success</p>
                   </div>
-                  <Target className="w-8 h-8 text-red-400" />
+                  <motion.div
+                    className="p-3 bg-red-500/20 rounded-lg group-hover:bg-red-500/30 transition-colors"
+                    whileHover={{ rotate: 15, scale: 1.1 }}
+                  >
+                    <Target className="w-8 h-8 text-red-400" />
+                  </motion.div>
                 </div>
-              </div>
+                <div className="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div 
+                      className={`h-full rounded-full ${
+                        (gameStats?.winRate || 0) >= 60 
+                          ? 'bg-gradient-to-r from-green-500 to-green-400'
+                          : (gameStats?.winRate || 0) >= 50
+                          ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
+                          : 'bg-gradient-to-r from-red-500 to-red-400'
+                      }`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${gameStats?.winRate || 0}%` }}
+                      transition={{ delay: 0.8, duration: 1 }}
+                    />
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* Recent Activity */}
@@ -497,6 +1099,675 @@ export default function GameStats() {
                     <span className="text-gray-50 font-bold">{faceitData?.csgo_stats.avg_hs || 0}%</span>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Charts Tab */}
+        {activeTab === 'charts' && !loading && (
+          <div className="space-y-8">
+            {/* Playtime Trends */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-50 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-blue-400" />
+                  Gaming Activity Trends
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                  <span>Last 30 days</span>
+                </div>
+              </div>
+              
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={[
+                    { day: '1', playtime: 2.5, matches: 8 },
+                    { day: '2', playtime: 1.8, matches: 6 },
+                    { day: '3', playtime: 3.2, matches: 12 },
+                    { day: '4', playtime: 2.1, matches: 7 },
+                    { day: '5', playtime: 4.5, matches: 15 },
+                    { day: '6', playtime: 3.8, matches: 11 },
+                    { day: '7', playtime: 2.9, matches: 9 },
+                    { day: '8', playtime: 1.5, matches: 5 },
+                    { day: '9', playtime: 3.6, matches: 13 },
+                    { day: '10', playtime: 2.7, matches: 10 },
+                    { day: '11', playtime: 4.1, matches: 14 },
+                    { day: '12', playtime: 3.3, matches: 12 },
+                    { day: '13', playtime: 2.8, matches: 8 },
+                    { day: '14', playtime: 1.9, matches: 6 },
+                    { day: '15', playtime: 3.7, matches: 11 }
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis dataKey="day" stroke="#9ca3af" />
+                    <YAxis stroke="#9ca3af" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1f2937', 
+                        border: '1px solid #374151',
+                        borderRadius: '8px',
+                        color: '#f9fafb'
+                      }} 
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="playtime" 
+                      stackId="1" 
+                      stroke="#3b82f6" 
+                      fill="url(#playtimeGradient)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <defs>
+                <linearGradient id="playtimeGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+            </motion.div>
+
+            {/* Game Distribution */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+                  <PieChart className="w-5 h-5 text-purple-400" />
+                  Game Time Distribution
+                </h3>
+                
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={[
+                          { name: 'CS2', value: 1742, color: '#ef4444' },
+                          { name: 'Dota 2', value: 1111, color: '#3b82f6' },
+                          { name: 'Other', value: 11, color: '#6b7280' }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {[
+                          { name: 'CS2', value: 1742, color: '#ef4444' },
+                          { name: 'Dota 2', value: 1111, color: '#3b82f6' },
+                          { name: 'Other', value: 11, color: '#6b7280' }
+                        ].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#1f2937', 
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          color: '#f9fafb'
+                        }} 
+                      />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                <div className="flex justify-center gap-6 mt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="text-sm text-gray-300">CS2 (60.8%)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm text-gray-300">Dota 2 (38.8%)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                    <span className="text-sm text-gray-300">Other (0.4%)</span>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-green-400" />
+                  Performance Metrics
+                </h3>
+                
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[
+                      { metric: 'K/D', value: 1.34, color: '#ef4444' },
+                      { metric: 'HS%', value: 45.2, color: '#3b82f6' },
+                      { metric: 'Win%', value: 63.1, color: '#10b981' },
+                      { metric: 'Rating', value: 1.2, color: '#f59e0b' }
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="metric" stroke="#9ca3af" />
+                      <YAxis stroke="#9ca3af" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#1f2937', 
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          color: '#f9fafb'
+                        }} 
+                      />
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                        {[
+                          { metric: 'K/D', value: 1.34, color: '#ef4444' },
+                          { metric: 'HS%', value: 45.2, color: '#3b82f6' },
+                          { metric: 'Win%', value: 63.1, color: '#10b981' },
+                          { metric: 'Rating', value: 1.2, color: '#f59e0b' }
+                        ].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Recent Match Results */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+              <h3 className="text-xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-yellow-400" />
+                Recent Match Results Trend
+              </h3>
+              
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={[
+                    { match: 1, elo: 2100, result: 'W' },
+                    { match: 2, elo: 2125, result: 'W' },
+                    { match: 3, elo: 2090, result: 'L' },
+                    { match: 4, elo: 2115, result: 'W' },
+                    { match: 5, elo: 2085, result: 'L' },
+                    { match: 6, elo: 2105, result: 'W' },
+                    { match: 7, elo: 2130, result: 'W' },
+                    { match: 8, elo: 2139, result: 'W' }
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis dataKey="match" stroke="#9ca3af" />
+                    <YAxis stroke="#9ca3af" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1f2937', 
+                        border: '1px solid #374151',
+                        borderRadius: '8px',
+                        color: '#f9fafb'
+                      }} 
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="elo" 
+                      stroke="#f59e0b" 
+                      strokeWidth={3}
+                      dot={{ fill: '#f59e0b', strokeWidth: 2, r: 6 }}
+                      activeDot={{ r: 8, stroke: '#f59e0b', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Friends Tab */}
+        {activeTab === 'friends' && !loading && (
+          <div className="space-y-8">
+            {/* Friends Comparison */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-50 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-400" />
+                  Friends Comparison
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span>4 friends online</span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {mockFriendsData.friends.map((friend, index) => (
+                  <motion.div 
+                    key={friend.id}
+                    className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-4 border border-gray-600 hover:border-blue-500/50 transition-all duration-300"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ y: -3, scale: 1.02 }}
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="relative">
+                        <img
+                          src={friend.avatar}
+                          alt={friend.name}
+                          className="w-12 h-12 rounded-full border-2 border-gray-600"
+                        />
+                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-gray-800 ${
+                          friend.isOnline ? 'bg-green-400' : 'bg-gray-500'
+                        }`} />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-gray-50 font-semibold">
+                            {friend.name}
+                            {friend.name === 'Ayubi' && (
+                              <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full ml-2">
+                                You
+                              </span>
+                            )}
+                          </h4>
+                          <span className="text-xs bg-gray-600 text-gray-300 px-2 py-0.5 rounded-full">
+                            #{friend.rank}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                          <span>Level {friend.level}</span>
+                          <span>•</span>
+                          <span>{friend.elo} ELO</span>
+                          {friend.currentGame && (
+                            <>
+                              <span>•</span>
+                              <span className="text-green-400">Playing {friend.currentGame}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-yellow-400">{friend.elo}</div>
+                        <div className="text-xs text-gray-400">ELO</div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-lg font-bold text-gray-50">{friend.winRate}%</div>
+                        <div className="text-xs text-gray-400">Win Rate</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-50">{friend.kd}</div>
+                        <div className="text-xs text-gray-400">K/D</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-50">{friend.hs}%</div>
+                        <div className="text-xs text-gray-400">HS%</div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Leaderboards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Global Leaderboard */}
+              <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-yellow-400" />
+                  Global Leaderboard
+                </h3>
+                
+                <div className="space-y-3">
+                  {mockFriendsData.leaderboard.global.map((player, index) => (
+                    <motion.div 
+                      key={player.rank}
+                      className={`flex items-center gap-4 p-3 rounded-lg transition-all duration-200 ${
+                        player.name === 'Ayubi' 
+                          ? 'bg-blue-500/20 border border-blue-500/30' 
+                          : 'bg-gray-800/50 hover:bg-gray-800'
+                      }`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-sm font-bold">
+                        {player.rank <= 3 ? (
+                          <span className={player.rank === 1 ? 'text-yellow-400' : player.rank === 2 ? 'text-gray-300' : 'text-orange-400'}>
+                            {player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : '🥉'}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">#{player.rank}</span>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-50 font-medium">{player.name}</span>
+                          <span className="text-lg">{player.country}</span>
+                          {player.name === 'Ayubi' && (
+                            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
+                              You
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-400">Level {player.level}</div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-yellow-400">{player.elo}</div>
+                        <div className="text-xs text-gray-400">ELO</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Friends Leaderboard */}
+              <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+                  <Crown className="w-5 h-5 text-purple-400" />
+                  Friends Ranking
+                </h3>
+                
+                <div className="space-y-3">
+                  {mockFriendsData.leaderboard.friends.map((player, index) => (
+                    <motion.div 
+                      key={player.rank}
+                      className={`flex items-center gap-4 p-3 rounded-lg transition-all duration-200 ${
+                        player.isYou 
+                          ? 'bg-purple-500/20 border border-purple-500/30' 
+                          : 'bg-gray-800/50 hover:bg-gray-800'
+                      }`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-sm font-bold">
+                        {player.rank <= 3 ? (
+                          <span className={player.rank === 1 ? 'text-yellow-400' : player.rank === 2 ? 'text-gray-300' : 'text-orange-400'}>
+                            {player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : '🥉'}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">#{player.rank}</span>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-50 font-medium">{player.name}</span>
+                          {player.isYou && (
+                            <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">
+                              You
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {player.rank === 1 ? 'Top Friend' : `${player.rank} of 4 friends`}
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-yellow-400">{player.elo}</div>
+                        <div className="text-xs text-gray-400">ELO</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                
+                {/* Progress to next friend */}
+                <div className="mt-6 p-4 bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-300">Progress to #3</span>
+                    <span className="text-sm text-gray-400">61 ELO to go</span>
+                  </div>
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: "35%" }}
+                      transition={{ delay: 1, duration: 1 }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        )}
+
+        {/* All Games Tab */}
+        {activeTab === 'games' && !loading && (
+          <div className="space-y-8">
+            {/* Game Selection */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+              <h3 className="text-xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+                <Star className="w-5 h-5 text-purple-400" />
+                Multi-Game Dashboard
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Valorant */}
+                <motion.div 
+                  className="bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-xl p-6 border border-red-700/50 hover:border-red-500/70 transition-all duration-300"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-2xl">🎯</span>
+                    </div>
+                    <div>
+                      <h4 className="text-gray-50 font-semibold">Valorant</h4>
+                      <p className="text-gray-400 text-sm">{mockMultiGameData.valorant.rank}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">Win Rate</span>
+                      <span className="text-gray-50 font-medium">{mockMultiGameData.valorant.stats.winRate}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">K/D</span>
+                      <span className="text-gray-50 font-medium">{mockMultiGameData.valorant.stats.kd}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">RR</span>
+                      <span className="text-red-400 font-bold">{mockMultiGameData.valorant.rr}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: "85%" }}
+                      transition={{ delay: 0.5, duration: 1 }}
+                    />
+                  </div>
+                </motion.div>
+
+                {/* League of Legends */}
+                <motion.div 
+                  className="bg-gradient-to-br from-blue-900/20 to-blue-800/20 rounded-xl p-6 border border-blue-700/50 hover:border-blue-500/70 transition-all duration-300"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-2xl">⚔️</span>
+                    </div>
+                    <div>
+                      <h4 className="text-gray-50 font-semibold">League of Legends</h4>
+                      <p className="text-gray-400 text-sm">{mockMultiGameData.lol.rank}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">Win Rate</span>
+                      <span className="text-gray-50 font-medium">{mockMultiGameData.lol.stats.winRate}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">KDA</span>
+                      <span className="text-gray-50 font-medium">{mockMultiGameData.lol.stats.kda}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">LP</span>
+                      <span className="text-blue-400 font-bold">{mockMultiGameData.lol.lp}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: "67%" }}
+                      transition={{ delay: 0.7, duration: 1 }}
+                    />
+                  </div>
+                </motion.div>
+
+                {/* Apex Legends */}
+                <motion.div 
+                  className="bg-gradient-to-br from-orange-900/20 to-orange-800/20 rounded-xl p-6 border border-orange-700/50 hover:border-orange-500/70 transition-all duration-300"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-2xl">🔥</span>
+                    </div>
+                    <div>
+                      <h4 className="text-gray-50 font-semibold">Apex Legends</h4>
+                      <p className="text-gray-400 text-sm">{mockMultiGameData.apex.rank}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">Wins</span>
+                      <span className="text-gray-50 font-medium">{mockMultiGameData.apex.stats.wins}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">K/D</span>
+                      <span className="text-gray-50 font-medium">{mockMultiGameData.apex.stats.kd}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 text-sm">RP</span>
+                      <span className="text-orange-400 font-bold">{mockMultiGameData.apex.rp}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: "68%" }}
+                      transition={{ delay: 0.9, duration: 1 }}
+                    />
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Recent Matches Across Games */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+              <h3 className="text-xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-green-400" />
+                Recent Activity Across Games
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Valorant Match */}
+                <motion.div 
+                  className="bg-gradient-to-r from-red-900/10 to-red-800/10 rounded-lg p-4 border border-red-700/30"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                        <span className="text-sm">🎯</span>
+                      </div>
+                      <div>
+                        <div className="text-gray-50 font-medium">Valorant - Bind</div>
+                        <div className="text-gray-400 text-sm">Won 13-8 • K/D: 18/12/4</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-green-400 font-bold">+18 RR</div>
+                      <div className="text-gray-400 text-sm">2 hours ago</div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* League Match */}
+                <motion.div 
+                  className="bg-gradient-to-r from-blue-900/10 to-blue-800/10 rounded-lg p-4 border border-blue-700/30"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <span className="text-sm">⚔️</span>
+                      </div>
+                      <div>
+                        <div className="text-gray-50 font-medium">League - Yasuo</div>
+                        <div className="text-gray-400 text-sm">Won • KDA: 12/3/8 • CS: 208</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-green-400 font-bold">+24 LP</div>
+                      <div className="text-gray-400 text-sm">4 hours ago</div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Apex Match */}
+                <motion.div 
+                  className="bg-gradient-to-r from-orange-900/10 to-orange-800/10 rounded-lg p-4 border border-orange-700/30"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <span className="text-sm">🔥</span>
+                      </div>
+                      <div>
+                        <div className="text-gray-50 font-medium">Apex - Wraith</div>
+                        <div className="text-gray-400 text-sm">Victory • 8 Kills • 1,847 Damage</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-green-400 font-bold">#1 Victory</div>
+                      <div className="text-gray-400 text-sm">6 hours ago</div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* CS2 Match */}
+                <motion.div 
+                  className="bg-gradient-to-r from-gray-900/10 to-gray-800/10 rounded-lg p-4 border border-gray-700/30"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gray-500/20 rounded-lg flex items-center justify-center">
+                        <span className="text-sm">🔫</span>
+                      </div>
+                      <div>
+                        <div className="text-gray-50 font-medium">CS2 - Mirage</div>
+                        <div className="text-gray-400 text-sm">Won 16-12 • K/D: 24/18/6</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-green-400 font-bold">+25 ELO</div>
+                      <div className="text-gray-400 text-sm">8 hours ago</div>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
           </div>
@@ -603,7 +1874,7 @@ export default function GameStats() {
             </motion.div>
 
             {/* Stats Grid */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
                 <div className="flex items-center justify-between">
                   <div>
@@ -667,20 +1938,131 @@ export default function GameStats() {
               </div>
             </motion.div>
 
-            {/* Achievements */}
-            <motion.div variants={itemVariants} className="bg-gray-900 rounded-lg p-6 border border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-50 mb-4 flex items-center">
-                <Medal className="w-5 h-5 mr-2 text-yellow-400" />
-                Achievements
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Enhanced Achievements */}
+            <motion.div variants={itemVariants} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-50 flex items-center gap-2">
+                  <Medal className="w-5 h-5 text-yellow-400" />
+                  Achievements & Badges
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <Star className="w-4 h-4 text-yellow-400" />
+                  <span>{achievementStats.unlocked} of {achievementStats.total} unlocked</span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* All Achievements */}
                 {faceitData.achievements.map((achievement, index) => (
-                  <div key={index} className="bg-gray-800 rounded-lg p-4">
-                    <div className="text-2xl mb-2">{achievement.icon}</div>
-                    <h4 className="text-gray-50 font-medium">{achievement.name}</h4>
-                    <p className="text-gray-400 text-sm">{achievement.description}</p>
-                  </div>
+                  <motion.div 
+                    key={index} 
+                    className={`bg-gradient-to-br rounded-xl p-4 border transition-all duration-300 group relative overflow-hidden ${
+                      achievement.unlocked 
+                        ? `from-gray-800 to-gray-700 border-gray-600 hover:border-yellow-500/50` 
+                        : `from-gray-800/50 to-gray-700/50 border-gray-700 opacity-75`
+                    }`}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: achievement.unlocked ? 1 : 0.75, scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                  >
+                    {/* Rarity Glow Effect */}
+                    {achievement.rarity === 'Legendary' && (
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-xl"
+                        animate={{ opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                      />
+                    )}
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-3 mb-3">
+                        <motion.div 
+                          className={`text-3xl ${achievement.unlocked ? '' : 'grayscale opacity-50'}`}
+                          whileHover={{ rotate: 15, scale: 1.2 }}
+                        >
+                          {achievement.icon}
+                        </motion.div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className={`font-semibold text-sm ${
+                              achievement.unlocked ? 'text-gray-50' : 'text-gray-400'
+                            }`}>
+                              {achievement.name}
+                            </h4>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${getRarityColor(achievement.rarity)}`}>
+                              {achievement.rarity}
+                            </span>
+                          </div>
+                          <p className={`text-xs ${
+                            achievement.unlocked ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
+                            {achievement.description}
+                          </p>
+                          {!achievement.unlocked && achievement.requirement && (
+                            <p className="text-xs text-blue-400 mt-1">
+                              {achievement.requirement}
+                            </p>
+                          )}
+                        </div>
+                        <motion.div
+                          className={`p-1 rounded-full ${
+                            achievement.unlocked 
+                              ? 'bg-yellow-500/20' 
+                              : 'bg-gray-600'
+                          }`}
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          {achievement.unlocked ? (
+                            <CheckCircle className="w-4 h-4 text-yellow-400" />
+                          ) : (
+                            <Star className="w-4 h-4 text-gray-500" />
+                          )}
+                        </motion.div>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="h-2 bg-gray-700 rounded-full overflow-hidden mb-2">
+                        <motion.div 
+                          className={`h-full bg-gradient-to-r ${getRarityGradient(achievement.rarity)} rounded-full`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${achievement.progress}%` }}
+                          transition={{ delay: 0.5 + index * 0.1, duration: 0.8 }}
+                        />
+                      </div>
+                      
+                      {/* XP and Category */}
+                      <div className="flex items-center justify-between text-xs">
+                        <span className={`${
+                          achievement.unlocked ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          {achievement.category}
+                        </span>
+                        <span className={`font-bold ${
+                          achievement.unlocked ? 'text-yellow-400' : 'text-gray-500'
+                        }`}>
+                          +{achievement.xp} XP
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
                 ))}
+              </div>
+              
+              {/* Achievement Progress */}
+              <div className="mt-6 p-4 bg-gray-800/50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-300">Overall Progress</span>
+                  <span className="text-sm text-gray-400">{achievementStats.progress}%</span>
+                </div>
+                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${achievementStats.progress}%` }}
+                    transition={{ delay: 1, duration: 1 }}
+                  />
+                </div>
               </div>
             </motion.div>
           </div>

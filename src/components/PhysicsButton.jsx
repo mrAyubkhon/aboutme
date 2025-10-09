@@ -12,7 +12,7 @@ export default function PhysicsButton({
   size = 'md',
   disabled = false,
   icon: Icon,
-  sound = true,
+  sound = false,
   ...props
 }) {
   const [isPressed, setIsPressed] = useState(false);

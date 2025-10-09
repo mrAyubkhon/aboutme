@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Map, Globe, List, MapPinned, Globe2 } from 'lucide-react';
+import { Map, Globe, List, Globe2 } from 'lucide-react';
 import TravelWishlist from '../components/TravelWishlist';
 import TravelMap from '../components/travel/TravelMap';
-import InteractiveWorldMap from '../components/travel/InteractiveWorldMap';
 import RealWorldMap from '../components/travel/RealWorldMap';
 import PhysicsButton from '../components/PhysicsButton';
 
@@ -54,15 +53,6 @@ export default function Travel() {
                 Cards
               </PhysicsButton>
               <PhysicsButton
-                onClick={() => setActiveTab('world')}
-                icon={MapPinned}
-                variant={activeTab === 'world' ? 'primary' : 'ghost'}
-                size="sm"
-                className="hover:shadow-blue-500/25 hover:shadow-lg transition-all duration-300"
-              >
-                Regions
-              </PhysicsButton>
-              <PhysicsButton
                 onClick={() => setActiveTab('globe')}
                 icon={Globe2}
                 variant={activeTab === 'globe' ? 'primary' : 'ghost'}
@@ -84,7 +74,6 @@ export default function Travel() {
         >
           {activeTab === 'wishlist' && <TravelWishlist />}
           {activeTab === 'map' && <TravelMap />}
-          {activeTab === 'world' && <InteractiveWorldMap />}
           {activeTab === 'globe' && <RealWorldMap />}
         </motion.div>
       </div>

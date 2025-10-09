@@ -63,27 +63,9 @@ export default function Finance() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Sound effect for successful submission
+    // Sound effect disabled
     const playSound = () => {
-      try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
-        
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
-      } catch (error) {
-        // Fallback: no sound if audio context not supported
-      }
+      return;
     };
     
     if (formData.amount && formData.category && Number(formData.amount) > 0) {
