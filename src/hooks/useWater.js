@@ -1,4 +1,5 @@
 import { useLocalStorage } from './useLocalStorage';
+import { safePercentage, safeMin, safeNumber } from '../utils/safeMath';
 import { WATER_GOALS } from '../data/constants';
 
 /**
@@ -44,7 +45,9 @@ export function useWater() {
   // Calculate progress percentage
   const getProgress = () => {
     resetIfNewDay();
-    return Math.min((waterData.current / waterData.goal) * 100, 100);
+    const safeCurrent = safeNumber(waterData.current, 0);
+    const safeGoal = safeNumber(waterData.goal, 2500);
+    return safeMin(safePercentage(safeCurrent, safeGoal), 100);
   };
   
   // Get remaining water needed

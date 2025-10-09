@@ -58,13 +58,13 @@ export default function Home() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   
   const todayTotals = getTodayTotals();
-  const habitCompletion = getCompletionRate();
-  const waterProgress = getProgress();
-  const remainingBudget = getRemainingBudget();
+  const habitCompletion = getCompletionRate() || 0;
+  const waterProgress = getProgress() || 0;
+  const remainingBudget = getRemainingBudget() || 0;
   const recentEntries = getRecentEntries(3);
 
   // Recalculate water progress when waterData changes
-  const currentWaterProgress = waterData.goal > 0 ? Math.min((waterData.current / waterData.goal) * 100, 100) : 0;
+  const currentWaterProgress = waterData.goal > 0 ? Math.min(Math.round((waterData.current / waterData.goal) * 100), 100) : 0;
 
   // Force re-render when water data changes
   const [, forceUpdate] = useState({});

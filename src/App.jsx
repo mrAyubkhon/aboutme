@@ -23,7 +23,12 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
         <div className="min-h-screen bg-gray-950 transition-all duration-500 ease-in-out">
           <Navbar />
           <CommandPalette />

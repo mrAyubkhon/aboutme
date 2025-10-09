@@ -17,7 +17,10 @@ export default function EnhancedProgressBar({
   className = '',
   ...props
 }) {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+  // Ensure value and max are valid numbers
+  const safeValue = isNaN(value) ? 0 : Number(value);
+  const safeMax = isNaN(max) || max <= 0 ? 100 : Number(max);
+  const percentage = Math.min(Math.max((safeValue / safeMax) * 100, 0), 100);
 
   const sizeClasses = {
     sm: 'h-2',
@@ -94,7 +97,10 @@ export function CircularProgress({
   className = '',
   ...props
 }) {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+  // Ensure value and max are valid numbers
+  const safeValue = isNaN(value) ? 0 : Number(value);
+  const safeMax = isNaN(max) || max <= 0 ? 100 : Number(max);
+  const percentage = Math.min(Math.max((safeValue / safeMax) * 100, 0), 100);
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;

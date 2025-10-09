@@ -1,4 +1,5 @@
 import { useLocalStorage } from './useLocalStorage';
+import { safePercentage, safeRound, safeArray } from '../utils/safeMath';
 
 /**
  * Custom hook for managing habits
@@ -6,6 +7,9 @@ import { useLocalStorage } from './useLocalStorage';
  */
 export function useHabits() {
   const [habits, setHabits] = useLocalStorage('ayubi_habits', []);
+  
+  // Ensure habits is always an array
+  const safeHabits = safeArray(habits, []);
   
   // Add a new habit
   const addHabit = (name, description = '', icon = '🎯', color = 'blue', category = 'personal') => {
@@ -43,18 +47,18 @@ export function useHabits() {
   
   // Calculate completion percentage
   const getCompletionRate = () => {
-    if (habits.length === 0) return 0;
-    const completed = habits.filter(h => h.completed).length;
-    return Math.round((completed / habits.length) * 100);
+    if (safeHabits.length === 0) return 0;
+    const completed = safeHabits.filter(h => h && h.completed).length;
+    return safeRound(safePercentage(completed, safeHabits.length), 0);
   };
   
   // Get completed count
   const getCompletedCount = () => {
-    return habits.filter(h => h.completed).length;
+    return safeHabits.filter(h => h && h.completed).length;
   };
   
   return {
-    habits,
+    habits: safeHabits,
     addHabit,
     toggleHabit,
     deleteHabit,
